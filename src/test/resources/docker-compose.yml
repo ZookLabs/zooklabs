@@ -1,0 +1,10 @@
+version: '3'
+services:
+  postgres-development:
+    image: postgres:11.6
+    environment:
+      POSTGRES_USER: Bernard
+      POSTGRES_PASSWORD: Nosey
+      POSTGRES_DB: zooklabs
+    ports:
+      - "5432:5432"

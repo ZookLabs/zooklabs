@@ -1,0 +1,40 @@
+package zooklabs.conf
+
+import java.net.URI
+
+import cats.implicits._
+import ciris.refined._
+import ciris.{ConfigDecoder, Secret}
+import eu.timepit.refined.auto._
+import eu.timepit.refined.cats._
+import eu.timepit.refined.types.string.NonEmptyString
+
+import scala.util.Try
+
+sealed abstract case class DatabaseConfig(host: NonEmptyString,
+                                          user: NonEmptyString,
+                                          password: Secret[NonEmptyString])
+
+//super naive but works
+object DatabaseConfig {
+  def apply(uri: Secret[NonEmptyString]): Option[DatabaseConfig] = {
+    Try(URI.create(uri.value)).toOption.flatMap { uri =>
+      (
+        NonEmptyString
+          .from(s"jdbc:postgresql://${uri.getHost}${uri.getPath}"),
+        NonEmptyString.from(uri.getUserInfo.split(":")(0)),
+        NonEmptyString.from(uri.getUserInfo.split(":")(1))
+      ).mapN {
+        case (host, user, password) =>
+          new DatabaseConfig(
+            host = host,
+            user = user,
+            password = Secret(password)
+          ) {}
+      }.toOption
+    }
+  }
+
+  implicit val posIntConfigDecoder: ConfigDecoder[Secret[NonEmptyString], DatabaseConfig] =
+    ConfigDecoder.identity[Secret[NonEmptyString]].mapOption("PosInt")(apply)
+}
