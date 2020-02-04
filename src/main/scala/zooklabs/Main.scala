@@ -5,6 +5,7 @@ import cats.syntax.all._
 import doobie.hikari._
 import doobie.util.ExecutionContexts
 import eu.timepit.refined.auto.autoUnwrap
+import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.implicits._
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware._
@@ -13,7 +14,7 @@ import zooklabs.conf.Config
 import zooklabs.db.Database
 import zooklabs.endpoints.{LeaguesEndpoints, ZookEndpoints}
 
-import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.global
 
 object Main extends IOApp {
 
@@ -37,20 +38,16 @@ object Main extends IOApp {
       zookRepo  = repository.ZookRepository(xa)
       trialRepo = repository.TrialRepository(xa)
 
+      client <- BlazeClientBuilder[IO](global).resource
+
       httpApp = Router(
-        "/api/zook"   -> ZookEndpoints(zookRepo).endpoints,
+        "/api/zook"   -> ZookEndpoints(conf.persistenceConfig, conf.discordWebhook, zookRepo, client).endpoints,
         "/api/league" -> LeaguesEndpoints(trialRepo).endpoints
       ).orNotFound
 
       httpAppMiddleWare = CORS(
         httpApp,
-        CORSConfig(
-          anyOrigin = true,
-          anyMethod = false,
-          allowedMethods = Some(Set("GET", "POST")),
-          allowCredentials = true,
-          maxAge = 1.day.toSeconds
-        )
+        CORS.DefaultCORSConfig
       )
 
       server <- BlazeServerBuilder[IO]

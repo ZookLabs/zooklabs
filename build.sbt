@@ -1,4 +1,4 @@
-val Http4sVersion = "0.21.0-M6"
+val Http4sVersion = "0.21.0-RC2"
 val DoobieVersion = "0.8.6"
 val CirceVersion = "0.12.2"
 val Specs2Version = "4.1.0"
@@ -43,6 +43,7 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-core" % "0.11.1",
       "io.circe" %% "circe-generic" % "0.11.1",
       "io.circe" %% "circe-parser" % "0.11.1",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
        "com.google.cloud" % "google-cloud-nio" % "0.120.0-alpha",
       "com.zooklabs" %% "zookcore" % "1.0.0"
     )
@@ -58,4 +59,4 @@ scalacOptions ++= Seq(
   "-Xfatal-warnings",
 )
 
-lazy val zookcore-stub = project.in(file("zookcore-stub"))
+lazy val zookcoreStub = project.in(file("zookcore-stub"))

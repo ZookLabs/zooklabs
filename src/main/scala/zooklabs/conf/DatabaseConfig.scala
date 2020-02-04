@@ -35,6 +35,6 @@ object DatabaseConfig {
     }
   }
 
-  implicit val posIntConfigDecoder: ConfigDecoder[Secret[NonEmptyString], DatabaseConfig] =
-    ConfigDecoder.identity[Secret[NonEmptyString]].mapOption("PosInt")(apply)
+  implicit val databaseConfigDecoder: ConfigDecoder[Secret[NonEmptyString], DatabaseConfig] =
+    ConfigDecoder.identity[Secret[NonEmptyString]].mapOption("Database")(apply)
 }
