@@ -12,6 +12,7 @@ import eu.timepit.refined.cats._
 import eu.timepit.refined.string.Url
 import eu.timepit.refined.types.net.UserPortNumber
 import eu.timepit.refined.types.string.NonEmptyString
+import org.http4s.server.defaults
 import zooklabs.conf.PersistenceConfig.nonEmptyStringPathConfigDecoder
 
 object Config {
@@ -32,10 +33,12 @@ object Config {
 
   val config: ConfigValue[AppConfig] =
     (env("PORT").as[UserPortNumber].default(8080),
+     env("HOST").as[String].default(defaults.Host),
      databaseConfig,
      persistenceConfig,
-     env("DISCORDWEBHOOK")
-       .default("")
+     env("DISCORD_WEBHOOK")
+       .default(
+         "https://discordapp.com/api/webhooks/678034781069377537/lwBF1yc_ZqRppSdU1zfrMm1YYSpomQ9LIJwwRM_rXek0IJ-lGYhcfnXN_Vl-AuC1wnql")
        .as[String Refined Url])
       .parMapN(AppConfig)
 

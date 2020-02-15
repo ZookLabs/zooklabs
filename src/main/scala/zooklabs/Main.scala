@@ -45,14 +45,14 @@ object Main extends IOApp {
         "/api/league" -> LeaguesEndpoints(trialRepo).endpoints
       ).orNotFound
 
-      httpAppMiddleWare = CORS(
+      corsHttpApp = CORS(
         httpApp,
         CORS.DefaultCORSConfig
       )
 
       server <- BlazeServerBuilder[IO]
-                 .bindHttp(port = conf.apiPort)
-                 .withHttpApp(httpAppMiddleWare)
+                 .bindHttp(conf.post, conf.host)
+                 .withHttpApp(corsHttpApp)
                  .resource
     } yield server
   }

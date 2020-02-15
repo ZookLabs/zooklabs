@@ -15,9 +15,10 @@ import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.client.dsl.io._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.multipart.Multipart
+import org.http4s.headers.`Content-Type`
+import org.http4s.multipart.{Multipart, Part}
 import zooklabs.conf.PersistenceConfig
-import zooklabs.endpoints.discord.{DiscordError, DiscordWebhook}
+import zooklabs.endpoints.discord.{DiscordError, DiscordWebhook, Thumbnail}
 import zooklabs.model.Zook
 import zooklabs.repository.ZookRepository
 
@@ -55,6 +56,8 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
   val ZOOKEXT = s".$ZOOK"
   val IMAGE   = "image.png"
 
+  import io.circe.syntax._
+
   val uploadZookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
     case req @ POST -> Root / "upload" =>
       if (req.contentLength.exists(_ > 100000)) {
@@ -65,7 +68,7 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
             zookPart <- EitherT.fromEither[IO](
                          e.parts
                            .find(_.name.contains(ZOOK))
-                           .toRight(APIError("bruh.mp3"))
+                           .toRight(APIError("no zook form field"))
                        )
             _ <- EitherT.fromEither[IO](
                   zookPart.filename
@@ -101,11 +104,34 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
                       APIError("Problem Write Zook Image")
                     }))
                 )
+
+            multipart = Multipart[IO](
+              Vector(
+                Part.formData(
+                  "payload_json",
+                  DiscordWebhook(
+                    username = "ZookLabs",
+                    content = s"Uploaded Zook - name : ${zook.name}",
+                    embeds = List(
+                      discord.Embeds(title = zook.name,
+                                     url = s"https://zooklabs.com/zook/$id",
+                                     color = 16725286,
+                                     thumbnail = Thumbnail("attachment://image.png")))
+                  ).asJson.toString
+                ),
+                Part.fileData("file",
+                              "image.png",
+                              fs2.Stream.emits(zook.image.imageBytes),
+                              `Content-Type`(MediaType.image.png))
+              ))
+
             _ <- EitherT(
                   httpClient.fetch(
-                    POST(DiscordWebhook("ZookLabs", s"Uploaded Zook - name : ${zook.name}"),
-                         Uri.unsafeFromString(discordWebhook.toString))) {
-                    case NoContent(_) => IO.pure(Unit.asRight[APIError])
+                    POST(
+                      multipart,
+                      Uri.unsafeFromString(discordWebhook.toString)
+                    ).map(_.withHeaders(multipart.headers))) {
+                    case Ok(_) => IO.pure(Unit.asRight[APIError])
                     case resp =>
                       resp
                         .decodeJson[DiscordError]

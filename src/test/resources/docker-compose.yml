@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   postgres-development:
     image: postgres:11.6
@@ -8,3 +8,11 @@ services:
       POSTGRES_DB: zooklabs
     ports:
       - "5432:5432"
+  zooklabs:
+    image: registry.heroku.com/zooklabs/web:latest
+    environment:
+      DATABASE_URL : "postgres://Bernard:Nosey@postgres-development:5432/zooklabs"
+    depends_on:
+      - postgres-development
+    ports:
+      - "8080:8080"
