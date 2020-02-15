@@ -34,9 +34,7 @@ jobs:
         with:
           args: container:login
       - name: login docker
-        run: docker login --username=_ --password=$(HEROKU_API_KEY) registry.heroku.com
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: docker login --username=_ --password=${{ secrets.HEROKU_API_KEY }} registry.heroku.com
       - name: build
         run: sbt docker:publish
       - name: Trigger release in Heroku
