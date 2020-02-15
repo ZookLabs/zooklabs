@@ -12,7 +12,7 @@ import org.http4s.server.middleware._
 import org.http4s.server.{Router, Server}
 import zooklabs.conf.Config
 import zooklabs.db.Database
-import zooklabs.endpoints.{LeaguesEndpoints, ZookEndpoints}
+import zooklabs.endpoints.{HealthEndpoint, LeaguesEndpoints, ZookEndpoints}
 
 import scala.concurrent.ExecutionContext.global
 
@@ -41,6 +41,7 @@ object Main extends IOApp {
       client <- BlazeClientBuilder[IO](global).resource
 
       httpApp = Router(
+        "/health"     -> HealthEndpoint.endpoint,
         "/api/zook"   -> ZookEndpoints(conf.persistenceConfig, conf.discordWebhook, zookRepo, client).endpoints,
         "/api/league" -> LeaguesEndpoints(trialRepo).endpoints
       ).orNotFound
