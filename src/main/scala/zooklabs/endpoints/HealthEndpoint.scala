@@ -8,7 +8,7 @@ object HealthEndpoint extends Http4sDsl[IO] {
   val endpoint: HttpRoutes[IO] = {
     HttpRoutes
       .of[IO] {
-        case GET -> Root => Ok()
+        case GET -> Root => Ok("hello")
       }
   }
 }
