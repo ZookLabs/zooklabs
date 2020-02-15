@@ -26,23 +26,23 @@ jobs:
           key: ${{ hashFiles('build.sbt') }}
       - name: buildZookCore
         run: sbt zookcoreStub/publishLocal
-      - name: login
-        uses: actions/heroku@master
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          HEROKU_APP: ${{ secrets.HEROKU_APP }}
-        with:
-          args: login
-      - name: container login
+      - name: build
+        run: sbt docker:publishLocal
+      - name: Login into Heroku
         uses: actions/heroku@master
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           HEROKU_APP: ${{ secrets.HEROKU_APP }}
         with:
           args: container:login
-      - name: build
-        run: sbt docker:publish
-      - name: release
+      - name: Push to Heroku
+        uses: actions/heroku@master
+        with:
+          args: container:push web
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_APP: ${{ secrets.HEROKU_APP }}
+      - name: Trigger release in Heroku
         uses: actions/heroku@master
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
