@@ -1,4 +1,4 @@
-import com.typesafe.sbt.packager.docker.Cmd
+import com.typesafe.sbt.packager.docker.{Cmd, DockerVersion}
 
 val Http4sVersion = "0.21.0"
 val DoobieVersion = "0.8.6"
@@ -20,6 +20,7 @@ lazy val root = (project in file("."))
     dockerExposedPorts += 8080,
     dockerAlias := DockerAlias(Some("registry.heroku.com"), Some("zooklabstest"), "web", None),
     dockerCommands += Cmd("ENV", "HOST=\"0.0.0.0\""),
+    dockerVersion := Some(DockerVersion(18, 9, 0, Some("ce"))),
     libraryDependencies ++= Seq(
       "org.http4s" %% "http4s-core" % Http4sVersion,
       "org.http4s" %% "http4s-server" % Http4sVersion,
