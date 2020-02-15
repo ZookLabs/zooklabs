@@ -24,13 +24,21 @@ jobs:
         with:
           path: ~/.ivy2
           key: ${{ hashFiles('build.sbt') }}
+      - name: buildZookCore
+        run: sbt zookcoreStub/publishLocal
       - name: login
         uses: actions/heroku@master
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_APP: ${{ secrets.HEROKU_APP }}
         with:
           args: container:login
-      - name: buildZookCore
-        run: sbt zookcoreStub/publishLocal
       - name: build
         run: sbt docker:publish
+      - name: release
+        uses: actions/heroku@master
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_APP: ${{ secrets.HEROKU_APP }}
+        with:
+          args: container:release web
