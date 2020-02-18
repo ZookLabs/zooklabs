@@ -18,7 +18,7 @@ lazy val root = (project in file("."))
     version := "0.0.1-SNAPSHOT",
     scalaVersion := "2.12.8",
     dockerExposedPorts += 8080,
-    dockerAlias := DockerAlias(Some("registry.heroku.com"), Some("zooklabstest"), "web", None),
+    dockerAlias := DockerAlias(Some("registry.heroku.com"), Some("zooklabs"), "web", None),
     dockerCommands += Cmd("ENV", "HOST=\"0.0.0.0\""),
     dockerVersion := Some(DockerVersion(18, 9, 0, Some("ce"))),
     libraryDependencies ++= Seq(
