@@ -19,7 +19,7 @@ lazy val root = (project in file("."))
     scalaVersion := "2.12.8",
     dockerExposedPorts += 8080,
     dockerAlias := DockerAlias(Some("registry.heroku.com"), Some("zooklabs"), "web", None),
-    dockerCommands ++= Seq(Cmd("ENV", "HOST=\"0.0.0.0\""), Cmd("ENV", "GOOGLE_APPLICATION_CREDENTIALS=\"jimfs://google-credentials.json\"")),
+    dockerCommands ++= Seq(Cmd("ENV", "HOST=\"0.0.0.0\""), Cmd("ENV", "HOST=\"jimfs://google-credentials.json\"")),
     dockerVersion := Some(DockerVersion(18, 9, 0, Some("ce"))),
     libraryDependencies ++= Seq(
       "org.http4s" %% "http4s-core" % Http4sVersion,

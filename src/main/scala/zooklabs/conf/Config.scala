@@ -1,6 +1,6 @@
 package zooklabs.conf
 
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 
 import cats.effect.{ContextShift, IO}
 import cats.implicits._
@@ -26,9 +26,9 @@ object Config {
 
   val persistenceConfig: ConfigValue[PersistenceConfig] =
     env("PERSISTENCE_PATH")
-      .default(System.getProperty("user.home"))
       .as[NonEmptyString]
       .as[Path]
+      .default(Paths.get(System.getProperty("user.home")))
       .map(e => PersistenceConfig(e))
 
   val config: ConfigValue[AppConfig] =

@@ -1,10 +1,10 @@
 package zooklabs
 
-import java.net.URI
-import java.nio.file.{Files, Paths}
+import java.nio.file.Files
 
 import cats.effect.{ExitCode, IO, IOApp, Resource, _}
 import cats.syntax.all._
+import com.google.common.jimfs.{Configuration, Jimfs}
 import doobie.hikari._
 import doobie.util.ExecutionContexts
 import eu.timepit.refined.auto.autoUnwrap
@@ -21,8 +21,9 @@ import scala.concurrent.ExecutionContext.global
 
 object Main extends IOApp {
   Files.write(
-    Paths.get(URI.create("jimfs://google-credentials.json")),
-    java.util.Base64.getDecoder.decode(System.getenv("GOOGLE_APPLICATION_CREDENTIALS_64")))
+    Jimfs.newFileSystem(Configuration.unix()).getPath("google-credentials.json"),
+    java.util.Base64.getDecoder.decode(System.getenv("GOOGLE_APPLICATION_CREDENTIALS_64"))
+  )
 
   def createServer: Resource[IO, Server[IO]] = {
     for {
