@@ -87,7 +87,7 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
             id <- EitherT
                    .right[APIError](zookRepository.persistZook(Zook.fromCoreZook(zook)))
 
-            zookPath = persistenceConfig.path.resolve(Paths.get(ZOOK, id.toString))
+            zookPath = persistenceConfig.path.resolve(ZOOK).resolve(id.toString)
             _        <- EitherT.right[APIError](IO(Files.createDirectories(zookPath)))
             _ <- EitherT(
                   IO(

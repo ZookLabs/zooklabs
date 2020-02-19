@@ -1,5 +1,8 @@
 package zooklabs
 
+import java.net.URI
+import java.nio.file.{Files, Paths}
+
 import cats.effect.{ExitCode, IO, IOApp, Resource, _}
 import cats.syntax.all._
 import doobie.hikari._
@@ -17,6 +20,9 @@ import zooklabs.endpoints.{HealthEndpoint, LeaguesEndpoints, ZookEndpoints}
 import scala.concurrent.ExecutionContext.global
 
 object Main extends IOApp {
+  Files.write(
+    Paths.get(URI.create("jimfs://google-credentials.json")),
+    java.util.Base64.getDecoder.decode(System.getenv("GOOGLE_APPLICATION_CREDENTIALS_64")))
 
   def createServer: Resource[IO, Server[IO]] = {
     for {
