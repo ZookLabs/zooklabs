@@ -19,7 +19,7 @@ lazy val root = (project in file("."))
     scalaVersion := "2.12.8",
     dockerExposedPorts += 8080,
     dockerAlias := DockerAlias(Some("registry.heroku.com"), Some("zooklabs"), "web", None),
-    dockerCommands ++= Seq(Cmd("ENV", "HOST=\"0.0.0.0\""), Cmd("ENV", "GOOGLE_APPLICATION_CREDENTIALS=\"jimfs://google-credentials.json\"")),
+    dockerCommands += Cmd("ENV", "HOST=\"0.0.0.0\""),
     dockerVersion := Some(DockerVersion(18, 9, 0, Some("ce"))),
     libraryDependencies ++= Seq(
       "org.http4s" %% "http4s-core" % Http4sVersion,
@@ -48,7 +48,6 @@ lazy val root = (project in file("."))
       "com.zooklabs" %% "zookcore" % "1.0.0"
     )
   ).settings(
-  libraryDependencies += "com.google.jimfs" % "jimfs" % "1.1",
   libraryDependencies += "com.google.cloud" % "google-cloud-nio" % "0.120.0-alpha",
   //Required for google-cloud-nio to be installed as a filesystem provider
   fork in Compile := true
