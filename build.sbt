@@ -1,4 +1,4 @@
-import com.typesafe.sbt.packager.docker.{Cmd, DockerVersion}
+import com.typesafe.sbt.packager.docker.{DockerChmodType, DockerVersion}
 
 val Http4sVersion = "0.21.1"
 val DoobieVersion = "0.8.6"
@@ -19,7 +19,10 @@ lazy val root = (project in file("."))
     scalaVersion := "2.12.8",
     dockerExposedPorts += 8080,
     dockerAlias := DockerAlias(Some("registry.heroku.com"), Some("zooklabs"), "web", None),
-    dockerCommands += Cmd("ENV", "HOST=\"0.0.0.0\""),
+    dockerEnvVars := Map("HOST" -> "0.0.0.0"),
+    dockerPackageMappings in Docker ++= List(baseDirectory.value / "scripts" / "entrypoint.sh" -> "/opt/docker/bin/entrypoint.sh"),
+    dockerEntrypoint := "/opt/docker/bin/entrypoint.sh" +: dockerEntrypoint.value,
+    dockerChmodType := DockerChmodType.UserGroupWriteExecute,
     dockerVersion := Some(DockerVersion(18, 9, 0, Some("ce"))),
     libraryDependencies ++= Seq(
       "org.http4s" %% "http4s-core" % Http4sVersion,
