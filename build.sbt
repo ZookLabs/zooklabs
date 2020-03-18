@@ -17,6 +17,7 @@ lazy val root = (project in file("."))
     name := "zooklabs",
     version := "0.0.1-SNAPSHOT",
     scalaVersion := "2.12.8",
+    resolvers += "zookcore" at "https://maven.pkg.github.com/BearRebel/ZookCore",
     dockerExposedPorts += 8080,
     dockerAlias := DockerAlias(Some("registry.heroku.com"), Some("zooklabs"), "web", None),
     dockerEnvVars := Map("HOST" -> "0.0.0.0"),
@@ -48,7 +49,7 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-generic" % "0.11.1",
       "io.circe" %% "circe-parser" % "0.11.1",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
-      "com.zooklabs" %% "zookcore" % "1.0.0"
+      "com.zooklabs" %% "zookcore" % "1.0.1"
     )
   ).settings(
   libraryDependencies += "com.google.cloud" % "google-cloud-nio" % "0.120.0-alpha",

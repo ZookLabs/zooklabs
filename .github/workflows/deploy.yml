@@ -24,8 +24,11 @@ jobs:
         with:
           path: ~/.ivy2
           key: ${{ hashFiles('build.sbt') }}
-      - name: buildZookCore
-        run: sbt zookcoreStub/publishLocal
+      - name: create credentials
+        env:
+          USERNAME: ${{ secrets.CREDS_USERNAME }}
+          PASSWORD: ${{ secrets.CREDS_PASSWORD }}
+        run: echo "credentials += Credentials(\"GitHub Package Registry\",\"maven.pkg.github.com\",\"$USERNAME\",\"$PASSWORD\")" > credentials.sbt
       - name: Login to Heroku Container registry
         run: heroku container:login
         env:
