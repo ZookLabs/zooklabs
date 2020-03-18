@@ -26,9 +26,9 @@ jobs:
           key: ${{ hashFiles('build.sbt') }}
       - name: create credentials
         env:
-          USERNAME: ${{ secrets.CREDS_USERNAME }}
-          PASSWORD: ${{ secrets.CREDS_PASSWORD }}
-        run: echo "credentials += Credentials(\"GitHub Package Registry\",\"maven.pkg.github.com\",\"$USERNAME\",\"$PASSWORD\")" > credentials.sbt
+          CREDS_USERNAME: ${{ secrets.CREDS_USERNAME }}
+          CREDS_PASSWORD: ${{ secrets.CREDS_PASSWORD }}
+        run: echo "credentials += Credentials(\"GitHub Package Registry\",\"maven.pkg.github.com\",\"$CREDS_USERNAME\",\"$CREDS_PASSWORD\")" > credentials.sbt
       - name: Login to Heroku Container registry
         run: heroku container:login
         env:
