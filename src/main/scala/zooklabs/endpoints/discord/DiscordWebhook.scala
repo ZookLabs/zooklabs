@@ -3,16 +3,23 @@ package zooklabs.endpoints.discord
 case class DiscordWebhook(
     username: String,
     content: String,
-    embeds: List[Embeds]
+    embeds: List[Embed]
 )
 
-case class Embeds(
+case class Embed(
     title: String,
     url: String,
     color: Double,
-    thumbnail: Thumbnail
+    thumbnail: Thumbnail,
+    fields: List[Field]
 )
 
 case class Thumbnail(
     url: String
+)
+
+case class Field (
+    name: String,
+    value: String,
+    inline: Boolean = true
 )

@@ -18,7 +18,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.`Content-Type`
 import org.http4s.multipart.{Multipart, Part}
 import zooklabs.conf.PersistenceConfig
-import zooklabs.endpoints.discord.{DiscordError, DiscordWebhook, Thumbnail}
+import zooklabs.endpoints.discord.{DiscordError, DiscordWebhook, Field, Thumbnail}
 import zooklabs.model.Zook
 import zooklabs.repository.ZookRepository
 
@@ -113,10 +113,25 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
                     username = "ZookLabs",
                     content = s"Uploaded Zook - name : ${zook.name}",
                     embeds = List(
-                      discord.Embeds(title = zook.name,
-                                     url = s"https://zooklabs.com/zook/$id",
-                                     color = 16725286,
-                                     thumbnail = Thumbnail("attachment://image.png")))
+                      discord.Embed(
+                        title = zook.name,
+                        url = s"https://zooklabs.com/zook/$id",
+                        color = 16725286,
+                        thumbnail = Thumbnail("attachment://image.png"),
+                        fields = List(
+                          Field(name = "Physical",
+                                value = "Height\nLength\nWidth\nWeight\nComponents"),
+                          Field(
+                            name = "Measurement",
+                            value = s"""${zook.passport.physical.height.data} cm
+                               |${zook.passport.physical.length.data} cm
+                               |${zook.passport.physical.width.data} cm
+                               |${zook.passport.physical.weight.data} kg
+                               |${zook.passport.physical.components.data}""".stripMargin
+                          )
+                        )
+                      )
+                    )
                   ).asJson.toString
                 ),
                 Part.fileData("file",
