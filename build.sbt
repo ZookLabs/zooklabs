@@ -49,7 +49,11 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-generic" % "0.11.1",
       "io.circe" %% "circe-parser" % "0.11.1",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
-      "com.zooklabs" %% "zookcore" % "1.0.1"
+      "com.zooklabs" %% "zookcore" % "1.0.1",
+      "org.typelevel" %% "cats-core" % "2.0.0",
+      "org.typelevel" %% "cats-effect" % "2.1.2",
+      "co.fs2" %% "fs2-core" % "2.1.0",
+      "co.fs2" %% "fs2-io" % "2.1.0"
     )
   ).settings(
   libraryDependencies += "com.google.cloud" % "google-cloud-nio" % "0.120.0-alpha",
