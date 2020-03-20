@@ -46,9 +46,9 @@ object Main extends IOApp {
       trialRepo = repository.TrialRepository(xa)
 
       httpApp = Router(
-        "/health"     -> HealthEndpoint.endpoint,
-        "/api/zook"   -> ZookEndpoints(conf.persistenceConfig, conf.discordWebhook, zookRepo, client).endpoints,
-        "/api/league" -> LeaguesEndpoints(trialRepo).endpoints
+        "/health"      -> HealthEndpoint.endpoint,
+        "/api/zooks"   -> ZookEndpoints(conf.persistenceConfig, conf.discordWebhook, zookRepo, client).endpoints,
+        "/api/leagues" -> LeaguesEndpoints(trialRepo).endpoints
       ).orNotFound
 
       corsHttpApp = CORS(
