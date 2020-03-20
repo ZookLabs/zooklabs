@@ -55,6 +55,7 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
 
   val ZOOK    = "zook"
   val ZOOKEXT = s".$ZOOK"
+  val ZOOKS   = s"${ZOOK}s"
   val IMAGE   = "image.png"
 
   import io.circe.syntax._
@@ -93,7 +94,7 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
             id <- EitherT
                    .right[APIError](zookRepository.persistZook(Zook.fromCoreZook(zook)))
 
-            zookPath = persistenceConfig.path.resolve(ZOOK).resolve(id.toString)
+            zookPath = persistenceConfig.path.resolve(ZOOKS).resolve(id.toString)
             _        <- EitherT.right[APIError](IO(Files.createDirectories(zookPath)))
             _ <- EitherT(
                   IO(
@@ -121,7 +122,7 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
                     embeds = List(
                       discord.Embed(
                         title = zook.name,
-                        url = s"https://zooklabs.com/zook/$id",
+                        url = s"https://zooklabs.com/zooks/$id",
                         color = 16725286,
                         thumbnail = Thumbnail("attachment://image.png"),
                         fields = List(
