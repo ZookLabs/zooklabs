@@ -1,12 +1,13 @@
 package zooklabs.endpoints
 
-import java.nio.file.{Files, Paths}
+import java.nio.file.Files
 
 import cats.data.EitherT
 import cats.effect.{ContextShift, IO}
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
 import com.zooklabs.ZookCore
+import com.zooklabs.core.{ExampleZookError, GeneralZookError, ImageMissingError, StreetRulesError}
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.string.Url
 import io.circe.generic.AutoDerivation
@@ -61,14 +62,14 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
   val uploadZookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
     case req @ POST -> Root / "upload" =>
       if (req.contentLength.exists(_ > 100000)) {
-        BadRequest(APIError("Request too big"))
+        BadRequest(APIError("File Too Big"))
       } else {
         req.decode[Multipart[IO]] { e =>
           (for {
             zookPart <- EitherT.fromEither[IO](
                          e.parts
                            .find(_.name.contains(ZOOK))
-                           .toRight(APIError("no zook form field"))
+                           .toRight(APIError("No zook form field"))
                        )
             _ <- EitherT.fromEither[IO](
                   zookPart.filename
@@ -82,8 +83,13 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
             zook <- EitherT.fromEither[IO](
                      ZookCore
                        .parseZook(zookBytes)
-                       .leftMap(err => APIError("Error:" + err.toString))
-                   )
+                       .leftMap {
+                         case ImageMissingError => APIError("Passport Photo Required!")
+                         case StreetRulesError =>
+                           APIError("Street Rules Zooks are not currently supported!")
+                         case GeneralZookError(_) => APIError("Somethings wrong with that Zook!")
+                         case ExampleZookError    => APIError("Cannot Upload Example Zooks!")
+                       })
             id <- EitherT
                    .right[APIError](zookRepository.persistZook(Zook.fromCoreZook(zook)))
 
@@ -93,16 +99,18 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
                   IO(
                     Try(Files.write(zookPath.resolve(zook.name + ZOOKEXT), zookBytes)).toEither
                       .leftMap(exception => {
-                        logger.debug(s"Problem writing zook : ${exception.getLocalizedMessage}")
-                        APIError("Problem Write Zook")
+                        logger.error(s"Zook persistence error : ${exception.getLocalizedMessage}")
+                        APIError("Problem writing Zook")
                       }))
                 )
             _ <- EitherT(
-                  IO(Try(Files.write(zookPath.resolve(IMAGE), zook.image.imageBytes)).toEither
-                    .leftMap(exception => {
-                      logger.debug(s"Problem writing zook image : ${exception.getLocalizedMessage}")
-                      APIError("Problem Write Zook Image")
-                    }))
+                  IO(
+                    Try(Files.write(zookPath.resolve(IMAGE), zook.image.imageBytes)).toEither
+                      .leftMap(exception => {
+                        logger.error(
+                          s"Zook Image persistence error : ${exception.getLocalizedMessage}")
+                        APIError("Problem writing Zook Image")
+                      }))
                 )
 
             multipart = Multipart[IO](
@@ -110,8 +118,6 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
                 Part.formData(
                   "payload_json",
                   DiscordWebhook(
-                    username = "ZookLabs",
-                    content = s"Uploaded Zook - name : ${zook.name}",
                     embeds = List(
                       discord.Embed(
                         title = zook.name,
@@ -151,9 +157,9 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
                       resp
                         .decodeJson[DiscordError]
                         .map(error => {
-                          logger.debug(
+                          logger.error(
                             s"Request $req failed with status ${resp.status.code} and DiscordError $error")
-                          APIError("Problem with discord webhook").asLeft[Unit]
+                          APIError("Problem posting to Discord").asLeft[Unit]
                         })
                   }
                 )
