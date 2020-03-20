@@ -21,6 +21,7 @@ import org.http4s.multipart.{Multipart, Part}
 import zooklabs.conf.PersistenceConfig
 import zooklabs.endpoints.discord.{DiscordError, DiscordWebhook, Field, Thumbnail}
 import zooklabs.model.Zook
+import zooklabs.model.Zook.encodeZook
 import zooklabs.repository.ZookRepository
 
 import scala.util.Try
