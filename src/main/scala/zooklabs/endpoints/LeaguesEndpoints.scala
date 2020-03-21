@@ -7,9 +7,11 @@ import org.http4s.dsl.Http4sDsl
 import zooklabs.`enum`.Trials
 import zooklabs.repository.LeagueRepository
 import cats.implicits._
+import io.circe.generic.AutoDerivation
 
 case class LeaguesEndpoints(leagueRepository: LeagueRepository)
     extends Http4sDsl[IO]
+      with AutoDerivation
     with CirceEntityEncoder {
   val endpoints: HttpRoutes[IO] = {
     HttpRoutes

@@ -13,7 +13,7 @@ case class LeagueRepository(xa: Transactor[IO]) {
   val listLeagueQuery: String => Query0[Trial] = trialName =>
     Query0[Trial](s"""SELECT zookid, name, score, position
          |FROM $trialName
-         |ORDER BY position DESC
+         |ORDER BY position
          |""".stripMargin)
 
   def listLeague(trial: Trials): IO[List[Trial]] = {
