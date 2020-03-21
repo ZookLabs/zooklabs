@@ -13,9 +13,11 @@ import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware._
-import zooklabs.conf.Config
+import zooklabs.`enum`.Trials
+import zooklabs.conf.{AppConfig, Config}
 import zooklabs.db.Database
 import zooklabs.endpoints.{HealthEndpoint, LeaguesEndpoints, ZookEndpoints}
+import zooklabs.repository.{LeagueRepository, ZookRepository}
 
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.duration._
@@ -24,8 +26,51 @@ object Main extends IOApp {
   implicit val cs: ContextShift[IO] =
     IO.contextShift(scala.concurrent.ExecutionContext.Implicits.global)
 
-  def createServer(client: Client[IO]): Stream[IO, ExitCode] = {
-    for {
+  def createServer(conf: AppConfig,
+                   client: Client[IO],
+                   leagueRepository: LeagueRepository,
+                   zookRepository: ZookRepository): Stream[IO, ExitCode] = {
+
+    val httpApp = Router(
+      "/health" -> HealthEndpoint.endpoint,
+      "/api/zooks" -> ZookEndpoints(conf.persistenceConfig,
+                                    conf.discordWebhook,
+                                    zookRepository,
+                                    client).endpoints,
+      "/api/leagues" -> LeaguesEndpoints(leagueRepository).endpoints
+    ).orNotFound
+
+    val corsHttpApp = CORS(
+      httpApp,
+      CORS.DefaultCORSConfig
+    )
+    BlazeServerBuilder[IO]
+      .bindHttp(conf.post, conf.host)
+      .withHttpApp(corsHttpApp)
+      .serve
+  }
+
+  def createKeepAlive(client: Client[IO]): Stream[IO, Unit] = {
+    Stream
+      .repeatEval(
+        client.statusFromUri(Uri.unsafeFromString("http://api.zooklabs.com/health")).void
+      )
+      .metered(10.minutes)
+  }
+
+  def createUpdateLeague(leagueRepository: LeagueRepository): Stream[IO, Unit] = {
+    Stream
+      .emit(Trials.values)
+      .metered[IO](1.hour)
+      .flatMap(Stream.emits)
+      .evalTap(leagueRepository.updateLeagueOrder)
+      .repeat
+      .void
+  }
+
+  def run(args: List[String]): IO[ExitCode] = {
+    (for {
+
       conf   <- Stream.resource(Resource.liftF(Config.load()))
       connEc <- Stream.resource(ExecutionContexts.fixedThreadPool[IO](20))
       txnEc  <- Stream.resource(ExecutionContexts.cachedThreadPool[IO])
@@ -42,41 +87,14 @@ object Main extends IOApp {
                )
                .evalTap(Database.initialize))
 
-      zookRepo  = repository.ZookRepository(xa)
-      trialRepo = repository.TrialRepository(xa)
+      leagueRepository = repository.LeagueRepository(xa)
+      zookRepository   = repository.ZookRepository(xa)
 
-      httpApp = Router(
-        "/health"      -> HealthEndpoint.endpoint,
-        "/api/zooks"   -> ZookEndpoints(conf.persistenceConfig, conf.discordWebhook, zookRepo, client).endpoints,
-        "/api/leagues" -> LeaguesEndpoints(trialRepo).endpoints
-      ).orNotFound
-
-      corsHttpApp = CORS(
-        httpApp,
-        CORS.DefaultCORSConfig
-      )
-
-      server <- BlazeServerBuilder[IO]
-                 .bindHttp(conf.post, conf.host)
-                 .withHttpApp(corsHttpApp)
-                 .serve
-    } yield server
-  }
-
-  def createKeepAlive(client: Client[IO]): Stream[IO, Unit] = {
-    Stream
-      .repeatEval(
-        client.statusFromUri(Uri.unsafeFromString("http://api.zooklabs.com/health")).void
-      )
-      .metered(10.minutes)
-  }
-
-  def run(args: List[String]): IO[ExitCode] = {
-    (for {
-      client    <- Stream.resource(BlazeClientBuilder[IO](global).resource)
-      server    = createServer(client)
-      keepAlive = createKeepAlive(client)
-      service   <- Stream(server, keepAlive).parJoinUnbounded
+      client       <- Stream.resource(BlazeClientBuilder[IO](global).resource)
+      server       = createServer(conf, client, leagueRepository, zookRepository)
+      keepAlive    = createKeepAlive(client)
+      updateLeague = createUpdateLeague(leagueRepository)
+      service      <- Stream(server, keepAlive, updateLeague).parJoinUnbounded
     } yield service).compile.drain.as(ExitCode.Success)
   }
 }

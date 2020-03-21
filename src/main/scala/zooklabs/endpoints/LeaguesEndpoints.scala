@@ -5,9 +5,9 @@ import org.http4s.HttpRoutes
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import zooklabs.`enum`.Trials
-import zooklabs.repository.TrialRepository
+import zooklabs.repository.LeagueRepository
 
-case class LeaguesEndpoints(trialRepository: TrialRepository)
+case class LeaguesEndpoints(trialRepository: LeagueRepository)
     extends Http4sDsl[IO]
     with CirceEntityEncoder {
   val endpoints: HttpRoutes[IO] = {
@@ -16,7 +16,7 @@ case class LeaguesEndpoints(trialRepository: TrialRepository)
         case GET -> Root / trial =>
           Trials
             .withValueOpt(trial)
-            .map(trialRepository.listTrial)
+            .map(trialRepository.listLeague)
             .fold(NotFound())(Ok(_))
       }
   }
