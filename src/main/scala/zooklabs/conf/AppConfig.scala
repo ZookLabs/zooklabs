@@ -1,11 +1,10 @@
 package zooklabs.conf
 
-import ciris.refined._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.string.Url
-import eu.timepit.refined.types.net.UserPortNumber
+import eu.timepit.refined.types.net.PortNumber
 
-case class AppConfig(post: UserPortNumber,
+case class AppConfig(post: PortNumber,
                      host: String,
                      databaseConfig: DatabaseConfig,
                      persistenceConfig: PersistenceConfig,

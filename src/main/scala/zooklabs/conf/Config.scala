@@ -10,7 +10,7 @@ import eu.timepit.refined.api.Refined
 import eu.timepit.refined.auto._
 import eu.timepit.refined.cats._
 import eu.timepit.refined.string.Url
-import eu.timepit.refined.types.net.UserPortNumber
+import eu.timepit.refined.types.net.PortNumber
 import eu.timepit.refined.types.string.NonEmptyString
 import org.http4s.server.defaults
 import zooklabs.conf.PersistenceConfig.nonEmptyStringPathConfigDecoder
@@ -32,7 +32,7 @@ object Config {
       .map(e => PersistenceConfig(e))
 
   val config: ConfigValue[AppConfig] =
-    (env("PORT").as[UserPortNumber].default(8080),
+    (env("PORT").as[PortNumber].default(8080),
      env("HOST").as[String].default(defaults.Host),
      databaseConfig,
      persistenceConfig,
