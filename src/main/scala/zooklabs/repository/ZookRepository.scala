@@ -14,8 +14,6 @@ import zooklabs.enum.Trials
 import zooklabs.model.{Trial, Zook, ZookTrial, Zooks}
 
 case class ZookRepository(xa: Transactor[IO]) {
-  implicit val localDateTimeMeta: util.Meta[LocalDateTime] =
-    util.Meta[Timestamp].imap(_.toLocalDateTime)(Timestamp.valueOf)
 
   val persistTrialQuery: Trials => Update[Trial] = trialName =>
     Update[Trial](s"""INSERT INTO ${trialName.value}

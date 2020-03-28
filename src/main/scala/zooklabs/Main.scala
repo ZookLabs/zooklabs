@@ -1,7 +1,7 @@
 package zooklabs
 
 import cats.effect.{ContextShift, ExitCode, IO, IOApp, Resource, _}
-import cats.syntax.all._
+import cats.implicits._
 import doobie.hikari._
 import doobie.util.ExecutionContexts
 import eu.timepit.refined.auto.autoUnwrap
@@ -58,14 +58,13 @@ object Main extends IOApp {
       .metered(10.minutes)
   }
 
+  def updateLeague(leagueRepository: LeagueRepository)(trial: Trials) = {
+    leagueRepository.updateLeagueOrder(trial) >> leagueRepository.setLeagueUpdatedAt(trial)
+  }
+
   def createUpdateLeague(leagueRepository: LeagueRepository): Stream[IO, Unit] = {
-    Stream
-      .emit(Trials.values)
-      .metered[IO](1.hour)
-      .flatMap(Stream.emits)
-      .evalTap(leagueRepository.updateLeagueOrder)
-      .repeat
-      .void
+    (Stream.eval(Trials.values.toList.traverse(updateLeague(leagueRepository))) ++ Stream
+      .sleep_[IO](1.hour)).repeat.void
   }
 
   def run(args: List[String]): IO[ExitCode] = {
@@ -86,6 +85,8 @@ object Main extends IOApp {
                  Blocker.liftExecutionContext(txnEc)
                )
                .evalTap(Database.initialize))
+
+      _ = xa.configure(c => IO(c.setMaximumPoolSize(20)))
 
       leagueRepository = repository.LeagueRepository(xa)
       zookRepository   = repository.ZookRepository(xa)
