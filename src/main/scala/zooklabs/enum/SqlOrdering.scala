@@ -1,15 +1,15 @@
 package zooklabs.`enum`
 
-import enumeratum._
+object SqlOrdering {
+  sealed trait SqlOrdering {
+    val sql: String
+  }
 
-import scala.collection.immutable
+  case object Ascending extends SqlOrdering {
+    override val sql: String = "ASC"
+  }
+  case object Descending extends SqlOrdering {
+    override val sql: String = "DESC"
+  }
 
-sealed abstract class SqlOrdering(override val entryName: String) extends EnumEntry
-
-object SqlOrdering extends Enum[SqlOrdering] {
-
-  case object Ascending  extends SqlOrdering("ASC")
-  case object Descending extends SqlOrdering("DESC")
-
-  val values: immutable.IndexedSeq[SqlOrdering] = findValues
 }

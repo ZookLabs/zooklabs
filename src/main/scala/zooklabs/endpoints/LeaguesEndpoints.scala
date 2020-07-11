@@ -29,7 +29,7 @@ case class LeaguesEndpoints(leagueRepository: LeagueRepository)
       .of[IO] {
         case GET -> Root / trial =>
           Trials
-            .withValueOpt(trial)
+            .parse(trial)
             .map(leagueRepository.getLeague)
             .fold(NotFound())(Ok(_))
         case GET -> Root =>

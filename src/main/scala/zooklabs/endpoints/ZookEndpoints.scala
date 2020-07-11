@@ -5,11 +5,11 @@ import java.nio.file.Files
 import cats.data.EitherT
 import cats.effect.{ContextShift, IO}
 import cats.implicits._
-import com.typesafe.scalalogging.LazyLogging
 import com.zooklabs.ZookCore
 import com.zooklabs.core.{ExampleZookError, GeneralZookError, ImageMissingError, StreetRulesError}
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.string.Url
+import io.chrisdavenport.log4cats.Logger
 import io.circe.generic.AutoDerivation
 import org.http4s._
 import org.http4s.circe._
@@ -26,12 +26,12 @@ import zooklabs.repository.ZookRepository
 
 import scala.util.Try
 
-case class ZookEndpoints(persistenceConfig: PersistenceConfig,
-                         discordWebhook: String Refined Url,
-                         zookRepository: ZookRepository,
-                         httpClient: Client[IO])(implicit contextShift: ContextShift[IO])
+case class ZookEndpoints(
+    persistenceConfig: PersistenceConfig,
+    discordWebhook: String Refined Url,
+    zookRepository: ZookRepository,
+    httpClient: Client[IO])(implicit contextShift: ContextShift[IO], logger: Logger[IO])
     extends Http4sDsl[IO]
-    with LazyLogging
     with AutoDerivation
     with CirceEntityDecoder
     with CirceEntityEncoder {
@@ -97,23 +97,19 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
 
             zookPath = persistenceConfig.path.resolve(ZOOKS).resolve(id.toString)
             _        <- EitherT.right[APIError](IO(Files.createDirectories(zookPath)))
-            _ <- EitherT(
-                  IO(
-                    Try(Files.write(zookPath.resolve(zook.name + ZOOKEXT), zookBytes)).toEither
-                      .leftMap(exception => {
-                        logger.error(s"Zook persistence error : ${exception.getLocalizedMessage}")
-                        APIError("Problem writing Zook")
-                      }))
-                )
-            _ <- EitherT(
-                  IO(
-                    Try(Files.write(zookPath.resolve(IMAGE), zook.image.imageBytes)).toEither
-                      .leftMap(exception => {
-                        logger.error(
-                          s"Zook Image persistence error : ${exception.getLocalizedMessage}")
-                        APIError("Problem writing Zook Image")
-                      }))
-                )
+            _ <- EitherT(IO(Files.write(zookPath.resolve(zook.name + ZOOKEXT), zookBytes)).attempt)
+                  .leftSemiflatMap(exception => {
+                    logger
+                      .error(s"Zook persistence error : ${exception.getLocalizedMessage}") >>
+                      APIError("Problem writing Zook").pure[IO]
+                  })
+
+            _ <- EitherT(IO(Files.write(zookPath.resolve(IMAGE), zook.image.imageBytes)).attempt)
+                  .leftSemiflatMap(exception => {
+                    logger
+                      .error(s"Zook Image persistence error : ${exception.getLocalizedMessage}") >>
+                      APIError("Problem writing Zook Image").pure[IO]
+                  })
 
             multipart = Multipart[IO](
               Vector(
@@ -154,14 +150,14 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
                       multipart,
                       Uri.unsafeFromString(discordWebhook.toString)
                     ).map(_.withHeaders(multipart.headers))) {
-                    case Ok(_) => IO.pure(Unit.asRight[APIError])
+                    case Ok(_) => IO.pure(().asRight[APIError])
                     case resp =>
                       resp
                         .decodeJson[DiscordError]
-                        .map(error => {
+                        .flatMap(error => {
                           logger.error(
-                            s"Request $req failed with status ${resp.status.code} and DiscordError $error")
-                          APIError("Problem posting to Discord").asLeft[Unit]
+                            s"Request $req failed with status ${resp.status.code} and DiscordError $error") >>
+                            APIError("Problem posting to Discord").asLeft[Unit].pure[IO]
                         })
                   }
                 )

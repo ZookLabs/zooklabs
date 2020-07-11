@@ -36,7 +36,7 @@ case class LeagueRepository(xa: Transactor[IO]) {
     Update0(
       s"""update ${trial.value} trial
          |set position = t.pos
-         |from (select row_number() over (order by t.score ${trial.sqlOrdering.entryName}, t.zookid asc) as pos, t.zookid
+         |from (select row_number() over (order by t.score ${trial.ordering.sql}, t.zookid asc) as pos, t.zookid
          |      from ${trial.value} t) t where trial.zookid = t.zookid""".stripMargin,
       None
     ).run.transact(xa)
