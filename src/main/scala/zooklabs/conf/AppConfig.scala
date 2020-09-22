@@ -13,6 +13,5 @@ case class AppConfig(
     persistenceConfig: PersistenceConfig,
     discordWebhook: Uri,
     jwtCreds: JwtCreds,
-    discordOAuthConfig: DiscordOAuthConfig,
-    hashidSalt: Secret[NonEmptyString]
+    discordOAuthConfig: DiscordOAuthConfig
 )
