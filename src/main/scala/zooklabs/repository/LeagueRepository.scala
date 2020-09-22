@@ -5,15 +5,17 @@ import java.time.LocalDateTime
 import cats.effect.IO
 import doobie.Transactor
 import doobie.implicits._
+import doobie.refined.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
+import zooklabs.endpoints.model.leagues.League
 import zooklabs.enum.Trials
-import zooklabs.model.{League, Trial}
+import zooklabs.repository.model.TrialEntity
 
 case class LeagueRepository(xa: Transactor[IO]) {
 
-  val listLeagueQuery: String => Query0[Trial] = trialName =>
-    Query0[Trial](s"""SELECT zookid, name, score, position
+  val listLeagueQuery: String => Query0[TrialEntity] = trialName =>
+    Query0[TrialEntity](s"""SELECT zookid, name, score, position
          |FROM $trialName
          |ORDER BY position
          |""".stripMargin)
