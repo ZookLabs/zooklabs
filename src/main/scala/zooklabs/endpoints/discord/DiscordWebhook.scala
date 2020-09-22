@@ -8,6 +8,7 @@ case class Embed(
     title: String,
     url: String,
     color: Double,
+    description: Option[String],
     thumbnail: Thumbnail,
     fields: List[Field]
 )
@@ -16,8 +17,8 @@ case class Thumbnail(
     url: String
 )
 
-case class Field (
+case class Field(
     name: String,
     value: String,
-    inline: Boolean = true
+    `inline`: Boolean = true
 )
