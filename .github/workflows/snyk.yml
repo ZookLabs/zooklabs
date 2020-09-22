@@ -5,6 +5,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - name: create credentials
+      env:
+        CREDS_USERNAME: ${{ secrets.CREDS_USERNAME }}
+        CREDS_PASSWORD: ${{ secrets.CREDS_PASSWORD }}
+      run: echo "credentials += Credentials(\"GitHub Package Registry\",\"maven.pkg.github.com\",\"$CREDS_USERNAME\",\"$CREDS_PASSWORD\")" > credentials.sbt
     - name: Run Snyk to check for vulnerabilities
       uses: snyk/actions/scala@master
       env:
