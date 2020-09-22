@@ -13,7 +13,7 @@ object Dependencies {
     val scalatest      = "3.2.0"
     val googleCloudNio = "0.121.2"
     val flyway         = "6.5.0"
-    val zookCore       = "1.0.1"
+    val zookCore       = "1.0.2"
     val cats           = "2.2.0"
     val catsEffect     = "2.1.4"
     val catsEffectTime = "0.1.2"
