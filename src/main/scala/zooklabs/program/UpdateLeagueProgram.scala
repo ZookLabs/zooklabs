@@ -1,12 +1,12 @@
 package zooklabs.program
 
 import cats.effect.{IO, Timer}
+import cats.implicits._
 import fs2.Stream
 import zooklabs.`enum`.Trials
 import zooklabs.repository.LeagueRepository
 
 import scala.concurrent.duration._
-import cats.implicits._
 
 final class UpdateLeagueProgram(leagueRepository: LeagueRepository)(implicit timer: Timer[IO]) {
 

@@ -5,7 +5,7 @@ object SqlOrdering {
     val sql: String
   }
 
-  case object Ascending extends SqlOrdering {
+  case object Ascending  extends SqlOrdering {
     override val sql: String = "ASC"
   }
   case object Descending extends SqlOrdering {

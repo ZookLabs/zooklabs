@@ -9,7 +9,7 @@ sealed trait Trials {
 }
 
 object Trials {
-  case object Sprint extends Trials {
+  case object Sprint    extends Trials {
     val value    = "sprint"
     val ordering = Descending
   }
@@ -17,15 +17,15 @@ object Trials {
     val value    = "block_push"
     val ordering = Descending
   }
-  case object Hurdles extends Trials {
+  case object Hurdles   extends Trials {
     val value    = "hurdles"
     val ordering = Descending
   }
-  case object HighJump extends Trials {
+  case object HighJump  extends Trials {
     val value    = "high_jump"
     val ordering = Descending
   }
-  case object Lap extends Trials {
+  case object Lap       extends Trials {
     val value    = "lap"
     val ordering = Ascending
   }

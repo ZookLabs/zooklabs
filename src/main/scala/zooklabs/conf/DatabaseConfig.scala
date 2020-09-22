@@ -11,9 +11,11 @@ import eu.timepit.refined.types.string.NonEmptyString
 
 import scala.util.Try
 
-sealed abstract case class DatabaseConfig(host: NonEmptyString,
-                                          user: NonEmptyString,
-                                          password: Secret[NonEmptyString])
+sealed abstract case class DatabaseConfig(
+    host: NonEmptyString,
+    user: NonEmptyString,
+    password: Secret[NonEmptyString]
+)
 
 //super naive but works
 object DatabaseConfig {
