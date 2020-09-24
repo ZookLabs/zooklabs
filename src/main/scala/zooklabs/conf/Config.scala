@@ -73,7 +73,7 @@ object Config {
   val config: ConfigValue[AppConfig] =
     (
       env("PORT").as[PortNumber].default(8080),
-      env("HOST").as[String].default("127.0.0.1"),
+      env("HOST").as[String].default("0.0.0.0"),
       databaseConfig,
       persistenceConfig,
       env("DISCORD_WEBHOOK")
