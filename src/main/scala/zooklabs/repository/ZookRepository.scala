@@ -1,68 +1,59 @@
 package zooklabs.repository
 
-import java.sql.Timestamp
-import java.time.LocalDateTime
-
+import cats.data.OptionT
 import cats.effect.IO
-import cats.instances.option._
+import cats.implicits._
 import doobie.implicits._
-import doobie.util.Write
+import doobie.refined.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.{Update, Update0}
-import doobie.{Transactor, util}
+import doobie.{ConnectionIO, Transactor}
+import eu.timepit.refined.types.all.NonNegInt
+import zooklabs.endpoints.model.users.UserIdentifier
+import zooklabs.endpoints.model.zooks
+import zooklabs.endpoints.model.zooks._
 import zooklabs.enum.Trials
-import zooklabs.model.{Trial, Zook, ZookTrial, Zooks}
+import zooklabs.model._
+import zooklabs.repository.model.{TrialEntity, ZookContainer, ZookEntity}
 
 case class ZookRepository(xa: Transactor[IO]) {
 
-  val persistTrialQuery: Trials => Update[Trial] = trialName =>
-    Update[Trial](s"""INSERT INTO ${trialName.value}
+  val persistTrialQuery: Trials => Update[TrialEntity] = trialName =>
+    Update[TrialEntity](s"""INSERT INTO ${trialName.value}
          |(zookid, name, score, position)
          |VALUES (?, ?, ?, ?)
          """.stripMargin)
 
-  implicit val ZookWrite: Write[Zook] =
-    Write[
-      (String, Double, Double, Double, Double, Int, LocalDateTime, LocalDateTime)
-    ].contramap(
-      zook =>
-        (
-          zook.name,
-          zook.height,
-          zook.length,
-          zook.width,
-          zook.weight,
-          zook.components,
-          zook.dateCreated,
-          zook.dateUploaded
-      )
-    )
+  def persistZookQuery(zookEntity: ZookEntity) = {
+    sql"""INSERT INTO  zook 
+         | (name, height, length, width, weight, components, dateCreated, dateUploaded, owner)
+         | VALUES (${zookEntity.name},
+         | ${zookEntity.height},
+         | ${zookEntity.length},
+         | ${zookEntity.width},
+         | ${zookEntity.weight},
+         | ${zookEntity.components},
+         | ${zookEntity.dateCreated},
+         | ${zookEntity.dateUploaded},
+         | ${zookEntity.owner})""".stripMargin.update
+  }
 
-  val persistZookQuery: Update[Zook] =
-    Update[Zook](s"""INSERT INTO zook
-         |(name, height, length, width, weight, components, dateCreated, dateUploaded)
-         |VALUES (?,?,?,?,?,?,?,?)
-         |""".stripMargin)
-
-  def buildTrial: (String, Int) => Option[ZookTrial] => Option[Trial] =
-    (name, id) =>
-      _.map {
-        case ZookTrial(score, position) =>
-          Trial(zookId = id, name = name, score = score, position = position)
-    }
-
-  def persistZook(zook: Zook): IO[Int] = {
+  def persistZook(zookContainer: ZookContainer): IO[NonNegInt] = {
     (for {
-      id      <- persistZookQuery.toUpdate0(zook).withUniqueGeneratedKeys[Int]("id")
-      toTrial = buildTrial(zook.name, id)
-      _       <- persistTrialQuery(Trials.Sprint).updateMany(toTrial(zook.sprint))
-      _ <- persistTrialQuery(Trials.BlockPush).updateMany(
-            toTrial(zook.blockPush)
-          )
-      _ <- persistTrialQuery(Trials.Hurdles).updateMany(toTrial(zook.hurdles))
-      _ <- persistTrialQuery(Trials.HighJump).updateMany(toTrial(zook.highJump))
-      _ <- persistTrialQuery(Trials.Lap).updateMany(toTrial(zook.lap))
-    } yield id).transact(xa)
+      zookId  <- persistZookQuery(zookContainer.zook).withUniqueGeneratedKeys[NonNegInt]("id")
+      toEntity = (zookTrial: ZookTrial) =>
+                   TrialEntity(
+                     zookId,
+                     name = zookContainer.zook.name,
+                     score = zookTrial.score,
+                     position = zookTrial.position
+                   )
+      _       <- persistTrialQuery(Trials.Sprint).updateMany(zookContainer.sprint.map(toEntity))
+      _       <- persistTrialQuery(Trials.BlockPush).updateMany(zookContainer.blockPush.map(toEntity))
+      _       <- persistTrialQuery(Trials.Hurdles).updateMany(zookContainer.hurdles.map(toEntity))
+      _       <- persistTrialQuery(Trials.HighJump).updateMany(zookContainer.highJump.map(toEntity))
+      _       <- persistTrialQuery(Trials.Lap).updateMany(zookContainer.lap.map(toEntity))
+    } yield zookId).transact(xa)
   }
 
   def dropZookQuery(id: Int): Update0 =
@@ -72,10 +63,9 @@ case class ZookRepository(xa: Transactor[IO]) {
     dropZookQuery(id).run.transact(xa)
   }
 
-  def getZookQuery(id: Int): Query0[Zook] =
-    sql"""
-         |SELECT zook.id,
-         |       zook.name,
+  def getZookEntity(id: Int): Query0[ZookEntity] =
+    sql"""SELECT id,
+         |       name,
          |       height,
          |       length,
          |       width,
@@ -83,33 +73,65 @@ case class ZookRepository(xa: Transactor[IO]) {
          |       components,
          |       dateCreated,
          |       dateUploaded,
-         |       sprint.score        AS sprint_score,
-         |       sprint.position     AS sprint_position,
-         |       block_push.score    AS block_push_score,
-         |       block_push.position AS block_push_position,
-         |       hurdles.score       AS hurdles_score,
-         |       hurdles.position    AS hurdles_position,
-         |       high_jump.score     AS high_jump_score,
-         |       high_jump.position  AS high_jump_position,
-         |       lap.score           AS lap_score,
-         |       lap.position        AS lap_position
+         |       owner
          |FROM zook
-         |         LEFT JOIN sprint ON zook.id = sprint.zookid
-         |         LEFT JOIN block_push ON zook.id = block_push.zookid
-         |         LEFT JOIN hurdles ON zook.id = hurdles.zookid
-         |         LEFT JOIN high_jump ON zook.id = high_jump.zookid
-         |         LEFT JOIN lap ON zook.id = lap.zookid
-         |WHERE zook.id = $id
-         |""".stripMargin.query[Zook]
+         |WHERE id = $id         
+         |""".stripMargin.query[ZookEntity]
 
-  def getZook(id: Int): IO[Option[Zook]] = {
-    getZookQuery(id).option.transact(xa)
+  def getZookTrial(zookId: Int): Trials => Query0[ZookTrial] =
+    trialName =>
+      Query0[ZookTrial](
+        s"SELECT score, position FROM ${trialName.value} where zookid = $zookId"
+      )
+
+  def getZookAchievementQuery(zookId: Int): ConnectionIO[ZookAchievement] = {
+    val getTrial: Trials => Query0[ZookTrial] = getZookTrial(zookId)
+    (
+      getTrial(Trials.Sprint).option,
+      getTrial(Trials.BlockPush).option,
+      getTrial(Trials.Hurdles).option,
+      getTrial(Trials.HighJump).option,
+      getTrial(Trials.Lap).option
+    ).mapN {
+      case (sprint, blockPush, hurdles, highJump, lap) =>
+        ZookAchievement(sprint, blockPush, hurdles, highJump, lap)
+    }
   }
 
-  val listZooksQuery: doobie.Query0[Zooks] =
-    sql"SELECT id, name from zook".query[Zooks]
+  def getZookOwner(ownerId: Option[Int]): doobie.ConnectionIO[Option[UserIdentifier]] = {
+    ownerId match {
+      case Some(id) =>
+        sql"SELECT username from users where id = $id"
+          .query[UserIdentifier]
+          .option
+      case None     => Option.empty[UserIdentifier].pure[ConnectionIO]
+    }
+  }
 
-  def listZooks(): IO[List[Zooks]] = {
+  def getZook(id: Int): IO[Option[Zook]] = {
+    (for {
+      zookEntity       <- OptionT(getZookEntity(id).option)
+      zookAchievements <- OptionT.liftF(getZookAchievementQuery(id))
+      zookOwner        <- OptionT(getZookOwner(zookEntity.owner).map(_.some))
+
+      zookIdentifier = ZookIdentifier(zookEntity.id, zookEntity.name)
+      zookAbout      = ZookAbout(zookOwner, zookEntity.dateCreated, zookEntity.dateUploaded)
+      zookPhysical   = ZookPhysical(
+                         height = zookEntity.height,
+                         length = zookEntity.length,
+                         width = zookEntity.width,
+                         weight = zookEntity.weight,
+                         components = zookEntity.components
+                       )
+    } yield zooks.Zook(zookIdentifier, zookAbout, zookPhysical, zookAchievements))
+      .transact(xa)
+      .value
+  }
+
+  val listZooksQuery: doobie.Query0[ZookIdentifier] =
+    sql"SELECT id, name from zook".query[ZookIdentifier]
+
+  def listZooks(): IO[List[ZookIdentifier]] = {
     listZooksQuery.to[List].transact(xa)
   }
 

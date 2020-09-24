@@ -13,7 +13,7 @@ import org.http4s.dsl.Http4sDsl
 import zooklabs.`enum`.Trials
 import zooklabs.repository.LeagueRepository
 
-case class LeaguesEndpoints(leagueRepository: LeagueRepository)
+class LeaguesEndpoints(leagueRepository: LeagueRepository)
     extends Http4sDsl[IO]
     with AutoDerivation
     with CirceEntityEncoder {
@@ -29,12 +29,12 @@ case class LeaguesEndpoints(leagueRepository: LeagueRepository)
       .of[IO] {
         case GET -> Root / trial =>
           Trials
-            .withValueOpt(trial)
+            .parse(trial)
             .map(leagueRepository.getLeague)
             .fold(NotFound())(Ok(_))
-        case GET -> Root =>
+        case GET -> Root         =>
           Ok(
-            Trials.values.toList
+            Trials.values
               .traverse(t => leagueRepository.getLeader(t).map(t.value -> _))
               .map[Map[String, Option[Int]]](_.toMap)
           )

@@ -1,6 +1,7 @@
 version: "3"
 services:
   postgres-development:
+    restart: always
     image: postgres:11.6
     environment:
       POSTGRES_USER: Bernard

@@ -1,20 +1,44 @@
 package zooklabs.enum
 
-import enumeratum.values.{StringEnum, StringEnumEntry}
-import zooklabs.`enum`.SqlOrdering.{Ascending, Descending}
+import cats.syntax.option._
+import zooklabs.`enum`.SqlOrdering.{Ascending, Descending, SqlOrdering}
 
-import scala.collection.immutable
+sealed trait Trials {
+  val value: String
+  val ordering: SqlOrdering
+}
 
-sealed abstract class Trials(val value: String, val sqlOrdering: SqlOrdering)
-    extends StringEnumEntry
+object Trials {
+  case object Sprint    extends Trials {
+    val value    = "sprint"
+    val ordering = Descending
+  }
+  case object BlockPush extends Trials {
+    val value    = "block_push"
+    val ordering = Descending
+  }
+  case object Hurdles   extends Trials {
+    val value    = "hurdles"
+    val ordering = Descending
+  }
+  case object HighJump  extends Trials {
+    val value    = "high_jump"
+    val ordering = Descending
+  }
+  case object Lap       extends Trials {
+    val value    = "lap"
+    val ordering = Ascending
+  }
 
-case object Trials extends StringEnum[Trials] {
+  val parse: String => Option[Trials] = {
+    case "sprint"     => Sprint.some
+    case "block_push" => BlockPush.some
+    case "hurdles"    => Hurdles.some
+    case "high_jump"  => HighJump.some
+    case "lap"        => Lap.some
+    case _            => none
+  }
 
-  case object Sprint    extends Trials("sprint", Descending)
-  case object BlockPush extends Trials("block_push", Descending)
-  case object Hurdles   extends Trials("hurdles", Descending)
-  case object HighJump  extends Trials("high_jump", Descending)
-  case object Lap       extends Trials("lap", Ascending)
+  val values = List(Sprint, BlockPush, Hurdles, HighJump, Lap)
 
-  val values: immutable.IndexedSeq[Trials] = findValues
 }

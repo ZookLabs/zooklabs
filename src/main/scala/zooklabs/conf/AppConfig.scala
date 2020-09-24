@@ -1,11 +1,17 @@
 package zooklabs.conf
 
-import eu.timepit.refined.api.Refined
-import eu.timepit.refined.string.Url
+import ciris.Secret
 import eu.timepit.refined.types.net.PortNumber
+import eu.timepit.refined.types.string.NonEmptyString
+import org.http4s.Uri
+import zooklabs.jwt.JwtCreds
 
-case class AppConfig(post: PortNumber,
-                     host: String,
-                     databaseConfig: DatabaseConfig,
-                     persistenceConfig: PersistenceConfig,
-                     discordWebhook: String Refined Url)
+case class AppConfig(
+    post: PortNumber,
+    host: String,
+    databaseConfig: DatabaseConfig,
+    persistenceConfig: PersistenceConfig,
+    discordWebhook: Uri,
+    jwtCreds: JwtCreds,
+    discordOAuthConfig: DiscordOAuthConfig
+)

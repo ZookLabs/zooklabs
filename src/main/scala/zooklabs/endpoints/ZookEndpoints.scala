@@ -1,16 +1,19 @@
 package zooklabs.endpoints
 
 import java.nio.file.Files
+import java.time.LocalDateTime
 
 import cats.data.EitherT
 import cats.effect.{ContextShift, IO}
 import cats.implicits._
-import com.typesafe.scalalogging.LazyLogging
 import com.zooklabs.ZookCore
 import com.zooklabs.core.{ExampleZookError, GeneralZookError, ImageMissingError, StreetRulesError}
-import eu.timepit.refined.api.Refined
-import eu.timepit.refined.string.Url
+import com.zooklabs.zook.{Zook => CoreZook}
+import eu.timepit.refined.types.all.{NonEmptyString, NonNegInt}
+import io.chrisdavenport.log4cats.Logger
+import io.circe.Encoder
 import io.circe.generic.AutoDerivation
+import io.circe.refined.refinedEncoder
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.client.Client
@@ -18,20 +21,24 @@ import org.http4s.client.dsl.io._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.`Content-Type`
 import org.http4s.multipart.{Multipart, Part}
+import org.http4s.server.AuthMiddleware
 import zooklabs.conf.PersistenceConfig
-import zooklabs.endpoints.discord.{DiscordError, DiscordWebhook, Field, Thumbnail}
-import zooklabs.model.Zook
-import zooklabs.model.Zook.encodeZook
+import zooklabs.endpoints.discord.{DiscordWebhook, DiscordWebhookError, Field, Thumbnail}
+import zooklabs.endpoints.model.AuthUser
+import zooklabs.model.ZookTrial
 import zooklabs.repository.ZookRepository
+import zooklabs.repository.model.{ZookContainer, ZookEntity}
 
 import scala.util.Try
 
-case class ZookEndpoints(persistenceConfig: PersistenceConfig,
-                         discordWebhook: String Refined Url,
-                         zookRepository: ZookRepository,
-                         httpClient: Client[IO])(implicit contextShift: ContextShift[IO])
+class ZookEndpoints(
+    persistenceConfig: PersistenceConfig,
+    discordWebhook: Uri,
+    zookRepository: ZookRepository,
+    httpClient: Client[IO],
+    permissiveSecureMiddleware: AuthMiddleware[IO, AuthUser]
+)(implicit contextShift: ContextShift[IO], logger: Logger[IO])
     extends Http4sDsl[IO]
-    with LazyLogging
     with AutoDerivation
     with CirceEntityDecoder
     with CirceEntityEncoder {
@@ -39,9 +46,9 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
   val getZookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
     case GET -> Root / id =>
       (for {
-        id <- EitherT.fromEither[IO](
-               Try(id.toInt).toOption.toRight(BadRequest())
-             )
+        id   <- EitherT.fromEither[IO](
+                  Try(id.toInt).toOption.toRight(BadRequest())
+                )
         zook <- EitherT(zookRepository.getZook(id).map(_.toRight(NotFound())))
       } yield zook).value.flatMap {
         case Left(resp)  => resp
@@ -61,110 +68,154 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
 
   import io.circe.syntax._
 
-  val uploadZookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
-    case req @ POST -> Root / "upload" =>
-      if (req.contentLength.exists(_ > 100000)) {
+  def makeZookEntity(coreZook: CoreZook, ownerId: Option[Int]) = {
+    val physical  = coreZook.passport.physical
+    val ownership = coreZook.passport.ownership
+    ZookEntity(
+      name =
+        NonEmptyString.unsafeFrom(ownership.last.zookname), // FIXME pase zook with refined types
+      height = physical.height.data,
+      length = physical.length.data,
+      width = physical.width.data,
+      weight = physical.weight.data,
+      components = physical.components.data,
+      dateCreated = ownership.last.adoptionDate,
+      dateUploaded = LocalDateTime.now(),
+      owner = ownerId
+    )
+  }
+
+  def makeZookContainer(coreZook: CoreZook, ownerId: Option[Int]) = {
+    val zook = makeZookEntity(coreZook, ownerId)
+
+    val trial = coreZook.passport.achievement.trial
+    ZookContainer(
+      zook,
+      sprint = trial.sprint.map(ZookTrial.fromCoreZookTrial),
+      blockPush = trial.blockPush.map(ZookTrial.fromCoreZookTrial),
+      hurdles = trial.hurdles.map(ZookTrial.fromCoreZookTrial),
+      highJump = trial.highJump.map(ZookTrial.fromCoreZookTrial),
+      lap = trial.lap.map(ZookTrial.fromCoreZookTrial)
+    )
+  }
+
+  val uploadZookEndpoint: PartialFunction[AuthedRequest[IO, AuthUser], IO[Response[IO]]] = {
+    case context @ POST -> Root / "upload" as user =>
+      if (context.req.contentLength.exists(_ > 100000)) { //100 kb
         BadRequest(APIError("File Too Big"))
       } else {
-        req.decode[Multipart[IO]] { e =>
+        context.req.decode[Multipart[IO]] { reqPart =>
           (for {
-            zookPart <- EitherT.fromEither[IO](
-                         e.parts
-                           .find(_.name.contains(ZOOK))
-                           .toRight(APIError("No zook form field"))
-                       )
-            _ <- EitherT.fromEither[IO](
-                  zookPart.filename
-                    .find(_.endsWith(ZOOKEXT))
-                    .toRight[APIError](APIError("Not a .zook file"))
-                )
-            zookBytes <- EitherT
-                          .right[APIError](
-                            zookPart.body.compile.toList.map(_.toArray)
-                          )
-            zook <- EitherT.fromEither[IO](
-                     ZookCore
-                       .parseZook(zookBytes)
-                       .leftMap {
-                         case ImageMissingError => APIError("Passport Photo Required!")
-                         case StreetRulesError =>
-                           APIError("Street Rules Zooks are not currently supported!")
-                         case GeneralZookError(_) => APIError("Somethings wrong with that Zook!")
-                         case ExampleZookError    => APIError("Cannot Upload Example Zooks!")
-                       })
-            id <- EitherT
-                   .right[APIError](zookRepository.persistZook(Zook.fromCoreZook(zook)))
+            zookPart     <- EitherT.fromEither[IO](
+                              reqPart.parts
+                                .find(_.name.contains(ZOOK))
+                                .toRight(APIError("No zook form field"))
+                            )
+            _            <- EitherT.fromEither[IO](
+                              zookPart.filename
+                                .find(_.endsWith(ZOOKEXT))
+                                .toRight[APIError](APIError("Not a .zook file"))
+                            )
+            zookBytes    <- EitherT
+                              .right[APIError](
+                                zookPart.body.compile.toList.map(_.toArray)
+                              )
+            coreZook     <-
+              EitherT.fromEither[IO](
+                ZookCore
+                  .parseZook(zookBytes)
+                  .leftMap {
+                    case ImageMissingError   => APIError("Passport Photo Required!")
+                    case StreetRulesError    =>
+                      APIError("Street Rules Zooks are not currently supported!")
+                    case GeneralZookError(_) => APIError("Somethings wrong with that Zook!")
+                    case ExampleZookError    => APIError("Cannot Upload Example Zooks!")
+                  }
+              )
 
-            zookPath = persistenceConfig.path.resolve(ZOOKS).resolve(id.toString)
+            zookContainer = makeZookContainer(coreZook, user.getId)
+
+            id <- EitherT.right[APIError](zookRepository.persistZook(zookContainer))
+
+            zookPath  = persistenceConfig.path.resolve(ZOOKS).resolve(id.toString)
             _        <- EitherT.right[APIError](IO(Files.createDirectories(zookPath)))
-            _ <- EitherT(
-                  IO(
-                    Try(Files.write(zookPath.resolve(zook.name + ZOOKEXT), zookBytes)).toEither
-                      .leftMap(exception => {
-                        logger.error(s"Zook persistence error : ${exception.getLocalizedMessage}")
-                        APIError("Problem writing Zook")
-                      }))
-                )
-            _ <- EitherT(
-                  IO(
-                    Try(Files.write(zookPath.resolve(IMAGE), zook.image.imageBytes)).toEither
-                      .leftMap(exception => {
-                        logger.error(
-                          s"Zook Image persistence error : ${exception.getLocalizedMessage}")
-                        APIError("Problem writing Zook Image")
-                      }))
-                )
+            _        <-
+              EitherT(IO(Files.write(zookPath.resolve(coreZook.name + ZOOKEXT), zookBytes)).attempt)
+                .leftSemiflatMap(exception => {
+                  logger
+                    .error(s"Zook persistence error : ${exception.getLocalizedMessage}") >>
+                    APIError("Problem writing Zook").pure[IO]
+                })
+
+            _        <-
+              EitherT(IO(Files.write(zookPath.resolve(IMAGE), coreZook.image.imageBytes)).attempt)
+                .leftSemiflatMap(exception => {
+                  logger
+                    .error(s"Zook Image persistence error : ${exception.getLocalizedMessage}") >>
+                    APIError("Problem writing Zook Image").pure[IO]
+                })
 
             multipart = Multipart[IO](
-              Vector(
-                Part.formData(
-                  "payload_json",
-                  DiscordWebhook(
-                    embeds = List(
-                      discord.Embed(
-                        title = zook.name,
-                        url = s"https://zooklabs.com/zooks/$id",
-                        color = 16725286,
-                        thumbnail = Thumbnail("attachment://image.png"),
-                        fields = List(
-                          Field(name = "Physical",
-                                value = "Height\nLength\nWidth\nWeight\nComponents"),
-                          Field(
-                            name = "Measurement",
-                            value = s"""${zook.passport.physical.height.data} cm
-                               |${zook.passport.physical.length.data} cm
-                               |${zook.passport.physical.width.data} cm
-                               |${zook.passport.physical.weight.data} kg
-                               |${zook.passport.physical.components.data}""".stripMargin
+                          Vector(
+                            Part.formData(
+                              "payload_json",
+                              DiscordWebhook(
+                                embeds = List(
+                                  discord.Embed(
+                                    title = coreZook.name,
+                                    url = s"https://zooklabs.com/zooks/$id",
+                                    color = 16725286,
+                                    description = user.username.map(username =>
+                                      s"__Uploaded By__:\n**$username**"
+                                    ),
+                                    thumbnail = Thumbnail("attachment://image.png"),
+                                    fields = List(
+                                      Field(
+                                        name = "Physical",
+                                        value = "Height\nLength\nWidth\nWeight\nComponents"
+                                      ),
+                                      Field(
+                                        name = "Measurement",
+                                        value = s"""${coreZook.passport.physical.height.data} cm
+                               |${coreZook.passport.physical.length.data} cm
+                               |${coreZook.passport.physical.width.data} cm
+                               |${coreZook.passport.physical.weight.data} kg
+                               |${coreZook.passport.physical.components.data}""".stripMargin
+                                      )
+                                    )
+                                  )
+                                )
+                              ).asJson.toString
+                            ),
+                            Part.fileData(
+                              "file",
+                              "image.png",
+                              fs2.Stream.emits(coreZook.image.imageBytes),
+                              `Content-Type`(MediaType.image.png)
+                            )
                           )
                         )
-                      )
-                    )
-                  ).asJson.toString
-                ),
-                Part.fileData("file",
-                              "image.png",
-                              fs2.Stream.emits(zook.image.imageBytes),
-                              `Content-Type`(MediaType.image.png))
-              ))
 
-            _ <- EitherT(
-                  httpClient.fetch(
-                    POST(
-                      multipart,
-                      Uri.unsafeFromString(discordWebhook.toString)
-                    ).map(_.withHeaders(multipart.headers))) {
-                    case Ok(_) => IO.pure(Unit.asRight[APIError])
-                    case resp =>
-                      resp
-                        .decodeJson[DiscordError]
-                        .map(error => {
-                          logger.error(
-                            s"Request $req failed with status ${resp.status.code} and DiscordError $error")
-                          APIError("Problem posting to Discord").asLeft[Unit]
-                        })
-                  }
-                )
+            _        <-
+              EitherT(
+                httpClient.fetch(
+                  POST(
+                    multipart,
+                    discordWebhook
+                  ).map(_.withHeaders(multipart.headers))
+                ) {
+                  case Ok(_) => IO.pure(().asRight[APIError])
+                  case resp  =>
+                    resp
+                      .decodeJson[DiscordWebhookError]
+                      .flatMap(error => {
+                        logger.error(
+                          s"Request failed with status ${resp.status.code} and DiscordError $error [${context.req}]"
+                        ) >>
+                          APIError("Problem posting to Discord").asLeft[Unit].pure[IO]
+                      })
+                }
+              )
           } yield id).value.flatMap {
             case Left(resp) => BadRequest(resp)
             case Right(id)  => Ok(UploadResponse(id))
@@ -173,12 +224,23 @@ case class ZookEndpoints(persistenceConfig: PersistenceConfig,
       }
   }
 
-  case class UploadResponse(id: Int)
+  case class UploadResponse(id: NonNegInt)
+
+  object UploadResponse {
+
+    implicit val encodeUploadResponse: Encoder[UploadResponse] =
+      Encoder.forProduct1(
+        "id"
+      )(u =>
+        (
+          u.id
+        )
+      )
+  }
 
   val endpoints: HttpRoutes[IO] = {
-
     HttpRoutes.of[IO](
-      getZookEndpoint orElse listZooksEndpoint orElse uploadZookEndpoint
-    )
+      getZookEndpoint orElse listZooksEndpoint
+    ) <+> permissiveSecureMiddleware(AuthedRoutes.of(uploadZookEndpoint))
   }
 }
