@@ -64,7 +64,7 @@ object Config {
         .map(Uri.unsafeFromString)
         .default(uri"https://discord.com/api/v6")
         .as[Uri],
-      env("DISCORD_API").default("http://localhost:3000/login").as[String Refined Url]
+      env("REDIRECT_URI").default("http://localhost:3000/login").as[String Refined Url]
     ).parMapN(
       DiscordOAuthConfig
     )
