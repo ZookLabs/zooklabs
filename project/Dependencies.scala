@@ -15,7 +15,7 @@ object Dependencies {
     val flyway         = "6.5.0"
     val zookCore       = "1.0.2"
     val cats           = "2.2.0"
-    val catsEffect     = "2.1.4"
+    val catsEffect     = "2.2.0"
     val catsEffectTime = "0.1.2"
     val postgres       = "42.2.9"
     val logbackClassic = "1.2.3"
