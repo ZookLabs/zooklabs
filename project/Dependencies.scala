@@ -12,7 +12,7 @@ object Dependencies {
     val fs2            = "2.4.2"
     val scalatest      = "3.2.0"
     val googleCloudNio = "0.121.2"
-    val flyway         = "6.5.0"
+    val flyway         = "6.5.7"
     val zookCore       = "1.0.2"
     val cats           = "2.2.0"
     val catsEffect     = "2.1.4"
