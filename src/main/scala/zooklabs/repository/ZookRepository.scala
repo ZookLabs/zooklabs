@@ -129,7 +129,7 @@ case class ZookRepository(xa: Transactor[IO]) {
   }
 
   val listZooksQuery: doobie.Query0[ZookIdentifier] =
-    sql"SELECT id, name from zook".query[ZookIdentifier]
+    sql"SELECT id, name FROM zook ORDER BY id DESC".query[ZookIdentifier]
 
   def listZooks(): IO[List[ZookIdentifier]] = {
     listZooksQuery.to[List].transact(xa)
