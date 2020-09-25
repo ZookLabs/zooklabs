@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
   object Version {
-    val http4s         = "0.21.1"
+    val http4s         = "0.21.7"
     val doobie         = "0.8.6"
     val circe          = "0.13.0"
     val logback        = "1.2.3"
