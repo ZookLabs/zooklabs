@@ -8,7 +8,7 @@ object Dependencies {
     val logback        = "1.2.3"
     val refined        = "0.9.15"
     val log4Cats       = "1.1.1"
-    val ciris          = "1.1.1"
+    val ciris          = "1.1.2"
     val fs2            = "2.4.4"
     val scalatest      = "3.2.2"
     val googleCloudNio = "0.121.2"
