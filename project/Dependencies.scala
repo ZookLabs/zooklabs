@@ -2,22 +2,22 @@ import sbt._
 
 object Dependencies {
   object Version {
-    val http4s         = "0.21.1"
+    val http4s         = "0.21.7"
     val doobie         = "0.8.6"
     val circe          = "0.13.0"
     val logback        = "1.2.3"
     val refined        = "0.9.15"
     val log4Cats       = "1.1.1"
     val ciris          = "1.1.1"
-    val fs2            = "2.4.2"
+    val fs2            = "2.4.4"
     val scalatest      = "3.2.0"
     val googleCloudNio = "0.121.2"
-    val flyway         = "6.5.7"
-    val zookCore       = "1.0.2"
+    val flyway         = "6.5.0"
+    val zookcore       = "1.0.2"
     val cats           = "2.2.0"
     val catsEffect     = "2.1.4"
     val catsEffectTime = "0.1.2"
-    val postgres       = "42.2.9"
+    val postgres       = "42.2.16"
     val logbackClassic = "1.2.3"
     val scalaJwt       = "4.2.0"
   }
@@ -74,7 +74,7 @@ object Dependencies {
 
     val postgres = "org.postgresql" % "postgresql" % Version.postgres
 
-    val zookCore = "com.zooklabs" %% "zookcore" % Version.zookCore
+    val zookcore = "com.zooklabs" %% "zookcore" % Version.zookcore
 
     val cats           = "org.typelevel"     %% "cats-core"        % Version.cats
     val catsEffect     = "org.typelevel"     %% "cats-effect"      % Version.catsEffect
@@ -96,7 +96,7 @@ object Dependencies {
       Library.googleCloudNio,
       Library.flyway,
       Library.postgres,
-      Library.zookCore,
+      Library.zookcore,
       Library.cats,
       Library.catsEffect,
       Library.catsEffectTime,

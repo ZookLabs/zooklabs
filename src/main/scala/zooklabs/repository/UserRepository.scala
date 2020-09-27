@@ -31,7 +31,7 @@ case class UserRepository(xa: Transactor[IO]) {
   }
 
   def getZooksByUserQuery(id: Int): doobie.Query0[ZookIdentifier] =
-    sql"SELECT id, name from zook where owner = $id".query[ZookIdentifier]
+    sql"SELECT id, name FROM zook WHERE owner = $id ORDER BY id DESC".query[ZookIdentifier]
 
   def getUser(username: Username): IO[Option[User]] = {
     (for {
