@@ -13,7 +13,7 @@ object Dependencies {
     val scalatest      = "3.2.0"
     val googleCloudNio = "0.121.2"
     val flyway         = "6.5.0"
-    val zookCore       = "1.0.2"
+    val zookcore       = "1.0.2"
     val cats           = "2.2.0"
     val catsEffect     = "2.1.4"
     val catsEffectTime = "0.1.2"
@@ -74,7 +74,7 @@ object Dependencies {
 
     val postgres = "org.postgresql" % "postgresql" % Version.postgres
 
-    val zookCore = "com.zooklabs" %% "zookcore" % Version.zookCore
+    val zookcore = "com.zooklabs" %% "zookcore" % Version.zookcore
 
     val cats           = "org.typelevel"     %% "cats-core"        % Version.cats
     val catsEffect     = "org.typelevel"     %% "cats-effect"      % Version.catsEffect
@@ -96,7 +96,7 @@ object Dependencies {
       Library.googleCloudNio,
       Library.flyway,
       Library.postgres,
-      Library.zookCore,
+      Library.zookcore,
       Library.cats,
       Library.catsEffect,
       Library.catsEffectTime,
