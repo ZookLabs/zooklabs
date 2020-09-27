@@ -6,7 +6,7 @@ object Dependencies {
     val doobie         = "0.8.8"
     val circe          = "0.13.0"
     val logback        = "1.2.3"
-    val refined        = "0.9.15"
+    val refined        = "0.9.16"
     val log4Cats       = "1.1.1"
     val ciris          = "1.1.2"
     val fs2            = "2.4.4"
