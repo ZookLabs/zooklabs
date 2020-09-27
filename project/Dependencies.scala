@@ -19,7 +19,7 @@ object Dependencies {
     val catsEffectTime = "0.1.2"
     val postgres       = "42.2.16"
     val logbackClassic = "1.2.3"
-    val scalaJwt       = "4.2.0"
+    val scalaJwt       = "4.3.0"
   }
 
   object Library {
