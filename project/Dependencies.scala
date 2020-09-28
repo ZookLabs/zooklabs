@@ -24,7 +24,7 @@ object Dependencies {
 
   object Library {
 
-    val http4s: Seq[ModuleID]   = Seq(
+    val http4s: Seq[ModuleID] = Seq(
       "org.http4s" %% "http4s-core",
       "org.http4s" %% "http4s-server",
       "org.http4s" %% "http4s-blaze-server",
@@ -33,12 +33,14 @@ object Dependencies {
       "org.http4s" %% "http4s-dsl"
     ).map(_ % Version.http4s)
 
-    val doobie: Seq[ModuleID]   = Seq(
+    val doobie: Seq[ModuleID] = Seq(
       "org.tpolecat" %% "doobie-core",
       "org.tpolecat" %% "doobie-hikari",
       "org.tpolecat" %% "doobie-postgres",
       "org.tpolecat" %% "doobie-refined"
     ).map(_ % Version.doobie)
+
+    val doobieTest            = "org.tpolecat" %% "doobie-scalatest" % Version.doobie
 
     val circe: Seq[ModuleID]    = Seq(
       "io.circe" %% "circe-core",
@@ -111,8 +113,9 @@ object Dependencies {
       Library.log4cats ++
       Library.fs2
 
-  lazy val testDependencies: List[ModuleID] = List(Library.scalatest)
-    .map(_ % "it,test")
+  lazy val testDependencies: List[ModuleID] =
+    List(Library.scalatest, Library.doobieTest)
+      .map(_ % "it,test")
 
   lazy val resolvers: List[MavenRepository] = List(Resolvers.zookcore)
 

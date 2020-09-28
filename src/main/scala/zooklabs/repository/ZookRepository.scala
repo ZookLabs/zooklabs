@@ -16,10 +16,12 @@ import zooklabs.enum.Trials
 import zooklabs.model._
 import zooklabs.repository.model.{TrialEntity, ZookContainer, ZookEntity}
 
+import doobie.implicits.javatime._
+
 case class ZookRepository(xa: Transactor[IO]) {
 
-  val persistTrialQuery: Trials => Update[TrialEntity] = trialName =>
-    Update[TrialEntity](s"""INSERT INTO ${trialName.value}
+  def persistTrialQuery(trials: Trials): Update[TrialEntity] =
+    Update[TrialEntity](s"""INSERT INTO ${trials.value}
          |(zookid, name, score, position)
          |VALUES (?, ?, ?, ?)
          """.stripMargin)
