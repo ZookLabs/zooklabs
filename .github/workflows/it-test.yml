@@ -8,6 +8,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build the stack
-        run: docker-compose -f src/test/resources\docker-compose.yml up -d
+        run: docker-compose -f ~/src/test/resources\docker-compose.yml up -d
       - name: Test
         run: sbt it:test
