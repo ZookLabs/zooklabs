@@ -26,5 +26,7 @@ jobs:
             ~/.m2
             ~/.cache/coursier/
           key: ${{ hashFiles('project/Dependencies.scala') }}
+      - name: zookcoreStub
+        run: sbt zookcoreStub / publishLocal
       - name: Test
         run: sbt it:test
