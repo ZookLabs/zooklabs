@@ -12,8 +12,11 @@ lazy val dockerSettings = List(
   dockerVersion := Some(DockerVersion(18, 9, 0, Some("ce"))) // required for github actions
 )
 
+scalaVersion := "2.13.3"
+organization := "com.zooklabs"
+
 lazy val root = (project in file("."))
-  .settings(name := "zooklabs", organization := "com.zooklabs")
+  .settings(name := "zooklabs")
   .enablePlugins(JavaAppPackaging, DockerPlugin, AshScriptPlugin)
   .configs(IntegrationTest)
   .settings(
@@ -29,4 +32,6 @@ lazy val root = (project in file("."))
     fork in Compile := true // required for google-cloud-nio to be installed as a filesystem provider
   )
 
-lazy val zookcoreStub = project.in(file("zookcore-stub"))
+lazy val zookcoreStub = project
+  .in(file("zookcore-stub"))
+  .settings(name := "zookcore", version := Dependencies.Version.zookcore)
