@@ -47,7 +47,7 @@ sbt compile
 
 #### Setup Database
 ```bash
-docker-compose -f src/test/resources\docker-compose.yml up -d
+docker-compose -f src/test/resources/docker-compose.yml up -d
 ```
 #### Environment Variables
 `CLIENT_ID` & `CLIENT_SECRET` are required for Discord OAuth2. (User Login)
