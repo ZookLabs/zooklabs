@@ -1,0 +1,13 @@
+name: Integration Tests
+
+on: push
+
+jobs:
+  it-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the stack
+        run: docker-compose -f src/test/resources\docker-compose.yml up -d
+      - name: Test
+        run: sbt it:test
