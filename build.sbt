@@ -12,11 +12,8 @@ lazy val dockerSettings = List(
   dockerVersion := Some(DockerVersion(18, 9, 0, Some("ce"))) // required for github actions
 )
 
-scalaVersion := "2.13.3"
-organization := "com.zooklabs"
-
 lazy val root = (project in file("."))
-  .settings(name := "zooklabs")
+  .settings(name := "zooklabs", organization := "com.zooklabs")
   .enablePlugins(JavaAppPackaging, DockerPlugin, AshScriptPlugin)
   .configs(IntegrationTest)
   .settings(
@@ -34,4 +31,7 @@ lazy val root = (project in file("."))
 
 lazy val zookcoreStub = project
   .in(file("zookcore-stub"))
-  .settings(name := "zookcore", version := Dependencies.Version.zookcore)
+  .settings(name := "zookcore", organization := "com.zooklabs")
+  .settings(scalaVersion := "2.13.3", 
+            
+            ersion := Dependencies.Version.zookcore)
