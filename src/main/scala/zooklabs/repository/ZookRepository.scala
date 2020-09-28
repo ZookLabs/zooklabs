@@ -24,7 +24,7 @@ case class ZookRepository(xa: Transactor[IO]) {
          |VALUES (?, ?, ?, ?)
          """.stripMargin)
 
-  def persistZookQuery(zookEntity: ZookEntity) = {
+  def persistZookQuery(zookEntity: ZookEntity): doobie.Update0 = {
     sql"""INSERT INTO  zook 
          | (name, height, length, width, weight, components, dateCreated, dateUploaded, owner)
          | VALUES (${zookEntity.name},
@@ -92,9 +92,8 @@ case class ZookRepository(xa: Transactor[IO]) {
       getTrial(Trials.Hurdles).option,
       getTrial(Trials.HighJump).option,
       getTrial(Trials.Lap).option
-    ).mapN {
-      case (sprint, blockPush, hurdles, highJump, lap) =>
-        ZookAchievement(sprint, blockPush, hurdles, highJump, lap)
+    ).mapN { case (sprint, blockPush, hurdles, highJump, lap) =>
+      ZookAchievement(sprint, blockPush, hurdles, highJump, lap)
     }
   }
 

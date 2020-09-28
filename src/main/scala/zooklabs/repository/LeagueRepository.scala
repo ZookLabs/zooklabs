@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 import cats.effect.IO
 import doobie.Transactor
 import doobie.implicits._
+import doobie.implicits.javatime._
 import doobie.refined.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
