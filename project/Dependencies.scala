@@ -3,28 +3,28 @@ import sbt._
 object Dependencies {
   object Version {
     val http4s         = "0.21.7"
-    val doobie         = "0.8.6"
+    val doobie         = "0.9.2"
     val circe          = "0.13.0"
     val logback        = "1.2.3"
-    val refined        = "0.9.15"
+    val refined        = "0.9.17"
     val log4Cats       = "1.1.1"
-    val ciris          = "1.1.1"
+    val ciris          = "1.1.2"
     val fs2            = "2.4.4"
-    val scalatest      = "3.2.0"
+    val scalatest      = "3.2.2"
     val googleCloudNio = "0.121.2"
-    val flyway         = "6.5.0"
+    val flyway         = "6.5.7"
     val zookcore       = "1.0.2"
     val cats           = "2.2.0"
-    val catsEffect     = "2.1.4"
+    val catsEffect     = "2.2.0"
     val catsEffectTime = "0.1.2"
     val postgres       = "42.2.16"
     val logbackClassic = "1.2.3"
-    val scalaJwt       = "4.2.0"
+    val scalaJwt       = "4.3.0"
   }
 
   object Library {
 
-    val http4s: Seq[ModuleID]   = Seq(
+    val http4s: Seq[ModuleID] = Seq(
       "org.http4s" %% "http4s-core",
       "org.http4s" %% "http4s-server",
       "org.http4s" %% "http4s-blaze-server",
@@ -33,12 +33,14 @@ object Dependencies {
       "org.http4s" %% "http4s-dsl"
     ).map(_ % Version.http4s)
 
-    val doobie: Seq[ModuleID]   = Seq(
+    val doobie: Seq[ModuleID] = Seq(
       "org.tpolecat" %% "doobie-core",
       "org.tpolecat" %% "doobie-hikari",
       "org.tpolecat" %% "doobie-postgres",
       "org.tpolecat" %% "doobie-refined"
     ).map(_ % Version.doobie)
+
+    val doobieTest            = "org.tpolecat" %% "doobie-scalatest" % Version.doobie
 
     val circe: Seq[ModuleID]    = Seq(
       "io.circe" %% "circe-core",
@@ -111,8 +113,9 @@ object Dependencies {
       Library.log4cats ++
       Library.fs2
 
-  lazy val testDependencies: List[ModuleID] = List(Library.scalatest)
-    .map(_ % "it,test")
+  lazy val testDependencies: List[ModuleID] =
+    List(Library.scalatest, Library.doobieTest)
+      .map(_ % "it,test")
 
   lazy val resolvers: List[MavenRepository] = List(Resolvers.zookcore)
 

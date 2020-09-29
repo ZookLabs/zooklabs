@@ -15,15 +15,18 @@ jobs:
         with:
           java-version: 1.8
       - name: sbt cache
-        uses: actions/cache@v1.1.2
+        uses: actions/cache@v2
         with:
           path: ~/.sbt
-          key: ${{ hashFiles('build.sbt') }}
+          key: ${{ hashFiles('project/build.properties') }}
       - name: dependencies cache
-        uses: actions/cache@v1.1.2
+        uses: actions/cache@v2
         with:
-          path: ~/.ivy2
-          key: ${{ hashFiles('build.sbt') }}
+          path: |
+            ~/.ivy2/cache
+            ~/.m2
+            ~/.cache/coursier/
+          key: ${{ hashFiles('project/Dependencies.scala') }}
       - name: create credentials
         env:
           CREDS_USERNAME: ${{ secrets.CREDS_USERNAME }}

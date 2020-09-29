@@ -29,4 +29,9 @@ lazy val root = (project in file("."))
     fork in Compile := true // required for google-cloud-nio to be installed as a filesystem provider
   )
 
-lazy val zookcoreStub = project.in(file("zookcore-stub"))
+lazy val zookcoreStub = project
+  .in(file("zookcore-stub"))
+  .settings(name := "zookcore", organization := "com.zooklabs")
+  .settings(scalaVersion := "2.13.3",
+            version := Dependencies.Version.zookcore
+  )

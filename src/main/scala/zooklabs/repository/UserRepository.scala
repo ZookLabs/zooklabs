@@ -16,6 +16,8 @@ import zooklabs.endpoints.model.zooks.ZookIdentifier
 import zooklabs.repository.model.UserEntity
 import zooklabs.types.Username
 
+import doobie.implicits.javatime._
+
 case class UserRepository(xa: Transactor[IO]) {
 
   def getUserEntityQuery(username: Username): Query0[UserEntity] = {
@@ -43,12 +45,11 @@ case class UserRepository(xa: Transactor[IO]) {
     } yield User(userIdentifier, userAbout, userZooks)).transact(xa).value
   }
 
-  val listUserIdentifiersQuery: doobie.Query0[UserIdentifier] =
-    sql"SELECT username FROM users WHERE username IS NOT NULL"
-      .query[UserIdentifier]
+  val listUserIdentifiersQuery: doobie.Query0[Option[UserIdentifier]] =
+    sql"SELECT username FROM users WHERE username IS NOT NULL".query[Option[UserIdentifier]]
 
   def listUsers(): IO[List[UserIdentifier]] = {
-    listUserIdentifiersQuery.to[List].transact(xa)
+    listUserIdentifiersQuery.to[List].map(_.flatten).transact(xa)
   }
 
   def getByDiscordIdQuery(discordId: String): Query0[UserEntity] =
@@ -85,8 +86,8 @@ case class UserRepository(xa: Transactor[IO]) {
 
   def setUsername(id: Int, username: Username): IO[Either[Unit, Int]] = {
     setUsernameQuery(id, username).run
-      .attemptSomeSqlState {
-        case sqlstate.class23.UNIQUE_VIOLATION => ()
+      .attemptSomeSqlState { case sqlstate.class23.UNIQUE_VIOLATION =>
+        ()
       }
       .transact(xa)
   }

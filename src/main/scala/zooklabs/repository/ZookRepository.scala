@@ -16,15 +16,17 @@ import zooklabs.enum.Trials
 import zooklabs.model._
 import zooklabs.repository.model.{TrialEntity, ZookContainer, ZookEntity}
 
+import doobie.implicits.javatime._
+
 case class ZookRepository(xa: Transactor[IO]) {
 
-  val persistTrialQuery: Trials => Update[TrialEntity] = trialName =>
-    Update[TrialEntity](s"""INSERT INTO ${trialName.value}
+  def persistTrialQuery(trials: Trials): Update[TrialEntity] =
+    Update[TrialEntity](s"""INSERT INTO ${trials.value}
          |(zookid, name, score, position)
          |VALUES (?, ?, ?, ?)
          """.stripMargin)
 
-  def persistZookQuery(zookEntity: ZookEntity) = {
+  def persistZookQuery(zookEntity: ZookEntity): doobie.Update0 = {
     sql"""INSERT INTO  zook 
          | (name, height, length, width, weight, components, dateCreated, dateUploaded, owner)
          | VALUES (${zookEntity.name},
@@ -92,9 +94,8 @@ case class ZookRepository(xa: Transactor[IO]) {
       getTrial(Trials.Hurdles).option,
       getTrial(Trials.HighJump).option,
       getTrial(Trials.Lap).option
-    ).mapN {
-      case (sprint, blockPush, hurdles, highJump, lap) =>
-        ZookAchievement(sprint, blockPush, hurdles, highJump, lap)
+    ).mapN { case (sprint, blockPush, hurdles, highJump, lap) =>
+      ZookAchievement(sprint, blockPush, hurdles, highJump, lap)
     }
   }
 

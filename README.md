@@ -2,7 +2,26 @@
 ![Deploy](https://github.com/ZookLabs/zooklabs/workflows/Deploy/badge.svg)
 [![Scala Steward badge](https://img.shields.io/badge/Scala_Steward-helping-blue.svg?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAMAAAARSr4IAAAAVFBMVEUAAACHjojlOy5NWlrKzcYRKjGFjIbp293YycuLa3pYY2LSqql4f3pCUFTgSjNodYRmcXUsPD/NTTbjRS+2jomhgnzNc223cGvZS0HaSD0XLjbaSjElhIr+AAAAAXRSTlMAQObYZgAAAHlJREFUCNdNyosOwyAIhWHAQS1Vt7a77/3fcxxdmv0xwmckutAR1nkm4ggbyEcg/wWmlGLDAA3oL50xi6fk5ffZ3E2E3QfZDCcCN2YtbEWZt+Drc6u6rlqv7Uk0LdKqqr5rk2UCRXOk0vmQKGfc94nOJyQjouF9H/wCc9gECEYfONoAAAAASUVORK5CYII=)](https://scala-steward.org)
 
-ZookLabs is the backend api of [zooklabs.com](https://github.com/ZookLabs/zooklabs.com)
+This repo is the back end api of [http://zooklabs.com](https://github.com/ZookLabs/zooklabs.com) an unoffical zook hosting website.
+
+| Layer     | Repo                                                     |
+| --------- | -------------------------------------------------------- |
+| Back End  | [zooklabs](https://github.com/ZookLabs/zooklabs)         |
+| Front End | [zooklabs.com](https://github.com/ZookLabs/zooklabs.com) |
+
+## Technologies
+- Scala
+- Cats
+- Cats Effect
+- Doobie
+- Circie
+- FS2
+
+
+- Heroku
+- GitHub Action
+- Snyk
+
 
 ## Setup
 
@@ -28,7 +47,7 @@ sbt compile
 
 #### Setup Database
 ```bash
-docker-compose -f src/test/resources\docker-compose.yml up -d
+docker-compose -f src/test/resources/docker-compose.yml up -d
 ```
 #### Environment Variables
 `CLIENT_ID` & `CLIENT_SECRET` are required for Discord OAuth2. (User Login)

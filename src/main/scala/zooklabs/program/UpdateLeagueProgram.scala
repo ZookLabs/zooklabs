@@ -16,7 +16,9 @@ final class UpdateLeagueProgram(leagueRepository: LeagueRepository)(implicit tim
   }
 
   def updateLeague(leagueRepository: LeagueRepository)(trial: Trials): IO[Int] = {
-    leagueRepository.updateLeagueOrder(trial) >> leagueRepository.setLeagueUpdatedAt(trial)
+    leagueRepository.updateLeagueOrder(trial) >> leagueRepository.setLeagueUpdatedAtQuery(
+      trial
+    )
   }
 
 }
