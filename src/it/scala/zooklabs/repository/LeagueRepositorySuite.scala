@@ -53,6 +53,10 @@ class LeagueRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAft
     check(leagueRepository.updateLeagueOrderQuery(Trials.Lap))
   }
 
+  test("updateDisqualifiedQuery type checks") {
+    check(leagueRepository.updateDisqualifiedQuery(Trials.Lap))
+  }
+
   test("getLeaderQuery type checks") {
     check(leagueRepository.getLeaderQuery(Trials.Lap))
   }

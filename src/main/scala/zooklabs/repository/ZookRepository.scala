@@ -22,8 +22,8 @@ case class ZookRepository(xa: Transactor[IO]) {
 
   def persistTrialQuery(trials: Trials): Update[TrialEntity] =
     Update[TrialEntity](s"""INSERT INTO ${trials.value}
-         |(zookid, name, score, position)
-         |VALUES (?, ?, ?, ?)
+         |(zookid, name, score, position, disqualified)
+         |VALUES (?, ?, ?, ?, ?)
          """.stripMargin)
 
   def persistZookQuery(zookEntity: ZookEntity): doobie.Update0 = {
@@ -80,10 +80,9 @@ case class ZookRepository(xa: Transactor[IO]) {
          |WHERE id = $id         
          |""".stripMargin.query[ZookEntity]
 
-  def getZookTrial(zookId: Int): Trials => Query0[ZookTrial] =
-    trialName =>
+  def getZookTrial(zookId: Int)(trials: Trials): Query0[ZookTrial] =
       Query0[ZookTrial](
-        s"SELECT score, position FROM ${trialName.value} where zookid = $zookId"
+        s"SELECT score, position, disqualified FROM ${trials.value} where zookid = $zookId"
       )
 
   def getZookAchievementQuery(zookId: Int): ConnectionIO[ZookAchievement] = {
