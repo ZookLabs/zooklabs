@@ -15,10 +15,8 @@ final class UpdateLeagueProgram(leagueRepository: LeagueRepository)(implicit tim
       .sleep_[IO](1.hour)).repeat.void
   }
 
-  def updateLeague(leagueRepository: LeagueRepository)(trial: Trials): IO[Int] = {
-    leagueRepository.updateLeagueOrder(trial) >> leagueRepository.setLeagueUpdatedAtQuery(
-      trial
-    )
+  def updateLeague(leagueRepository: LeagueRepository)(trial: Trials): IO[Unit] = {
+    leagueRepository.updateLeagues(trial)
   }
 
 }

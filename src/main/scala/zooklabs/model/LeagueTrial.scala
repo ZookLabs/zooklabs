@@ -1,34 +1,32 @@
-package zooklabs.repository.model
+package zooklabs.model
 
 import eu.timepit.refined.types.all.NonNegInt
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Encoder
 import io.circe.refined.refinedEncoder
 
-final case class TrialEntity(
+final case class LeagueTrial(
     zookId: NonNegInt,
     name: NonEmptyString,
     score: Double,
-    position: Int = Int.MaxValue,
-    disqualified: Boolean = false
+    position: Int = Int.MaxValue
 )
 
-object TrialEntity {
+object LeagueTrial {
 
-  implicit val encodeTrialEntity: Encoder[TrialEntity] =
-    Encoder.forProduct5(
+  implicit val encodeLeagueTrial: Encoder[LeagueTrial] =
+    Encoder.forProduct4(
       "zookId",
       "name",
       "score",
-      "position",
-      "disqualified"
+      "position"
     )(u =>
       (
         u.zookId,
         u.name,
         u.score,
-        u.position,
-        u.disqualified
+        u.position
       )
     )
+
 }

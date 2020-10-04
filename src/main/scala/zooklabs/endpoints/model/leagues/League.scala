@@ -3,9 +3,9 @@ package zooklabs.endpoints.model.leagues
 import java.time.LocalDateTime
 
 import io.circe.Encoder
-import zooklabs.repository.model.TrialEntity
+import zooklabs.model.LeagueTrial
 
-final case class League(updatedAt: LocalDateTime, entries: List[TrialEntity])
+final case class League(updatedAt: LocalDateTime, entries: List[LeagueTrial])
 
 object League {
 
