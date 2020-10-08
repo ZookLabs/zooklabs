@@ -1,6 +1,5 @@
 package zooklabs.endpoints
 
-import java.nio.file.Files
 import java.time.LocalDateTime
 
 import cats.data.EitherT
@@ -14,6 +13,7 @@ import io.chrisdavenport.log4cats.Logger
 import io.circe.Encoder
 import io.circe.generic.AutoDerivation
 import io.circe.refined.refinedEncoder
+import io.circe.syntax._
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.client.Client
@@ -22,17 +22,17 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.`Content-Type`
 import org.http4s.multipart.{Multipart, Part}
 import org.http4s.server.AuthMiddleware
-import zooklabs.conf.PersistenceConfig
 import zooklabs.endpoints.discord.{DiscordWebhook, DiscordWebhookError, Field, Thumbnail}
 import zooklabs.endpoints.model.AuthUser
 import zooklabs.model.ZookTrial
+import zooklabs.persistence.Persistence
 import zooklabs.repository.ZookRepository
 import zooklabs.repository.model.{ZookContainer, ZookEntity}
 
 import scala.util.Try
 
 class ZookEndpoints(
-    persistenceConfig: PersistenceConfig,
+    persistence: Persistence[IO],
     discordWebhook: Uri,
     zookRepository: ZookRepository,
     httpClient: Client[IO],
@@ -43,30 +43,21 @@ class ZookEndpoints(
     with CirceEntityDecoder
     with CirceEntityEncoder {
 
-  val getZookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
-    case GET -> Root / id =>
-      (for {
-        id   <- EitherT.fromEither[IO](
-                  Try(id.toInt).toOption.toRight(BadRequest())
-                )
-        zook <- EitherT(zookRepository.getZook(id).map(_.toRight(NotFound())))
-      } yield zook).value.flatMap {
-        case Left(resp)  => resp
-        case Right(zook) => Ok(zook)
-      }
+  val getZookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = { case GET -> Root / id =>
+    (for {
+      id   <- EitherT.fromEither[IO](
+                Try(id.toInt).toOption.toRight(BadRequest())
+              )
+      zook <- EitherT(zookRepository.getZook(id).map(_.toRight(NotFound())))
+    } yield zook).value.flatMap {
+      case Left(resp)  => resp
+      case Right(zook) => Ok(zook)
+    }
   }
 
-  val listZooksEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
-    case GET -> Root =>
-      zookRepository.listZooks().flatMap(zooks => Ok(zooks))
+  val listZooksEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = { case GET -> Root =>
+    zookRepository.listZooks().flatMap(zooks => Ok(zooks))
   }
-
-  val ZOOK    = "zook"
-  val ZOOKEXT = s".$ZOOK"
-  val ZOOKS   = s"${ZOOK}s"
-  val IMAGE   = "image.png"
-
-  import io.circe.syntax._
 
   def makeZookEntity(coreZook: CoreZook, ownerId: Option[Int]) = {
     val physical  = coreZook.passport.physical
@@ -99,6 +90,9 @@ class ZookEndpoints(
     )
   }
 
+  val ZOOK    = "zook"
+  val ZOOKEXT = s".$ZOOK"
+
   val uploadZookEndpoint: PartialFunction[AuthedRequest[IO, AuthUser], IO[Response[IO]]] = {
     case context @ POST -> Root / "upload" as user =>
       if (context.req.contentLength.exists(_ > 100000)) { //100 kb
@@ -106,21 +100,21 @@ class ZookEndpoints(
       } else {
         context.req.decode[Multipart[IO]] { reqPart =>
           (for {
-            zookPart     <- EitherT.fromEither[IO](
-                              reqPart.parts
-                                .find(_.name.contains(ZOOK))
-                                .toRight(APIError("No zook form field"))
-                            )
-            _            <- EitherT.fromEither[IO](
-                              zookPart.filename
-                                .find(_.endsWith(ZOOKEXT))
-                                .toRight[APIError](APIError("Not a .zook file"))
-                            )
-            zookBytes    <- EitherT
-                              .right[APIError](
-                                zookPart.body.compile.toList.map(_.toArray)
-                              )
-            coreZook     <-
+            zookPart  <- EitherT.fromEither[IO](
+                           reqPart.parts
+                             .find(_.name.contains(ZOOK))
+                             .toRight(APIError("No zook form field"))
+                         )
+            _         <- EitherT.fromEither[IO](
+                           zookPart.filename
+                             .find(_.endsWith(ZOOKEXT))
+                             .toRight[APIError](APIError("Not a .zook file"))
+                         )
+            zookBytes <- EitherT
+                           .right[APIError](
+                             zookPart.body.compile.toList.map(_.toArray)
+                           )
+            coreZook  <-
               EitherT.fromEither[IO](
                 ZookCore
                   .parseZook(zookBytes)
@@ -137,18 +131,19 @@ class ZookEndpoints(
 
             id <- EitherT.right[APIError](zookRepository.persistZook(zookContainer))
 
-            zookPath  = persistenceConfig.path.resolve(ZOOKS).resolve(id.toString)
-            _        <- EitherT.right[APIError](IO(Files.createDirectories(zookPath)))
-            _        <-
-              EitherT(IO(Files.write(zookPath.resolve(coreZook.name + ZOOKEXT), zookBytes)).attempt)
+            zookPath <-
+              EitherT.right[APIError](persistence.createZookPathAndDirectories(id.toString))
+
+            _ <-
+              EitherT(persistence.writeZook(zookPath, coreZook.name, zookBytes).attempt)
                 .leftSemiflatMap(exception => {
                   logger
                     .error(s"Zook persistence error : ${exception.getLocalizedMessage}") >>
                     APIError("Problem writing Zook").pure[IO]
                 })
 
-            _        <-
-              EitherT(IO(Files.write(zookPath.resolve(IMAGE), coreZook.image.imageBytes)).attempt)
+            _ <-
+              EitherT(persistence.writeImage(zookPath, coreZook.image.imageBytes).attempt)
                 .leftSemiflatMap(exception => {
                   logger
                     .error(s"Zook Image persistence error : ${exception.getLocalizedMessage}") >>
@@ -196,7 +191,7 @@ class ZookEndpoints(
                           )
                         )
 
-            _        <-
+            _ <-
               EitherT(
                 httpClient.fetch(
                   POST(
