@@ -14,6 +14,7 @@ import zooklabs.conf.AppConfig
 import zooklabs.endpoints._
 import zooklabs.endpoints.model.AuthUser
 import zooklabs.jwt.{JwtCreator, JwtMiddleware}
+import zooklabs.persistence.Persistence
 import zooklabs.repository.{LeagueRepository, UserRepository, ZookRepository}
 
 import scala.concurrent.duration._
@@ -22,7 +23,9 @@ final class ServerProgram(
     client: Client[IO],
     leagueRepository: LeagueRepository,
     zookRepository: ZookRepository,
-    usersRepository: UserRepository
+    usersRepository: UserRepository,
+    blocker: Blocker,
+    persistence: Persistence[IO]
 )(implicit logger: Logger[IO], contextShift: ContextShift[IO], timer: Timer[IO]) {
 
   def run(): Stream[IO, ExitCode] = {
@@ -42,7 +45,7 @@ final class ServerProgram(
         secureMiddleware
       ).endpoints,
       "/zooks"   -> new ZookEndpoints(
-        conf.persistenceConfig,
+        persistence,
         conf.discordWebhook,
         zookRepository,
         client,
@@ -54,7 +57,8 @@ final class ServerProgram(
 
     val httpApp = Router(
       "/health" -> HealthEndpoint.endpoint,
-      "/api"    -> api
+      "/api"    -> api,
+      "/static" -> new StaticEndpoints(persistence, blocker).endpoints
     ).orNotFound
 
     val corsHttpApp = CORS(

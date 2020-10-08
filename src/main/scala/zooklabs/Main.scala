@@ -11,6 +11,7 @@ import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 import org.http4s.client.blaze.BlazeClientBuilder
 import zooklabs.conf.Config
 import zooklabs.db.Database
+import zooklabs.persistence.PersistenceImpl
 import zooklabs.program.{KeepAliveProgram, ServerProgram, UpdateLeagueProgram}
 
 import scala.concurrent.ExecutionContext.global
@@ -40,7 +41,7 @@ object Main extends IOApp {
                         .evalTap(Database.initialize)
                     )
 
-      _           = transactor.configure(c => IO(c.setMaximumPoolSize(20)))
+      _ = transactor.configure(c => IO(c.setMaximumPoolSize(20)))
 
       leagueRepository = repository.LeagueRepository(transactor)
       zookRepository   = repository.ZookRepository(transactor)
@@ -48,8 +49,21 @@ object Main extends IOApp {
 
       client <- Stream.resource(BlazeClientBuilder[IO](global).resource)
 
-      serverProgram       =
-        new ServerProgram(conf, client, leagueRepository, zookRepository, usersRepository)
+      blocker <- Stream.resource(Blocker[IO])
+
+      persistence = new PersistenceImpl[IO](conf.persistenceConfig)
+
+      serverProgram =
+        new ServerProgram(
+          conf,
+          client,
+          leagueRepository,
+          zookRepository,
+          usersRepository,
+          blocker,
+          persistence
+        )
+
       keepAliveProgram    = new KeepAliveProgram(client)
       updateLeagueProgram = new UpdateLeagueProgram(leagueRepository)
 
