@@ -3,12 +3,9 @@ package zooklabs.program
 import zooklabs.repository.model.{LeagueCounts, LeagueRanks}
 
 object OverallScoreCalculations {
-  val MaximumScore = 50_000L
+  val MAXIMUM_SCORE = 50_000L
 
   val square: Double => Double = (x: Double) => x * x
-
-  // We want biggest to be best
-  val reverseScore: Long => Long = (score:Long) => MaximumScore - score
 
   val processNormalised: Double => Long = square andThen Math.round
 
@@ -20,7 +17,7 @@ object OverallScoreCalculations {
   def getSingleLeagueScore(position: Int, entries: Int): Long = {
     val normalised = normaliseRank(position, entries)
 
-    processNormalised( normalised )
+    processNormalised(normalised)
   }
 
   def calculateOverallScore(leagueRanks: LeagueRanks, leagueCounts: LeagueCounts): Long = {
@@ -31,8 +28,7 @@ object OverallScoreCalculations {
       (leagueRanks.highJumpPosition, leagueCounts.highJump),
       (leagueRanks.lapPosition, leagueCounts.lap)
     )
-
-//    (for ((position, entries) <- trialPositions) yield getSingleLeagueScore(position, entries)).foldLeft(MaximumScore)( _ - _ )
-    reverseScore( (for ((position, entries) <- trialPositions) yield getSingleLeagueScore(position, entries)).sum )
+    // We want biggest to be best
+    MAXIMUM_SCORE - trialPositions.map { case (position, count) => getSingleLeagueScore(position, count) }.sum
   }
 }

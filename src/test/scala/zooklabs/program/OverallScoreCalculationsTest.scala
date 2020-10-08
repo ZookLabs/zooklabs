@@ -15,10 +15,6 @@ class OverallScoreCalculationsTest extends AnyFunSuite {
     assert( OverallScoreCalculations.normaliseRank( 3, 4 ) == 50)
   }
 
-  test("ReverseScore should return the difference between the maximum score and the given score") {
-    assert( OverallScoreCalculations.reverseScore( 500 ) == 49500 )
-  }
-
   test("processNormalised should square and round a given score") {
     // 2.5 => 6.25 => 6
     assert( OverallScoreCalculations.processNormalised( 2.5 ) == 6 )
