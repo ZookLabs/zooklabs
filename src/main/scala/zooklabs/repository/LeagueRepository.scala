@@ -3,15 +3,26 @@ package zooklabs.repository
 import java.time.LocalDateTime
 
 import cats.effect.IO
-import doobie.Transactor
+import cats.implicits.catsSyntaxTuple5Semigroupal
+import doobie.{ConnectionIO, Transactor}
+import doobie.implicits._
+import doobie.refined.implicits._
+import zooklabs.endpoints.model.leagues.League
+import zooklabs.model.LeagueTrial
+import zooklabs.repository.model.{
+  LeagueCounts,
+  LeagueRanks,
+  LeagueRanksContainer,
+}
+import cats.effect.IO
+import cats.implicits._
 import doobie.implicits._
 import doobie.refined.implicits._
 import doobie.util.query.Query0
-import doobie.util.update.Update0
-import zooklabs.endpoints.model.leagues.League
+import doobie.util.update.{Update, Update0}
+import doobie.{ConnectionIO, Transactor}
 import zooklabs.enum.Trials
 import doobie.implicits.javatime._
-import zooklabs.model.LeagueTrial
 
 case class LeagueRepository(xa: Transactor[IO]) {
 
@@ -54,14 +65,17 @@ case class LeagueRepository(xa: Transactor[IO]) {
     )
   }
 
+  def setLeagueUpdatedAtQuery(trial: Trials): Update0 = {
+    sql"UPDATE leagues_metadata SET updated_at = ${LocalDateTime.now()} WHERE league LIKE ${trial.value}".update
+  }
+
   def updateLeagues(trial: Trials): IO[Unit] = {
 
     (for {
-    _ <- updateLeagueOrderQuery(trial).run
-    _ <- updateDisqualifiedQuery(trial).run
-    _ <- setLeagueUpdatedAtQuery(trial).run
-    } yield ()
-      ).transact(xa)
+      _ <- updateLeagueOrderQuery(trial).run
+      _ <- updateDisqualifiedQuery(trial).run
+      _ <- setLeagueUpdatedAtQuery(trial).run
+    } yield ()).transact(xa)
   }
 
   def getLeaderQuery(trial: Trials): Query0[Int] = {
@@ -72,7 +86,59 @@ case class LeagueRepository(xa: Transactor[IO]) {
     getLeaderQuery(trial).option.transact(xa)
   }
 
-  def setLeagueUpdatedAtQuery(trial: Trials): Update0 = {
-    sql"UPDATE leagues_metadata SET updated_at = ${LocalDateTime.now()} WHERE league LIKE ${trial.value}".update
+  def getCountQuery(trial: Trials): Query0[Int] = {
+    Query0[Int](
+      s"select count(*) from ${trial.value} where not disqualified and position != 2147483647"
+    )
   }
+
+  def getLeagueCounts: ConnectionIO[LeagueCounts] = {
+    (
+      getCountQuery(Trials.Sprint).unique,
+      getCountQuery(Trials.BlockPush).unique,
+      getCountQuery(Trials.Hurdles).unique,
+      getCountQuery(Trials.HighJump).unique,
+      getCountQuery(Trials.Lap).unique
+    ).mapN { case (sprint, blockPush, hurdles, highJump, lap) =>
+      LeagueCounts(sprint, blockPush, hurdles, highJump, lap)
+    }
+  }
+
+  def getRanksQuery: Query0[LeagueRanks] = {
+    sql"""SELECT z.id, z.name, s.position, b.position, h.position, hj.position, l.position
+         |FROM zook z
+         |         INNER JOIN sprint s on z.id = s.zookid
+         |         INNER JOIN block_push b on z.id = b.zookid
+         |         INNER JOIN hurdles h on z.id = h.zookid
+         |         INNER JOIN high_jump hj on z.id = hj.zookid
+         |         INNER JOIN lap l on z.id = l.zookid
+         |WHERE
+         |  NOT s.disqualified
+         |  AND NOT b.disqualified
+         |  AND NOT h.disqualified
+         |  AND NOT hj.disqualified
+         |  AND NOT l.disqualified""".stripMargin.query[LeagueRanks]
+  }
+
+  def getRanks: IO[LeagueRanksContainer] = {
+    (for {
+      leagueRanks <- getRanksQuery.to[List]
+      counts      <- getLeagueCounts
+    } yield LeagueRanksContainer(leagueRanks, counts)).transact(xa)
+  }
+
+  def insertOverallLeagueDataQuery = {
+    Update[LeagueTrial](s"""INSERT INTO overall_league
+                           |(zookid, name, score, position)
+                           |VALUES (?, ?, ?, ?)
+                           |ON CONFLICT (zookid) DO UPDATE
+                           |SET score = excluded.score,
+                           |position = excluded.position
+         """.stripMargin)
+  }
+
+  def insertOverallLeagueData( overallTrials: List[LeagueTrial] ) = {
+    insertOverallLeagueDataQuery.updateMany( overallTrials ).transact(xa)
+  }
+
 }
