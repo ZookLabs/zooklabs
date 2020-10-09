@@ -1,9 +1,10 @@
 create table overall_league
 (
-    zookid   SMALLSERIAL      not null,
-    name     VARCHAR(25)      not null,
-    position INT              not null,
-    score    DOUBLE PRECISION not null,
+    zookid       SMALLSERIAL      not null,
+    name         VARCHAR(25)      not null,
+    position     INT              not null,
+    score        DOUBLE PRECISION not null,
+    disqualified BOOL             not null default false,
     constraint overall_league_pk
         primary key (zookid),
     constraint overall_league_zook_id_fk

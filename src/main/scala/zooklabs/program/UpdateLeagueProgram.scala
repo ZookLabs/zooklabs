@@ -30,7 +30,7 @@ final class UpdateLeagueProgram(leagueRepository: LeagueRepository)(implicit tim
       overallScore = OverallScoreCalculations.calculateOverallScore(leagueRanks, leagueCounts)
     } yield UnrankedTrial(leagueRanks.id, leagueRanks.name, overallScore)
 
-    val sortedResults = overallResults.sortBy(_.score)
+    val sortedResults = overallResults.sortBy(-_.score)
 
     (for ( (result, index) <- sortedResults.view.zipWithIndex ) yield rankTrial(result, index)).toList
   }
