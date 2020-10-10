@@ -14,15 +14,21 @@ import scala.concurrent.duration._
 
 final class UpdateLeagueProgram(leagueRepository: LeagueRepository)(implicit timer: Timer[IO]) {
 
+  // Overall has its own scoring and ranking
+  val isStandardTrial: Trials => Boolean = _ != Trials.Overall
+
   def updateLeague = {
-    Trials.values.traverse(leagueRepository.updateLeagues) >> updateOverallLeague
+    Trials.values
+      .filter(isStandardTrial)
+      .traverse(leagueRepository.updateLeagues) >> updateOverallLeague
   }
 
   def getOverallScores(container: LeagueRanksContainer): List[LeagueTrial] = {
 
-    case class UnrankedTrial( id:NonNegInt, name:NonEmptyString, score:Double )
+    case class UnrankedTrial(id: NonNegInt, name: NonEmptyString, score: Double)
 
-    val rankTrial = (trial: UnrankedTrial, index: Int) => LeagueTrial( trial.id, trial.name, trial.score, index + 1 )
+    val rankTrial = (trial: UnrankedTrial, index: Int) =>
+      LeagueTrial(trial.id, trial.name, trial.score, index + 1)
 
     val overallResults = for {
       leagueRanks <- container.leagueRanks
@@ -32,14 +38,14 @@ final class UpdateLeagueProgram(leagueRepository: LeagueRepository)(implicit tim
 
     val sortedResults = overallResults.sortBy(-_.score)
 
-    (for ( (result, index) <- sortedResults.view.zipWithIndex ) yield rankTrial(result, index)).toList
+    (for ((result, index) <- sortedResults.view.zipWithIndex) yield rankTrial(result, index)).toList
   }
 
   def updateOverallLeague = {
     for {
       container <- leagueRepository.getRanks
       results    = getOverallScores(container)
-      _         <- leagueRepository.insertOverallLeagueData(results)
+      _         <- leagueRepository.updateOverallLeagueData(results)
     } yield ()
   }
 

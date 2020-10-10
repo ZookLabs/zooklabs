@@ -137,8 +137,10 @@ case class LeagueRepository(xa: Transactor[IO]) {
          """.stripMargin)
   }
 
-  def insertOverallLeagueData( overallTrials: List[LeagueTrial] ) = {
-    insertOverallLeagueDataQuery.updateMany( overallTrials ).transact(xa)
+  def updateOverallLeagueData(overallTrials: List[LeagueTrial]) = {
+    (for {
+      _ <- insertOverallLeagueDataQuery.updateMany(overallTrials)
+      _ <- setLeagueUpdatedAtQuery(Trials.Overall).run
+    } yield ()).transact(xa)
   }
-
 }

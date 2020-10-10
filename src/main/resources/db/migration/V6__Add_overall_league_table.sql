@@ -11,3 +11,5 @@ create table overall_league
         foreign key (zookid) references zook (id)
             on delete cascade
 );
+alter table leagues_metadata alter column league type varchar(15) using league::varchar(15);
+INSERT INTO leagues_metadata (league, updated_at) VALUES ('overall_league', '1970-01-01 00:00:00.000000');
