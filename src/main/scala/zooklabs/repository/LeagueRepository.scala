@@ -86,8 +86,8 @@ case class LeagueRepository(xa: Transactor[IO]) {
     getLeaderQuery(trial).option.transact(xa)
   }
 
-  def getCountQuery(trial: Trials): Query0[Int] = {
-    Query0[Int](
+  def getCountQuery(trial: Trials): Query0[Long] = {
+    Query0[Long](
       s"select count(*) from ${trial.value} where not disqualified and position != 2147483647"
     )
   }

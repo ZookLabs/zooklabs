@@ -10,11 +10,11 @@ object OverallScoreCalculations {
   val processNormalised: Double => Long = square andThen Math.round
 
   // Converts a position on the scale 1 to (entries) to 0 to 100
-  def normaliseRank(position: Int, entries: Int): Double = {
+  def normaliseRank(position: Int, entries: Long): Double = {
     (position - 1) * (100.0 / entries)
   }
 
-  def getSingleLeagueScore(position: Int, entries: Int): Long = {
+  def getSingleLeagueScore(position: Int, entries: Long): Long = {
     val normalised = normaliseRank(position, entries)
 
     processNormalised(normalised)

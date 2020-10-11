@@ -1,9 +1,9 @@
 package zooklabs.repository.model
 
 case class LeagueCounts(
-    sprint: Int,
-    blockPush: Int,
-    hurdles: Int,
-    highJump: Int,
-    lap: Int
+    sprint: Long,
+    blockPush: Long,
+    hurdles: Long,
+    highJump: Long,
+    lap: Long
 )

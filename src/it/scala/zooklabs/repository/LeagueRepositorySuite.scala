@@ -61,4 +61,15 @@ class LeagueRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAft
     check(leagueRepository.getLeaderQuery(Trials.Lap))
   }
 
+  test("getCountQuery type checks") {
+    check(leagueRepository.getCountQuery(Trials.Lap))
+  }
+
+  test("getRanksQuery type checks") {
+    check(leagueRepository.getRanksQuery)
+  }
+
+  test("insertOverallLeagueDataQuery type checks") {
+    check(leagueRepository.insertOverallLeagueDataQuery)
+  }
 }
