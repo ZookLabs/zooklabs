@@ -46,4 +46,7 @@ object Trials {
 
   val values = List(Sprint, BlockPush, Hurdles, HighJump, Lap, Overall)
 
+  // Overall is not processed in the same way as the others
+  val standardTrials = List(Sprint, BlockPush, Hurdles, HighJump, Lap)
+
 }

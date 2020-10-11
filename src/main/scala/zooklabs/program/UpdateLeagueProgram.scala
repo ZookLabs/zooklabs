@@ -14,13 +14,8 @@ import scala.concurrent.duration._
 
 final class UpdateLeagueProgram(leagueRepository: LeagueRepository)(implicit timer: Timer[IO]) {
 
-  // Overall has its own scoring and ranking
-  val isStandardTrial: Trials => Boolean = _ != Trials.Overall
-
   def updateLeague = {
-    Trials.values
-      .filter(isStandardTrial)
-      .traverse(leagueRepository.updateLeagues) >> updateOverallLeague
+    Trials.standardTrials.traverse(leagueRepository.updateLeagues) >> updateOverallLeague
   }
 
   def getOverallScores(container: LeagueRanksContainer): List[LeagueTrial] = {
