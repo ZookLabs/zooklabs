@@ -21,13 +21,6 @@ import zooklabs.jwt.JwtCreds
 
 object Config {
 
-  val databaseConfig: ConfigValue[DatabaseConfig] =
-    env("DATABASE_URL")
-      .as[NonEmptyString]
-      .secret
-      .default(Secret("postgres://Bernard:Nosey@localhost:5432/zooklabs"))
-      .as[DatabaseConfig]
-
   val persistenceConfig: ConfigValue[PersistenceConfig] =
     env("PERSISTENCE_PATH")
       .as[NonEmptyString]
@@ -41,8 +34,8 @@ object Config {
       ConfigDecoder
         .identity[String]
         .mapOption("JwtHmacAlgorithm")(
-          JwtAlgorithm.optionFromString(_).collect {
-            case algorithm: JwtHmacAlgorithm => algorithm
+          JwtAlgorithm.optionFromString(_).collect { case algorithm: JwtHmacAlgorithm =>
+            algorithm
           }
         )
 
@@ -74,7 +67,7 @@ object Config {
     (
       env("PORT").as[PortNumber].default(8080),
       env("HOST").as[String].default("0.0.0.0"),
-      databaseConfig,
+      DatabaseConfig.load,
       persistenceConfig,
       env("DISCORD_WEBHOOK")
         .as[String]
