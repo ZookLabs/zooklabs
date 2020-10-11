@@ -1,5 +1,6 @@
 package zooklabs.endpoints
 
+import java.net.URL
 import java.nio.file
 import java.nio.file.Files
 
@@ -21,17 +22,21 @@ class StaticEndpoints(persistence: Persistence[IO], blocker: Blocker)(implicit
 
   val imageEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
     case req @ GET -> Root / "image" / id => //TODO use req to calculate if notModified
-      val pth: file.Path = persistence.imagePath(id)
-      if (Files.isRegularFile(pth)) {
-        IO.delay {
-          Response(
-            headers = Headers(nameToContentType(pth.getFileName.toString).toList),
-            body = readAll[IO](pth, blocker, DefaultBufferSize)
-          )
-        }
-      } else {
-        NotFound()
-      }
+      StaticFile
+        .fromURL[IO](new URL(s"http://static.zooklabs.com/zooks/$id/image.png"), blocker)
+        .getOrElseF(NotFound())
+
+//      val pth: file.Path = persistence.imagePath(id)
+//      if (Files.isRegularFile(pth)) {
+//        IO.delay {
+//          Response(
+//            headers = Headers(nameToContentType(pth.getFileName.toString).toList),
+//            body = readAll[IO](pth, blocker, DefaultBufferSize)
+//          )
+//        }
+//      } else {
+//        NotFound()
+//      }
   }
 
   val endpoints: HttpRoutes[IO] = HttpRoutes.of[IO](imageEndpoint)
