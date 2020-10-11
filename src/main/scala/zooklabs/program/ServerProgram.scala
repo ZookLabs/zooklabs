@@ -58,7 +58,7 @@ final class ServerProgram(
     val httpApp = Router(
       "/health" -> HealthEndpoint.endpoint,
       "/api"    -> api,
-      "/static" -> new StaticEndpoints(persistence, blocker).endpoints
+      "/static" -> new StaticEndpoints(blocker).endpoints
     ).orNotFound
 
     val corsHttpApp = CORS(
