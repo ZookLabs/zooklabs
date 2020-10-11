@@ -29,16 +29,24 @@ object Trials {
     val value    = "lap"
     val ordering = Ascending
   }
-
-  val parse: String => Option[Trials] = {
-    case "sprint"     => Sprint.some
-    case "block_push" => BlockPush.some
-    case "hurdles"    => Hurdles.some
-    case "high_jump"  => HighJump.some
-    case "lap"        => Lap.some
-    case _            => none
+  case object Overall extends Trials {
+    val value    = "overall_league"
+    val ordering = Descending
   }
 
-  val values = List(Sprint, BlockPush, Hurdles, HighJump, Lap)
+  val parse: String => Option[Trials] = {
+    case "sprint"         => Sprint.some
+    case "block_push"     => BlockPush.some
+    case "hurdles"        => Hurdles.some
+    case "high_jump"      => HighJump.some
+    case "lap"            => Lap.some
+    case "overall_league" => Overall.some
+    case _                => none
+  }
+
+  val values = List(Sprint, BlockPush, Hurdles, HighJump, Lap, Overall)
+
+  // Overall is not processed in the same way as the others
+  val standardTrials = List(Sprint, BlockPush, Hurdles, HighJump, Lap)
 
 }
