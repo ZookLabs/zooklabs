@@ -1,14 +1,12 @@
 package zooklabs.endpoints
 
-import java.net.URL
 import java.nio.file
 import java.nio.file.Files
 
 import cats.effect.{Blocker, ContextShift, IO}
 import cats.implicits.{toFoldableOps, _}
-import fs2.io.file.readAll
+import fs2.Stream
 import io.chrisdavenport.log4cats.Logger
-import org.http4s.StaticFile.DefaultBufferSize
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.`Content-Type`
@@ -22,18 +20,19 @@ class StaticEndpoints(persistence: Persistence[IO], blocker: Blocker)(implicit
 
   val imageEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
     case req @ GET -> Root / "image" / id => //TODO use req to calculate if notModified
-      StaticFile
-        .fromURL[IO](new URL(s"http://static.zooklabs.com/zooks/$id/image.png"), blocker)
-        .getOrElseF(NotFound())
+//      StaticFile
+//        .fromURL[IO](new URL(s"http://static.zooklabs.com/zooks/$id/image.png"), blocker)
+//        .getOrElseF(NotFound())
 
-//      val pth: file.Path = persistence.imagePath(id)
+      val pth: file.Path = persistence.imagePath(id)
+
 //      if (Files.isRegularFile(pth)) {
-//        IO.delay {
-//          Response(
-//            headers = Headers(nameToContentType(pth.getFileName.toString).toList),
-//            body = readAll[IO](pth, blocker, DefaultBufferSize)
-//          )
-//        }
+      IO.delay {
+        Response(
+          headers = Headers(nameToContentType(pth.getFileName.toString).toList),
+          body = Stream.emits(Files.readAllBytes(pth))
+        )
+      }
 //      } else {
 //        NotFound()
 //      }
