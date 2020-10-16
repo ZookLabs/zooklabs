@@ -8,25 +8,28 @@ final case class ZookAchievement(
     blockPush: Option[ZookTrial],
     hurdles: Option[ZookTrial],
     highJump: Option[ZookTrial],
-    lap: Option[ZookTrial]
+    lap: Option[ZookTrial],
+    overall: Option[ZookTrial]
 )
 
 object ZookAchievement {
 
   implicit val encodeZookAchievement: Encoder[ZookAchievement] =
-    Encoder.forProduct5(
+    Encoder.forProduct6(
       "sprint",
       "blockPush",
       "hurdles",
       "highJump",
-      "lap"
+      "lap",
+      "overall"
     )(u =>
       (
         u.sprint,
         u.blockPush,
         u.hurdles,
         u.highJump,
-        u.lap
+        u.lap,
+        u.overall
       )
     )
 }
