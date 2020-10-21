@@ -92,9 +92,10 @@ case class ZookRepository(xa: Transactor[IO]) {
       getTrial(Trials.BlockPush).option,
       getTrial(Trials.Hurdles).option,
       getTrial(Trials.HighJump).option,
-      getTrial(Trials.Lap).option
-    ).mapN { case (sprint, blockPush, hurdles, highJump, lap) =>
-      ZookAchievement(sprint, blockPush, hurdles, highJump, lap)
+      getTrial(Trials.Lap).option,
+      getTrial(Trials.Overall).option
+    ).mapN { case (sprint, blockPush, hurdles, highJump, lap, overall) =>
+      ZookAchievement(sprint, blockPush, hurdles, highJump, lap, overall)
     }
   }
 
