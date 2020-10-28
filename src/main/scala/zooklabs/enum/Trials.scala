@@ -29,7 +29,7 @@ object Trials {
     val value    = "lap"
     val ordering = Ascending
   }
-  case object Overall extends Trials {
+  case object Overall   extends Trials {
     val value    = "overall_league"
     val ordering = Descending
   }

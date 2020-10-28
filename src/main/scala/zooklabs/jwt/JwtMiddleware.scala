@@ -36,8 +36,8 @@ object JwtMiddleware extends Http4sDsl[IO] {
   ): EitherT[IO, JWTMiddlewareError, String] = {
     request.headers
       .get(Authorization)
-      .collect {
-        case Authorization(Token(AuthScheme.Bearer, token)) => token
+      .collect { case Authorization(Token(AuthScheme.Bearer, token)) =>
+        token
       }
       .toRight[JWTMiddlewareError](AuthorizationMissing)
       .toEitherT[IO]
@@ -65,8 +65,7 @@ object JwtMiddleware extends Http4sDsl[IO] {
     decode[A](content).leftMap(ContentDecodeError)
   }
 
-  /**
-    * @param key
+  /** @param key
     * @param algorithm
     * @param options
     * @param recoverWith allows authentication to be optional if no Authorization token is supplied.

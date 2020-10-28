@@ -29,6 +29,8 @@ object OverallScoreCalculations {
       (leagueRanks.lapPosition, leagueCounts.lap)
     )
     // We want biggest to be best
-    MAXIMUM_SCORE - trialPositions.map { case (position, count) => getSingleLeagueScore(position, count) }.sum
+    MAXIMUM_SCORE - trialPositions.map { case (position, count) =>
+      getSingleLeagueScore(position, count)
+    }.sum
   }
 }
