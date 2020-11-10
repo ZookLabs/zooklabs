@@ -81,9 +81,9 @@ case class ZookRepository(xa: Transactor[IO]) {
          |""".stripMargin.query[ZookEntity]
 
   def getZookTrial(zookId: Int)(trials: Trials): Query0[ZookTrial] =
-      Query0[ZookTrial](
-        s"SELECT score, position, disqualified FROM ${trials.value} where zookid = $zookId"
-      )
+    Query0[ZookTrial](
+      s"SELECT score, position, disqualified FROM ${trials.value} where zookid = $zookId"
+    )
 
   def getZookAchievementQuery(zookId: Int): ConnectionIO[ZookAchievement] = {
     val getTrial: Trials => Query0[ZookTrial] = getZookTrial(zookId)

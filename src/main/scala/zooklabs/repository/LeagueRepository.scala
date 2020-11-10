@@ -9,11 +9,7 @@ import doobie.implicits._
 import doobie.refined.implicits._
 import zooklabs.endpoints.model.leagues.League
 import zooklabs.model.LeagueTrial
-import zooklabs.repository.model.{
-  LeagueCounts,
-  LeagueRanks,
-  LeagueRanksContainer,
-}
+import zooklabs.repository.model.{LeagueCounts, LeagueRanks, LeagueRanksContainer}
 import cats.effect.IO
 import cats.implicits._
 import doobie.implicits._

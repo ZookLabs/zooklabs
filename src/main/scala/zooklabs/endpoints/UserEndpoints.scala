@@ -27,9 +27,8 @@ class UserEndpoints(
       }
   }
 
-  val listUsersEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
-    case GET -> Root =>
-      userRepository.listUsers().flatMap(users => Ok(users))
+  val listUsersEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = { case GET -> Root =>
+    userRepository.listUsers().flatMap(users => Ok(users))
   }
 
   val endpoints: HttpRoutes[IO] = {
