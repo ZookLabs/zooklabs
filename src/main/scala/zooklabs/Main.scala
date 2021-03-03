@@ -25,9 +25,10 @@ object Main extends IOApp {
       transactor <- Stream.resource(Database.makeTransactor[IO](conf.databaseConfig))
       _          <- Stream.eval(Database.initialize(transactor))
 
-      leagueRepository = repository.LeagueRepository(transactor)
-      zookRepository   = repository.ZookRepository(transactor)
-      usersRepository  = repository.UserRepository(transactor)
+      leagueRepository     = repository.LeagueRepository(transactor)
+      zookRepository       = repository.ZookRepository(transactor)
+      usersRepository      = repository.UserRepository(transactor)
+      tournamentRepository = repository.TournamentRepository(transactor)
 
       clientEc <- Stream.resource(ExecutionContexts.fixedThreadPool[IO](2))
       client   <- Stream.resource(BlazeClientBuilder[IO](clientEc).resource)
@@ -38,13 +39,14 @@ object Main extends IOApp {
 
       serverProgram =
         new ServerProgram(
-          conf,
-          client,
-          leagueRepository,
-          zookRepository,
-          usersRepository,
-          blocker,
-          persistence
+          conf = conf,
+          client = client,
+          leagueRepository = leagueRepository,
+          zookRepository = zookRepository,
+          usersRepository = usersRepository,
+          tournamentRepository = tournamentRepository,
+          blocker = blocker,
+          persistence = persistence
         )
 
       keepAliveProgram    = new KeepAliveProgram(client)

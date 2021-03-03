@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
   object Version {
     val http4s         = "0.21.8"
-    val doobie         = "0.9.2"
+    val doobie         = "0.10.0"
     val circe          = "0.13.0"
     val logback        = "1.2.3"
     val refined        = "0.9.17"
@@ -31,12 +31,13 @@ object Dependencies {
       "org.http4s" %% "http4s-blaze-client",
       "org.http4s" %% "http4s-circe",
       "org.http4s" %% "http4s-dsl"
-    ).map(_ % Version.http4s)
+    ).map(_ % Version.http4s) //  you need to rejoin the call
 
     val doobie: Seq[ModuleID] = Seq(
       "org.tpolecat" %% "doobie-core",
       "org.tpolecat" %% "doobie-hikari",
       "org.tpolecat" %% "doobie-postgres",
+      "org.tpolecat" %% "doobie-postgres-circe",
       "org.tpolecat" %% "doobie-refined"
     ).map(_ % Version.doobie)
 

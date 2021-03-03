@@ -2,8 +2,8 @@ package zooklabs.endpoints.model.zooks
 
 import eu.timepit.refined.types.all.NonNegInt
 import eu.timepit.refined.types.string.NonEmptyString
-import io.circe.Encoder
-import io.circe.refined.refinedEncoder
+import io.circe.Codec
+import io.circe.refined.{refinedDecoder, refinedEncoder}
 
 final case class ZookIdentifier(
     id: NonNegInt,
@@ -11,11 +11,11 @@ final case class ZookIdentifier(
 )
 
 object ZookIdentifier {
-  implicit val encodeZookIdentifier: Encoder[ZookIdentifier] =
-    Encoder.forProduct2(
+  implicit val encodeZookIdentifier: Codec[ZookIdentifier] =
+    Codec.forProduct2(
       "id",
       "name"
-    )(u =>
+    )(ZookIdentifier.apply)(u =>
       (
         u.id,
         u.name

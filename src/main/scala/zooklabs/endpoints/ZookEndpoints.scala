@@ -45,9 +45,7 @@ class ZookEndpoints(
 
   val getZookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = { case GET -> Root / id =>
     (for {
-      id   <- EitherT.fromEither[IO](
-                Try(id.toInt).toOption.toRight(BadRequest())
-              )
+      id   <- EitherT.fromEither[IO](id.toIntOption.toRight(BadRequest()))
       zook <- EitherT(zookRepository.getZook(id).map(_.toRight(NotFound())))
     } yield zook).value.flatMap {
       case Left(resp)  => resp
