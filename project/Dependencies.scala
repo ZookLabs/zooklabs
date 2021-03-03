@@ -31,7 +31,7 @@ object Dependencies {
       "org.http4s" %% "http4s-blaze-client",
       "org.http4s" %% "http4s-circe",
       "org.http4s" %% "http4s-dsl"
-    ).map(_ % Version.http4s) //  you need to rejoin the call
+    ).map(_ % Version.http4s)
 
     val doobie: Seq[ModuleID] = Seq(
       "org.tpolecat" %% "doobie-core",
