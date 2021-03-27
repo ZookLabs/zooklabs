@@ -18,7 +18,7 @@ lazy val root = (project in file("."))
   .configs(IntegrationTest)
   .settings(
     version := "0.0.1-SNAPSHOT",
-    scalaVersion := "2.13.3",
+    scalaVersion := "2.13.5",
     dockerSettings,
     resolvers ++= Dependencies.resolvers,
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
@@ -32,4 +32,4 @@ lazy val root = (project in file("."))
 lazy val zookcoreStub = project
   .in(file("zookcore-stub"))
   .settings(name := "zookcore", organization := "com.zooklabs")
-  .settings(scalaVersion := "2.13.3", version := Dependencies.Version.zookcore)
+  .settings(scalaVersion := "2.13.5", version := Dependencies.Version.zookcore)
