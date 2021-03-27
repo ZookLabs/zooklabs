@@ -10,7 +10,7 @@ object Dependencies {
     val log4Cats       = "1.1.1"
     val ciris          = "1.2.1"
     val fs2            = "2.4.4"
-    val scalatest      = "3.2.2"
+    val scalatest      = "3.2.6"
     val googleCloudNio = "0.121.2"
     val flyway         = "7.1.0"
     val zookcore       = "1.0.2"
