@@ -7,7 +7,7 @@ object Dependencies {
     val circe          = "0.13.0"
     val logback        = "1.2.3"
     val refined        = "0.9.17"
-    val log4Cats       = "1.1.1"
+    val log4Cats       = "1.2.0"
     val ciris          = "1.2.1"
     val fs2            = "2.4.4"
     val scalatest      = "3.2.2"
