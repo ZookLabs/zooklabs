@@ -3,7 +3,7 @@ package zooklabs.endpoints
 import cats.data.EitherT
 import cats.effect.{ContextShift, IO}
 import cats.implicits._
-import io.chrisdavenport.log4cats.Logger
+import org.typelevel.log4cats.Logger
 import org.http4s.circe.{CirceEntityDecoder, CirceEntityEncoder}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{HttpRoutes, Request, Response}

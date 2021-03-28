@@ -4,7 +4,7 @@ import cats.effect.{ContextShift, ExitCode, IO, _}
 import cats.implicits._
 import eu.timepit.refined.auto.autoUnwrap
 import fs2.Stream
-import io.chrisdavenport.log4cats.Logger
+import org.typelevel.log4cats.Logger
 import org.http4s.client.Client
 import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
 import org.http4s.server.blaze.BlazeServerBuilder

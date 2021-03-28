@@ -7,7 +7,7 @@ import cats.data.{EitherT, Kleisli, OptionT}
 import cats.effect.{Clock, IO}
 import cats.implicits._
 import io.chrisdavenport.cats.effect.time.implicits._
-import io.chrisdavenport.log4cats.Logger
+import org.typelevel.log4cats.Logger
 import io.circe.Decoder
 import io.circe.parser.decode
 import org.http4s.Credentials.Token

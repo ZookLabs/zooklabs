@@ -1,7 +1,5 @@
 package zooklabs.endpoints
 
-import java.time.LocalDateTime
-
 import cats.data.EitherT
 import cats.effect.{ContextShift, IO}
 import cats.implicits._
@@ -9,7 +7,6 @@ import com.zooklabs.ZookCore
 import com.zooklabs.core.{ExampleZookError, GeneralZookError, ImageMissingError, StreetRulesError}
 import com.zooklabs.zook.{Zook => CoreZook}
 import eu.timepit.refined.types.all.{NonEmptyString, NonNegInt}
-import io.chrisdavenport.log4cats.Logger
 import io.circe.Encoder
 import io.circe.generic.AutoDerivation
 import io.circe.refined.refinedEncoder
@@ -22,6 +19,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.`Content-Type`
 import org.http4s.multipart.{Multipart, Part}
 import org.http4s.server.AuthMiddleware
+import org.typelevel.log4cats.Logger
 import zooklabs.endpoints.discord.{DiscordWebhook, DiscordWebhookError, Field, Thumbnail}
 import zooklabs.endpoints.model.AuthUser
 import zooklabs.model.ZookTrial
@@ -29,7 +27,7 @@ import zooklabs.persistence.Persistence
 import zooklabs.repository.ZookRepository
 import zooklabs.repository.model.{ZookContainer, ZookEntity}
 
-import scala.util.Try
+import java.time.LocalDateTime
 
 class ZookEndpoints(
     persistence: Persistence[IO],
@@ -224,11 +222,7 @@ class ZookEndpoints(
     implicit val encodeUploadResponse: Encoder[UploadResponse] =
       Encoder.forProduct1(
         "id"
-      )(u =>
-        (
-          u.id
-        )
-      )
+      )(_.id)
   }
 
   val endpoints: HttpRoutes[IO] = {
