@@ -4,8 +4,8 @@ import cats.effect.{ExitCode, IO, IOApp, Resource, _}
 import cats.implicits._
 import doobie.util.ExecutionContexts
 import fs2.Stream
-import io.chrisdavenport.log4cats.Logger
-import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
+import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.slf4j.Slf4jLogger
 import org.http4s.client.blaze.BlazeClientBuilder
 import zooklabs.conf.Config
 import zooklabs.db.Database
@@ -20,14 +20,15 @@ object Main extends IOApp {
       _                             <- Stream.eval {
                                          logger.info(s"ZookLabs Starting...")
                                        }
-      conf                          <- Stream.resource(Resource.liftF(Config.load()))
+      conf                          <- Stream.resource(Resource.eval(Config.load()))
 
       transactor <- Stream.resource(Database.makeTransactor[IO](conf.databaseConfig))
       _          <- Stream.eval(Database.initialize(transactor))
 
-      leagueRepository = repository.LeagueRepository(transactor)
-      zookRepository   = repository.ZookRepository(transactor)
-      usersRepository  = repository.UserRepository(transactor)
+      leagueRepository     = repository.LeagueRepository(transactor)
+      zookRepository       = repository.ZookRepository(transactor)
+      usersRepository      = repository.UserRepository(transactor)
+      tournamentRepository = repository.TournamentRepository(transactor)
 
       clientEc <- Stream.resource(ExecutionContexts.fixedThreadPool[IO](2))
       client   <- Stream.resource(BlazeClientBuilder[IO](clientEc).resource)
@@ -38,13 +39,14 @@ object Main extends IOApp {
 
       serverProgram =
         new ServerProgram(
-          conf,
-          client,
-          leagueRepository,
-          zookRepository,
-          usersRepository,
-          blocker,
-          persistence
+          conf = conf,
+          client = client,
+          leagueRepository = leagueRepository,
+          zookRepository = zookRepository,
+          usersRepository = usersRepository,
+          tournamentRepository = tournamentRepository,
+          blocker = blocker,
+          persistence = persistence
         )
 
       keepAliveProgram    = new KeepAliveProgram(client)

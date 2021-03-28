@@ -6,7 +6,7 @@ import cats.data.EitherT
 import cats.effect.{Clock, IO}
 import cats.implicits._
 import eu.timepit.refined.types.all.NonEmptyString
-import io.chrisdavenport.log4cats.Logger
+import org.typelevel.log4cats.Logger
 import io.circe.generic.AutoDerivation
 import org.http4s.circe.{CirceEntityDecoder, CirceEntityEncoder}
 import org.http4s.client.Client
@@ -73,7 +73,7 @@ class LoginEndpoints(
   }
 
   val registerUsernameEndpoint: PartialFunction[AuthedRequest[IO, AuthUser], IO[Response[IO]]] = {
-    case context @ POST -> Root / "register" as user => {
+    case context @ POST -> Root / "register" as user =>
       if (user.isRegistered) {
         NotImplemented("")
       } else {
@@ -88,8 +88,6 @@ class LoginEndpoints(
           }
         }
       }
-
-    }
   }
 
   def loginRegister(code: String): IO[Response[IO]] = {

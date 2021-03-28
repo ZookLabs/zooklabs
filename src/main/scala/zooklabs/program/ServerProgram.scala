@@ -4,7 +4,7 @@ import cats.effect.{ContextShift, ExitCode, IO, _}
 import cats.implicits._
 import eu.timepit.refined.auto.autoUnwrap
 import fs2.Stream
-import io.chrisdavenport.log4cats.Logger
+import org.typelevel.log4cats.Logger
 import org.http4s.client.Client
 import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -15,7 +15,7 @@ import zooklabs.endpoints._
 import zooklabs.endpoints.model.AuthUser
 import zooklabs.jwt.{JwtCreator, JwtMiddleware}
 import zooklabs.persistence.Persistence
-import zooklabs.repository.{LeagueRepository, UserRepository, ZookRepository}
+import zooklabs.repository.{LeagueRepository, TournamentRepository, UserRepository, ZookRepository}
 
 import scala.concurrent.duration._
 final class ServerProgram(
@@ -24,6 +24,7 @@ final class ServerProgram(
     leagueRepository: LeagueRepository,
     zookRepository: ZookRepository,
     usersRepository: UserRepository,
+    tournamentRepository: TournamentRepository,
     blocker: Blocker,
     persistence: Persistence[IO]
 )(implicit logger: Logger[IO], contextShift: ContextShift[IO], timer: Timer[IO]) {
@@ -37,22 +38,23 @@ final class ServerProgram(
     val secureMiddleware: AuthMiddleware[IO, AuthUser]           = JwtMiddleware.make[AuthUser](conf.jwtCreds)
 
     val api = Router(
-      "/login"   -> new LoginEndpoints(
+      "/login"       -> new LoginEndpoints(
         conf.discordOAuthConfig,
         client,
         usersRepository,
         jwtCreator,
         secureMiddleware
       ).endpoints,
-      "/zooks"   -> new ZookEndpoints(
+      "/zooks"       -> new ZookEndpoints(
         persistence,
         conf.discordWebhook,
         zookRepository,
         client,
         permissiveSecureMiddleware
       ).endpoints,
-      "/leagues" -> new LeaguesEndpoints(leagueRepository).endpoints,
-      "/users"   -> new UserEndpoints(usersRepository).endpoints
+      "/leagues"     -> new LeaguesEndpoints(leagueRepository).endpoints,
+      "/users"       -> new UserEndpoints(usersRepository).endpoints,
+      "/tournaments" -> new TournamentEndpoints(tournamentRepository).endpoints
     )
 
     val httpApp = Router(

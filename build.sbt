@@ -1,7 +1,8 @@
 import com.typesafe.sbt.packager.docker.{DockerChmodType, DockerVersion}
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
 lazy val dockerSettings = List(
-  dockerBaseImage := "adoptopenjdk/openjdk8:alpine-slim",
+  dockerBaseImage := "adoptopenjdk/openjdk11:alpine-slim",
   dockerExposedPorts += 8080,
   dockerAlias := DockerAlias(Some("registry.heroku.com"), Some("zooklabs"), "web", None),
   dockerPackageMappings in Docker ++= List(
@@ -12,13 +13,32 @@ lazy val dockerSettings = List(
   dockerVersion := Some(DockerVersion(18, 9, 0, Some("ce"))) // required for github actions
 )
 
+lazy val releaseSettings = Seq(
+  releaseUseGlobalVersion := true,
+  releaseTagName := s"v${(version in ThisBuild).value}",
+  releaseTagComment := s"Release version ${(version in ThisBuild).value}",
+  releaseCommitMessage := s"Set version to ${(version in ThisBuild).value} [ci skip]",
+  releaseNextCommitMessage := s"Set version to ${(version in ThisBuild).value} [ci skip]",
+  releaseProcess := Seq[ReleaseStep](
+    checkSnapshotDependencies,
+    inquireVersions,
+    setReleaseVersion,
+    releaseStepCommand("docker:publish"),
+    commitReleaseVersion,
+    tagRelease,
+    setNextVersion,
+    commitNextVersion,
+    pushChanges
+  )
+)
+
 lazy val root = (project in file("."))
   .settings(name := "zooklabs", organization := "com.zooklabs")
   .enablePlugins(JavaAppPackaging, DockerPlugin, AshScriptPlugin)
   .configs(IntegrationTest)
   .settings(
-    version := "0.0.1-SNAPSHOT",
-    scalaVersion := "2.13.3",
+    scalaVersion := "2.13.5",
+    releaseSettings,
     dockerSettings,
     resolvers ++= Dependencies.resolvers,
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
@@ -32,4 +52,4 @@ lazy val root = (project in file("."))
 lazy val zookcoreStub = project
   .in(file("zookcore-stub"))
   .settings(name := "zookcore", organization := "com.zooklabs")
-  .settings(scalaVersion := "2.13.3", version := Dependencies.Version.zookcore)
+  .settings(scalaVersion := "2.13.5", version := Dependencies.Version.zookcore)
