@@ -2,24 +2,24 @@ import sbt._
 
 object Dependencies {
   object Version {
-    val http4s         = "0.21.8"
-    val doobie         = "0.10.0"
-    val circe          = "0.13.0"
-    val logback        = "1.2.3"
-    val refined        = "0.9.17"
-    val log4Cats       = "1.1.1"
-    val ciris          = "1.2.1"
-    val fs2            = "2.4.4"
-    val scalatest      = "3.2.2"
-    val googleCloudNio = "0.121.2"
-    val flyway         = "7.1.0"
-    val zookcore       = "1.0.2"
-    val cats           = "2.2.0"
-    val catsEffect     = "2.2.0"
+    val cats           = "2.4.2"
+    val catsEffect     = "2.4.0"
     val catsEffectTime = "0.1.2"
-    val postgres       = "42.2.18"
+    val circe          = "0.13.0"
+    val ciris          = "1.2.1"
+    val doobie         = "0.10.0"
+    val flyway         = "7.1.1"
+    val fs2            = "2.4.6"
+    val googleCloudNio = "0.122.11"
+    val http4s         = "0.21.20"
+    val log4Cats       = "1.2.1"
+    val logback        = "1.2.3"
     val logbackClassic = "1.2.3"
-    val scalaJwt       = "4.3.0"
+    val postgres       = "42.2.19"
+    val refined        = "0.9.21"
+    val scalaJwt       = "5.0.0"
+    val scalatest      = "3.2.6"
+    val zookcore       = "1.0.2"
   }
 
   object Library {
@@ -56,9 +56,9 @@ object Dependencies {
     ).map(_ % Version.refined)
 
     val log4cats: Seq[ModuleID] = Seq(
-      "io.chrisdavenport" %% "log4cats-core",
-      "io.chrisdavenport" %% "log4cats-slf4j"
-    ).map(_ % Version.log4Cats)
+      "log4cats-core",
+      "log4cats-slf4j"
+    ).map("org.typelevel" %% _ % Version.log4Cats)
 
     val logbackClassic          = "ch.qos.logback" % "logback-classic" % Version.logbackClassic
 
