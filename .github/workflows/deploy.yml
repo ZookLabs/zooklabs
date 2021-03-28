@@ -36,6 +36,10 @@ jobs:
         run: heroku container:login
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      - name: setup git user
+        run: |
+          git config --global user.name "BearRebel"
+          git config --global user.email "bearrebel@zooklabs.com"
       - name: build
         run: sbt "release with-defaults"
       - name: Trigger release in Heroku
