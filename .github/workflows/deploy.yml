@@ -37,7 +37,7 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       - name: build
-        run: sbt docker:publish
+        run: sbt "release with-defaults"
       - name: Trigger release in Heroku
         run: heroku container:release -a $HEROKU_APP web
         env:
