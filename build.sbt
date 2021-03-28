@@ -15,6 +15,7 @@ lazy val dockerSettings = List(
 
 lazy val releaseSettings = Seq(
   releaseUseGlobalVersion := true,
+  releaseIgnoreUntrackedFiles := true,
   releaseTagName := s"v${(version in ThisBuild).value}",
   releaseTagComment := s"Release version ${(version in ThisBuild).value}",
   releaseCommitMessage := s"Set version to ${(version in ThisBuild).value} [ci skip]",
