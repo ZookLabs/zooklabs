@@ -7,7 +7,7 @@ object Dependencies {
     val catsEffectTime = "0.1.2"
     val circe          = "0.13.0"
     val ciris          = "1.2.1"
-    val doobie         = "0.10.0"
+    val doobie         = "0.13.1"
     val flyway         = "7.1.1"
     val fs2            = "2.4.6"
     val googleCloudNio = "0.122.11"
