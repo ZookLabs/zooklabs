@@ -38,7 +38,7 @@ lazy val root = (project in file("."))
   .enablePlugins(JavaAppPackaging, DockerPlugin, AshScriptPlugin)
   .configs(IntegrationTest)
   .settings(
-    scalaVersion := "2.13.5",
+    scalaVersion := "2.13.6",
     releaseSettings,
     dockerSettings,
     resolvers ++= Dependencies.resolvers,
@@ -53,4 +53,4 @@ lazy val root = (project in file("."))
 lazy val zookcoreStub = project
   .in(file("zookcore-stub"))
   .settings(name := "zookcore", organization := "com.zooklabs")
-  .settings(scalaVersion := "2.13.5", version := Dependencies.Version.zookcore)
+  .settings(scalaVersion := "2.13.6", version := Dependencies.Version.zookcore)
