@@ -1,18 +1,16 @@
 package zooklabs
 
-import cats.effect.{ExitCode, IO, IOApp, Resource, _}
+import cats.effect.{ExitCode, IO, IOApp, Resource}
 import cats.implicits._
 import doobie.util.ExecutionContexts
 import fs2.Stream
+import org.http4s.blaze.client._
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import zooklabs.conf.Config
 import zooklabs.db.Database
 import zooklabs.persistence.PersistenceImpl
 import zooklabs.program.{KeepAliveProgram, ServerProgram, UpdateLeagueProgram}
-import org.http4s.blaze.client._
-
-import scala.concurrent.ExecutionContext
 
 object Main extends IOApp {
 
@@ -37,6 +35,8 @@ object Main extends IOApp {
 
       persistence = new PersistenceImpl[IO](conf.persistenceConfig)
 
+      executionContext <- Stream.eval(IO.executionContext)
+
       serverProgram =
         new ServerProgram(
           conf = conf,
@@ -46,7 +46,7 @@ object Main extends IOApp {
           usersRepository = usersRepository,
           tournamentRepository = tournamentRepository,
           persistence = persistence,
-          executionContext = ExecutionContext.global //TODO fixme
+          executionContext = executionContext
         )
 
       keepAliveProgram    = new KeepAliveProgram(client)
