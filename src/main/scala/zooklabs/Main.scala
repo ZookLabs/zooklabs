@@ -6,11 +6,13 @@ import doobie.util.ExecutionContexts
 import fs2.Stream
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import org.http4s.client.blaze.BlazeClientBuilder
 import zooklabs.conf.Config
 import zooklabs.db.Database
 import zooklabs.persistence.PersistenceImpl
 import zooklabs.program.{KeepAliveProgram, ServerProgram, UpdateLeagueProgram}
+import org.http4s.blaze.client._
+
+import scala.concurrent.ExecutionContext
 
 object Main extends IOApp {
 
@@ -35,8 +37,6 @@ object Main extends IOApp {
 
       persistence = new PersistenceImpl[IO](conf.persistenceConfig)
 
-      blocker <- Stream.resource(Blocker[IO])
-
       serverProgram =
         new ServerProgram(
           conf = conf,
@@ -45,8 +45,8 @@ object Main extends IOApp {
           zookRepository = zookRepository,
           usersRepository = usersRepository,
           tournamentRepository = tournamentRepository,
-          blocker = blocker,
-          persistence = persistence
+          persistence = persistence,
+          executionContext = ExecutionContext.global //TODO fixme
         )
 
       keepAliveProgram    = new KeepAliveProgram(client)

@@ -14,12 +14,11 @@ class JwtCreator[A: Encoder](
 )(implicit clock: Clock[IO]) {
 
   def issueJwt(content: A): IO[String] =
-    clock
-      .realTime(SECONDS)
+    clock.realTime
       .map { issuedAt =>
         JwtClaim(
-          issuedAt = issuedAt.some,
-          expiration = (issuedAt + expiryDuration.toSeconds).some,
+          issuedAt = issuedAt.toSeconds.some,
+          expiration = (issuedAt.toSeconds + expiryDuration.toSeconds).some,
           content = content.asJson.noSpaces
         )
       }

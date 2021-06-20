@@ -1,14 +1,14 @@
 package zooklabs.program
 
-import cats.effect.{ContextShift, ExitCode, IO, _}
+import cats.effect.{ExitCode, IO, _}
 import cats.implicits._
 import eu.timepit.refined.auto.autoUnwrap
 import fs2.Stream
 import org.typelevel.log4cats.Logger
 import org.http4s.client.Client
 import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
-import org.http4s.server.blaze.BlazeServerBuilder
-import org.http4s.server.middleware.CORS
+import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.server.middleware.{CORS, CORSConfig}
 import org.http4s.server.{AuthMiddleware, Router}
 import zooklabs.conf.AppConfig
 import zooklabs.endpoints._
@@ -18,6 +18,9 @@ import zooklabs.persistence.Persistence
 import zooklabs.repository.{LeagueRepository, TournamentRepository, UserRepository, ZookRepository}
 
 import scala.concurrent.duration._
+import cats.effect.Temporal
+
+import scala.concurrent.ExecutionContext
 final class ServerProgram(
     conf: AppConfig,
     client: Client[IO],
@@ -25,9 +28,9 @@ final class ServerProgram(
     zookRepository: ZookRepository,
     usersRepository: UserRepository,
     tournamentRepository: TournamentRepository,
-    blocker: Blocker,
-    persistence: Persistence[IO]
-)(implicit logger: Logger[IO], contextShift: ContextShift[IO], timer: Timer[IO]) {
+    persistence: Persistence[IO],
+    executionContext: ExecutionContext
+)(implicit logger: Logger[IO], timer: Temporal[IO]) {
 
   def run(): Stream[IO, ExitCode] = {
 
@@ -60,14 +63,14 @@ final class ServerProgram(
     val httpApp = Router(
       "/health" -> HealthEndpoint.endpoint,
       "/api"    -> api,
-      "/static" -> new StaticEndpoints(blocker).endpoints
+      "/static" -> new StaticEndpoints().endpoints
     ).orNotFound
 
     val corsHttpApp = CORS(
       httpApp,
-      CORS.DefaultCORSConfig
+      CORSConfig.default
     )
-    BlazeServerBuilder[IO]
+    BlazeServerBuilder[IO](executionContext)
       .bindHttp(conf.post, conf.host)
       .withHttpApp(corsHttpApp)
       .serve

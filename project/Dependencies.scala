@@ -2,23 +2,22 @@ import sbt._
 
 object Dependencies {
   object Version {
-    val cats           = "2.4.2"
-    val catsEffect     = "2.4.0"
-    val catsEffectTime = "0.1.2"
-    val circe          = "0.13.0"
-    val ciris          = "1.2.1"
-    val doobie         = "0.10.0"
-    val flyway         = "7.1.1"
-    val fs2            = "2.4.6"
-    val googleCloudNio = "0.122.11"
-    val http4s         = "0.21.20"
-    val log4Cats       = "1.2.1"
+    val cats           = "2.6.1"
+    val catsEffect     = "3.1.1"
+    val circe          = "0.14.1"
+    val ciris          = "2.0.0-RC4"
+    val doobie         = "1.0.0-M5"
+    val flyway         = "7.10.0"
+    val fs2            = "3.0.4"
+    val googleCloudNio = "0.123.2"
+    val http4s         = "0.23.0-RC1"
+    val log4Cats       = "2.1.1"
     val logback        = "1.2.3"
     val logbackClassic = "1.2.3"
-    val postgres       = "42.2.19"
-    val refined        = "0.9.21"
-    val scalaJwt       = "5.0.0"
-    val scalatest      = "3.2.6"
+    val postgres       = "42.2.22"
+    val refined        = "0.9.26"
+    val scalaJwt       = "8.0.2"
+    val scalatest      = "3.2.9"
     val zookcore       = "1.0.2"
   }
 
@@ -79,13 +78,12 @@ object Dependencies {
 
     val zookcore = "com.zooklabs" %% "zookcore" % Version.zookcore
 
-    val cats           = "org.typelevel"     %% "cats-core"        % Version.cats
-    val catsEffect     = "org.typelevel"     %% "cats-effect"      % Version.catsEffect
-    val catsEffectTime = "io.chrisdavenport" %% "cats-effect-time" % Version.catsEffectTime
+    val cats       = "org.typelevel" %% "cats-core"   % Version.cats
+    val catsEffect = "org.typelevel" %% "cats-effect" % Version.catsEffect
 
     val scalaJwt: Seq[ModuleID] = List(
-      "com.pauldijou" %% "jwt-core",
-      "com.pauldijou" %% "jwt-circe"
+      "com.github.jwt-scala" %% "jwt-core",
+      "com.github.jwt-scala" %% "jwt-circe"
     ).map(_ % Version.scalaJwt)
 
   }
@@ -102,7 +100,6 @@ object Dependencies {
       Library.zookcore,
       Library.cats,
       Library.catsEffect,
-      Library.catsEffectTime,
       Library.logbackClassic
     ) ++
       Library.http4s ++
@@ -118,6 +115,7 @@ object Dependencies {
     List(Library.scalatest, Library.doobieTest)
       .map(_ % "it,test")
 
-  lazy val resolvers: List[MavenRepository] = List(Resolvers.zookcore)
+  lazy val resolvers: List[MavenRepository] =
+    List(Resolvers.zookcore, Resolver.sonatypeRepo("snapshots"))
 
 }

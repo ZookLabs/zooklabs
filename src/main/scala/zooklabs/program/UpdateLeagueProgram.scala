@@ -1,6 +1,6 @@
 package zooklabs.program
 
-import cats.effect.{IO, Timer}
+import cats.effect.IO
 import cats.implicits._
 import eu.timepit.refined.types.all.NonNegInt
 import eu.timepit.refined.types.string.NonEmptyString
@@ -11,8 +11,9 @@ import zooklabs.repository.LeagueRepository
 import zooklabs.repository.model.LeagueRanksContainer
 
 import scala.concurrent.duration._
+import cats.effect.Temporal
 
-final class UpdateLeagueProgram(leagueRepository: LeagueRepository)(implicit timer: Timer[IO]) {
+final class UpdateLeagueProgram(leagueRepository: LeagueRepository)(implicit timer: Temporal[IO]) {
 
   def updateLeague = {
     Trials.standardTrials.traverse(leagueRepository.updateLeagues) >> updateOverallLeague

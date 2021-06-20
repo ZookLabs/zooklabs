@@ -2,7 +2,7 @@ package zooklabs.conf
 
 import java.nio.file.{Path, Paths}
 
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
 import cats.implicits._
 import ciris._
 import ciris.refined._
@@ -21,14 +21,14 @@ import zooklabs.jwt.JwtCreds
 
 object Config {
 
-  val persistenceConfig: ConfigValue[PersistenceConfig] =
+  val persistenceConfig: ConfigValue[IO, PersistenceConfig] =
     env("PERSISTENCE_PATH")
       .as[NonEmptyString]
       .as[Path]
       .default(Paths.get(System.getProperty("user.home")))
       .map(PersistenceConfig.apply)
 
-  val jwtCredsConfig: ConfigValue[JwtCreds] = {
+  val jwtCredsConfig: ConfigValue[IO, JwtCreds] = {
 
     implicit val jwtHmacAlgorithmDecoder: ConfigDecoder[String, JwtHmacAlgorithm] =
       ConfigDecoder
@@ -48,7 +48,7 @@ object Config {
       JwtCreds
     )
   }
-  val discordOAuthConfig: ConfigValue[DiscordOAuthConfig] = {
+  val discordOAuthConfig: ConfigValue[IO, DiscordOAuthConfig] = {
     (
       env("CLIENT_ID").as[String].default("123456789012345678").secret,
       env("CLIENT_SECRET").as[String].default("abcdefghij1234567890abcdef123456").secret,
@@ -63,7 +63,7 @@ object Config {
     )
   }
 
-  val config: ConfigValue[AppConfig] =
+  val config: ConfigValue[IO, AppConfig] =
     (
       env("PORT").as[PortNumber].default(8080),
       env("HOST").as[String].default("0.0.0.0"),
@@ -81,5 +81,5 @@ object Config {
     )
       .parMapN(AppConfig)
 
-  def load()(implicit f: ContextShift[IO]): IO[AppConfig] = config.load[IO]
+  def load(): IO[AppConfig] = config.load[IO]
 }

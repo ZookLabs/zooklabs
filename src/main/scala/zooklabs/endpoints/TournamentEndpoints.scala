@@ -1,7 +1,7 @@
 package zooklabs.endpoints
 
 import cats.data.EitherT
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
 import cats.implicits._
 import org.typelevel.log4cats.Logger
 import org.http4s.circe.{CirceEntityDecoder, CirceEntityEncoder}
@@ -10,7 +10,6 @@ import org.http4s.{HttpRoutes, Request, Response}
 import zooklabs.repository.TournamentRepository
 
 class TournamentEndpoints(tournamentRepository: TournamentRepository)(implicit
-    contextShift: ContextShift[IO],
     logger: Logger[IO]
 ) extends Http4sDsl[IO]
     with CirceEntityDecoder
