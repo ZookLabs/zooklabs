@@ -2,7 +2,7 @@ package zooklabs.repository
 
 import java.util.concurrent.Executors
 
-import cats.effect.{Blocker, ContextShift, IO}
+import cats.effect.IO
 import doobie.Transactor
 import doobie.scalatest.IOChecker
 import org.flywaydb.core.Flyway
@@ -14,8 +14,6 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 class LeagueRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfterAll {
 
-  private implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-
   val blockingEc: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(Executors.newCachedThreadPool)
 
@@ -23,8 +21,7 @@ class LeagueRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAft
     "org.postgresql.Driver",
     "jdbc:postgresql://localhost:5432/zooklabs",
     "Bernard",
-    "Nosey",
-    Blocker.liftExecutionContext(blockingEc)
+    "Nosey"
   )
 
   val leagueRepository: LeagueRepository = LeagueRepository(transactor)

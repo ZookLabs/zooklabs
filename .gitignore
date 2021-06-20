@@ -5,3 +5,8 @@ target/
 /zookcore-stub/target/
 null/
 /.bsp/
+/.bloop/
+/.metals/
+/project/.bloop/
+/project/metals.sbt
+/project/project

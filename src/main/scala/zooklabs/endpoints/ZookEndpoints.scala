@@ -1,7 +1,7 @@
 package zooklabs.endpoints
 
 import cats.data.EitherT
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
 import cats.implicits._
 import com.zooklabs.ZookCore
 import com.zooklabs.core.{ExampleZookError, GeneralZookError, ImageMissingError, StreetRulesError}
@@ -35,7 +35,7 @@ class ZookEndpoints(
     zookRepository: ZookRepository,
     httpClient: Client[IO],
     permissiveSecureMiddleware: AuthMiddleware[IO, AuthUser]
-)(implicit contextShift: ContextShift[IO], logger: Logger[IO])
+)(implicit logger: Logger[IO])
     extends Http4sDsl[IO]
     with AutoDerivation
     with CirceEntityDecoder
@@ -189,23 +189,25 @@ class ZookEndpoints(
 
             _ <-
               EitherT(
-                httpClient.fetch(
-                  POST(
-                    multipart,
-                    discordWebhook
-                  ).map(_.withHeaders(multipart.headers))
-                ) {
-                  case Ok(_) => IO.pure(().asRight[APIError])
-                  case resp  =>
-                    resp
-                      .decodeJson[DiscordWebhookError]
-                      .flatMap(error => {
-                        logger.error(
-                          s"Request failed with status ${resp.status.code} and DiscordError $error [${context.req}]"
-                        ) >>
-                          APIError("Problem posting to Discord").asLeft[Unit].pure[IO]
-                      })
-                }
+                httpClient
+                  .run(
+                    POST(
+                      multipart,
+                      discordWebhook
+                    ).withHeaders(multipart.headers)
+                  )
+                  .use {
+                    case Ok(_) => IO.pure(().asRight[APIError])
+                    case resp  =>
+                      resp
+                        .decodeJson[DiscordWebhookError]
+                        .flatMap(error => {
+                          logger.error(
+                            s"Request failed with status ${resp.status.code} and DiscordError $error [${context.req}]"
+                          ) >>
+                            APIError("Problem posting to Discord").asLeft[Unit].pure[IO]
+                        })
+                  }
               )
           } yield id).value.flatMap {
             case Left(resp) => BadRequest(resp)
