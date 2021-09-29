@@ -77,4 +77,8 @@ class ZookRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
     check(zookRepository.getZookTrial(0)(Trials.Lap))
   }
 
+  test("setOwnerQuery type checks") {
+    check(zookRepository.setOwnerQuery(0, 0))
+  }
+
 }

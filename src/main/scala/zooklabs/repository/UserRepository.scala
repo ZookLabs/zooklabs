@@ -102,4 +102,20 @@ case class UserRepository(xa: Transactor[IO]) {
     usernameExistsQuery(username).option.transact(xa)
   }
 
+  def isUserAdminQuery(userId: Int): doobie.Query0[Boolean] =
+    sql"SELECT is_admin FROM users WHERE id = $userId".query[Boolean]
+
+  def isUserAdmin(userId: Int): IO[Boolean] =
+    isUserAdminQuery(userId).unique.transact(xa)
+
+  def getUserIdQuery(username: Username): Query0[Int] = {
+    sql"""SELECT id
+         |FROM users
+         |WHERE lower(username) =  ${username.value.toLowerCase}
+         |""".stripMargin.query[Int]
+  }
+
+  def getUserId(username: Username): IO[Option[Int]] =
+    getUserIdQuery(username).option.transact(xa)
+
 }
