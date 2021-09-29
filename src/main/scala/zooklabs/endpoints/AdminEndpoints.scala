@@ -1,19 +1,17 @@
 package zooklabs.endpoints
 
-import cats.conversions.all.autoWidenFunctor
 import cats.data.EitherT
 import cats.effect.IO
 import cats.implicits._
 import io.circe.generic.AutoDerivation
-import org.http4s.Method.PATCH
 import org.http4s.circe.{CirceEntityDecoder, CirceEntityEncoder}
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{AuthedRequest, AuthedRoutes, HttpRoutes, Response, Status}
 import org.http4s.server.AuthMiddleware
+import org.http4s._
 import org.typelevel.log4cats.Logger
 import zooklabs.endpoints.model.AuthUser
-import zooklabs.jwt.JwtMiddleware.Forbidden
 import zooklabs.repository.{UserRepository, ZookRepository}
+import zooklabs.types.Username
 
 class AdminEndpoints(
     zookRepository: ZookRepository,
@@ -26,14 +24,17 @@ class AdminEndpoints(
     with CirceEntityEncoder {
 
   val setUserEndpoint: PartialFunction[AuthedRequest[IO, AuthUser], IO[Response[IO]]] = {
-    case PATCH -> Root / "zook" / zookIdStr / "owner" / ownerIdStr as user =>
+    case PATCH -> Root / "zook" / zookIdStr / "owner" / username as user =>
       userRepository
         .isUserAdmin(user.id)
         .ifA[Response[IO]](
           (for {
-            zookId         <- EitherT.fromEither[IO](zookIdStr.toIntOption.toRight(BadRequest()))
-            ownerId        <- EitherT.fromEither[IO](ownerIdStr.toIntOption.toRight(BadRequest()))
-            setOwnerResult <-
+            zookId          <- EitherT.fromEither[IO](zookIdStr.toIntOption.toRight(BadRequest()))
+            refinedUsername <-
+              EitherT.fromEither[IO](Username.from(username)).leftMap(_ => BadRequest())
+            ownerId         <-
+              EitherT(userRepository.getUserId(refinedUsername).map(_.toRight(BadRequest())))
+            setOwnerResult  <-
               EitherT(zookRepository.setOwner(zookId, ownerId)).leftMap(e => BadRequest(e))
           } yield setOwnerResult).value.flatMap {
             case Left(resp) => resp
