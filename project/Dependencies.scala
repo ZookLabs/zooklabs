@@ -8,7 +8,7 @@ object Dependencies {
     val ciris          = "2.0.1"
     val doobie         = "1.0.0-M5"
     val flyway         = "7.10.0"
-    val fs2            = "3.0.6"
+    val fs2            = "3.1.3"
     val googleCloudNio = "0.123.2"
     val http4s         = "0.23.4"
     val log4Cats       = "2.1.1"
