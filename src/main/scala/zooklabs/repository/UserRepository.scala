@@ -107,4 +107,15 @@ case class UserRepository(xa: Transactor[IO]) {
 
   def isUserAdmin(userId: Int): IO[Boolean] =
     isUserAdminQuery(userId).unique.transact(xa)
+
+  def getUserIdQuery(username: Username): Query0[Int] = {
+    sql"""SELECT id
+         |FROM users
+         |WHERE lower(username) =  ${username.value.toLowerCase}
+         |""".stripMargin.query[Int]
+  }
+
+  def getUserId(username: Username): IO[Option[Int]] =
+    getUserIdQuery(username).option.transact(xa)
+
 }
