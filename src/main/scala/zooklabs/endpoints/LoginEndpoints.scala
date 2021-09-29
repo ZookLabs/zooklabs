@@ -1,12 +1,9 @@
 package zooklabs.endpoints
 
-import java.time.{Instant, LocalDateTime, ZoneId}
-
 import cats.data.EitherT
 import cats.effect.{Clock, IO}
 import cats.implicits._
 import eu.timepit.refined.types.all.NonEmptyString
-import org.typelevel.log4cats.Logger
 import io.circe.generic.AutoDerivation
 import org.http4s.circe.{CirceEntityDecoder, CirceEntityEncoder}
 import org.http4s.client.Client
@@ -15,6 +12,8 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.headers._
 import org.http4s.server.AuthMiddleware
 import org.http4s.{AuthedRoutes, _}
+import org.typelevel.ci.CIString
+import org.typelevel.log4cats.Logger
 import zooklabs.conf.DiscordOAuthConfig
 import zooklabs.endpoints.discord.AccessTokenResponse.decoder
 import zooklabs.endpoints.discord.{AccessToken, AccessTokenResponse, UserIdentity}
@@ -25,7 +24,7 @@ import zooklabs.repository.UserRepository
 import zooklabs.repository.model.UserEntity
 import zooklabs.types.Username
 
-import scala.concurrent.duration.MILLISECONDS
+import java.time.{LocalDateTime, ZoneId}
 
 class LoginEndpoints(
     discordOAuthConfig: DiscordOAuthConfig,
@@ -83,7 +82,9 @@ class LoginEndpoints(
             case Right(_) => {
               jwtCreator
                 .issueJwt(AuthUser(user.id, register.username.some))
-                .flatMap(token => Ok(Header("Authorization", s"Bearer $token")))
+                .flatMap(token =>
+                  Ok.headers(Authorization(Credentials.Token(AuthScheme.Bearer, token)))
+                )
             }
           }
         }
@@ -101,30 +102,30 @@ class LoginEndpoints(
       case Left(error)  =>
         logger.error(error) >> InternalServerError("something went wrong")
       case Right(token) =>
-        Ok(Header("Authorization", s"Bearer $token"))
+        Ok.headers(Authorization(Credentials.Token(AuthScheme.Bearer, token)))
     }
   }
 
   def getOrCreateUser(userIdentity: UserIdentity): IO[UserEntity] =
     for {
-      epoch <- clock.realTime(MILLISECONDS)
-      now    = LocalDateTime.ofInstant(Instant.ofEpochMilli(epoch), ZoneId.systemDefault())
-      user  <- usersRepository.getByDiscordId(userIdentity.id).flatMap {
-                 case None       =>
-                   val discordUsername = NonEmptyString
-                     .unsafeFrom(s"${userIdentity.username.value}#${userIdentity.discriminator}")
+      instant <- clock.realTimeInstant
+      now      = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+      user    <- usersRepository.getByDiscordId(userIdentity.id).flatMap {
+                   case None       =>
+                     val discordUsername = NonEmptyString
+                       .unsafeFrom(s"${userIdentity.username.value}#${userIdentity.discriminator}")
 
-                   val user = UserEntity(
-                     username = None,
-                     discordId = userIdentity.id,
-                     discordUsername = discordUsername,
-                     signUpAt = now,
-                     lastLoginAt = now
-                   )
-                   usersRepository.persistUser(user)
-                 case Some(user) =>
-                   usersRepository.updateLastLogin(user.id, now) >> user.pure[IO]
-               }
+                     val user = UserEntity(
+                       username = None,
+                       discordId = userIdentity.id,
+                       discordUsername = discordUsername,
+                       signUpAt = now,
+                       lastLoginAt = now
+                     )
+                     usersRepository.persistUser(user)
+                   case Some(user) =>
+                     usersRepository.updateLastLogin(user.id, now) >> user.pure[IO]
+                 }
     } yield user
 
   def getAccessToken(code: String): IO[Either[String, AccessTokenResponse]] = {

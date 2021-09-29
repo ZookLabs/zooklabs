@@ -1,6 +1,6 @@
 package zooklabs.db
 
-import cats.effect.{Async, Blocker, ContextShift, IO, Resource, Sync}
+import cats.effect.{Async, IO, Resource, Sync}
 import cats.implicits._
 import com.zaxxer.hikari.HikariConfig
 import doobie.hikari.HikariTransactor
@@ -27,18 +27,16 @@ object Database {
     hikariConfig
   }
 
-  def makeTransactor[F[_]: Async: ContextShift](
+  def makeTransactor[F[_]: Async](
       databaseConfig: DatabaseConfig
   ): Resource[F, HikariTransactor[F]] = {
     for {
       ce    <-
         ExecutionContexts.fixedThreadPool[F](databaseConfig.maxConnections.value)
-      be    <- Blocker[F]
       config = hikariConfig(databaseConfig)
       xa    <- HikariTransactor.fromHikariConfig[F](
                  config,
-                 ce,
-                 be
+                 ce
                )
     } yield xa
 

@@ -1,9 +1,6 @@
 package zooklabs.repository
 
-import java.time.{Clock, Instant, LocalDateTime, ZoneId}
-import java.util.concurrent.Executors
-
-import cats.effect.{Blocker, ContextShift, IO}
+import cats.effect.IO
 import cats.implicits.catsSyntaxOptionId
 import doobie.Transactor
 import doobie.scalatest.IOChecker
@@ -14,6 +11,8 @@ import org.scalatest.funsuite.AnyFunSuite
 import zooklabs.repository.model.UserEntity
 import zooklabs.types.Username
 
+import java.time.{Clock, Instant, LocalDateTime, ZoneId}
+import java.util.concurrent.Executors
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 class UserRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfterAll {
@@ -22,17 +21,11 @@ class UserRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
   val nowLocalDateTime: LocalDateTime = LocalDateTime.now(Clock.fixed(now, ZoneId.systemDefault()))
   val testUsername: Username          = Username("test")
 
-  private implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-
-  val blockingEc: ExecutionContextExecutor =
-    ExecutionContext.fromExecutor(Executors.newCachedThreadPool)
-
   val transactor: doobie.Transactor[IO] = Transactor.fromDriverManager[IO](
     "org.postgresql.Driver",
     "jdbc:postgresql://localhost:5432/zooklabs",
     "Bernard",
-    "Nosey",
-    Blocker.liftExecutionContext(blockingEc)
+    "Nosey"
   )
 
   val userRepository: UserRepository = UserRepository(transactor)
@@ -84,8 +77,17 @@ class UserRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
   test("setUsernameQuery type checks") {
     check(userRepository.setUsernameQuery(1, testUsername))
   }
+
   test("usernameExistsQuery type checks") {
     check(userRepository.usernameExistsQuery(testUsername))
+  }
+
+  test("isUserAdminQuery type checks") {
+    check(userRepository.isUserAdminQuery(1))
+  }
+
+  test("getUserIdQuery type checks") {
+    check(userRepository.getUserIdQuery(testUsername))
   }
 
 }

@@ -1,12 +1,11 @@
 package zooklabs.jwt
 
 import java.time.{ZoneOffset, Clock => JClock}
-
 import cats.Show
 import cats.data.{EitherT, Kleisli, OptionT}
 import cats.effect.{Clock, IO}
 import cats.implicits._
-import io.chrisdavenport.cats.effect.time.implicits._
+//import io.chrisdavenport.cats.effect.time.implicits._
 import org.typelevel.log4cats.Logger
 import io.circe.Decoder
 import io.circe.parser.decode
@@ -15,6 +14,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.Authorization
 import org.http4s.server.AuthMiddleware
 import org.http4s.{AuthScheme, AuthedRoutes, Request}
+import org.typelevel.ci.CIString
 import pdi.jwt._
 import pdi.jwt.algorithms.JwtHmacAlgorithm
 object JwtMiddleware extends Http4sDsl[IO] {
@@ -35,7 +35,7 @@ object JwtMiddleware extends Http4sDsl[IO] {
       request: Request[IO]
   ): EitherT[IO, JWTMiddlewareError, String] = {
     request.headers
-      .get(Authorization)
+      .get[Authorization]
       .collect { case Authorization(Token(AuthScheme.Bearer, token)) =>
         token
       }
@@ -50,7 +50,7 @@ object JwtMiddleware extends Http4sDsl[IO] {
       options: JwtOptions = JwtOptions.DEFAULT
   )(implicit clock: Clock[IO]): EitherT[IO, JWTMiddlewareError, JwtClaim] =
     for {
-      instant   <- EitherT.right(clock.getInstant)
+      instant   <- EitherT.right(clock.realTimeInstant)
       fixedClock = JClock.fixed(instant, ZoneOffset.UTC)
       claim     <- Jwt(fixedClock)
                      .decode(token, key, Seq(algorithm), options)

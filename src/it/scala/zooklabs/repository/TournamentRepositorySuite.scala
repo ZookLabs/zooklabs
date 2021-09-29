@@ -1,6 +1,6 @@
 package zooklabs.repository
 
-import cats.effect.{Blocker, ContextShift, IO}
+import cats.effect.IO
 import cats.implicits.catsSyntaxOptionId
 import doobie.Transactor
 import doobie.scalatest.IOChecker
@@ -17,8 +17,6 @@ class TournamentRepositorySuite extends AnyFunSuite with IOChecker with BeforeAn
   val now: Instant                    = Instant.ofEpochSecond(1601324567)
   val nowLocalDateTime: LocalDateTime = LocalDateTime.now(Clock.fixed(now, ZoneId.systemDefault()))
 
-  private implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-
   val blockingEc: ExecutionContextExecutor =
     ExecutionContext.fromExecutor(Executors.newCachedThreadPool)
 
@@ -26,8 +24,7 @@ class TournamentRepositorySuite extends AnyFunSuite with IOChecker with BeforeAn
     "org.postgresql.Driver",
     "jdbc:postgresql://localhost:5432/zooklabs",
     "Bernard",
-    "Nosey",
-    Blocker.liftExecutionContext(blockingEc)
+    "Nosey"
   )
 
   val tournamentRepository: TournamentRepository = TournamentRepository(transactor)

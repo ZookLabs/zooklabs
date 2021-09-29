@@ -1,7 +1,7 @@
 package zooklabs.endpoints
 
 import cats.data.EitherT
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
 import cats.implicits._
 import org.typelevel.log4cats.Logger
 import org.http4s.circe.{CirceEntityDecoder, CirceEntityEncoder}
@@ -11,7 +11,7 @@ import zooklabs.repository.UserRepository
 import zooklabs.types.Username
 class UserEndpoints(
     userRepository: UserRepository
-)(implicit contextShift: ContextShift[IO], logger: Logger[IO])
+)(implicit logger: Logger[IO])
     extends Http4sDsl[IO]
     with CirceEntityDecoder
     with CirceEntityEncoder {

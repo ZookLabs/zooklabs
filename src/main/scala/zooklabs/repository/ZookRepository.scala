@@ -15,8 +15,10 @@ import zooklabs.endpoints.model.zooks._
 import zooklabs.enum.Trials
 import zooklabs.model._
 import zooklabs.repository.model.{TrialEntity, ZookContainer, ZookEntity}
-
-import doobie.implicits.javatime._
+import doobie.postgres.implicits._
+import cats.implicits._
+import doobie.postgres.sqlstate
+import zooklabs.repository.ZookRepository.{SetOwnerErrors, UserDoesNotExist, ZookDoesNotExist}
 
 case class ZookRepository(xa: Transactor[IO]) {
 
@@ -135,5 +137,28 @@ case class ZookRepository(xa: Transactor[IO]) {
   def listZooks(): IO[List[ZookIdentifier]] = {
     listZooksQuery.to[List].transact(xa)
   }
+
+  def setOwnerQuery(zookId: Int, ownerId: Int): doobie.Update0 = {
+    sql"UPDATE zook SET owner = $ownerId WHERE id = $zookId".update
+  }
+
+  def setOwner(zookId: Int, ownerId: Int): IO[Either[SetOwnerErrors,Unit]] = {
+    setOwnerQuery(zookId, ownerId).run.attemptSomeSqlState {
+      case sqlstate.class23.FOREIGN_KEY_VIOLATION =>
+        UserDoesNotExist
+    }.map{
+      case Right(0) => ZookDoesNotExist.asLeft
+      case Right(_) => ().asRight
+      case Left(error) => error.asLeft
+    }.transact(xa)
+  }
+
+}
+
+object ZookRepository {
+
+  sealed trait SetOwnerErrors
+  case object ZookDoesNotExist extends SetOwnerErrors
+  case object UserDoesNotExist extends SetOwnerErrors
 
 }

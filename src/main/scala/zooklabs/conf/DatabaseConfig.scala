@@ -1,5 +1,6 @@
 package zooklabs.conf
 
+import cats.effect.IO
 import cats.implicits._
 import ciris.refined._
 import ciris.{ConfigValue, Secret, env}
@@ -14,7 +15,7 @@ final case class DatabaseConfig(
 )
 
 object DatabaseConfig {
-  def load: ConfigValue[DatabaseConfig] = {
+  def load: ConfigValue[IO, DatabaseConfig] = {
     (
       env("DATABASE_URL")
         .as[NonEmptyString]
