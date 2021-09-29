@@ -86,7 +86,7 @@ class UserRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
     check(userRepository.isUserAdminQuery(1))
   }
 
-  test("isUserAdminQuery type checks") {
+  test("getUserIdQuery type checks") {
     check(userRepository.getUserIdQuery(testUsername))
   }
 
