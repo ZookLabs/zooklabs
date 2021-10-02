@@ -23,7 +23,7 @@ class StaticEndpoints(zookRepository: ZookRepository)(implicit logger: Logger[IO
     case GET -> Root / "zooks" / id / name => {
       (for {
         id <- EitherT.fromEither[IO](id.toIntOption.toRight(BadRequest()))
-        _ <- EitherT.right(zookRepository.incrementDownloads(id))
+        _ <- EitherT.right[IO[Response[IO]]](zookRepository.incrementDownloads(id))
       } yield ()).value.flatMap {
         case Left(resp) => resp
         case Right(_) => StaticFile
