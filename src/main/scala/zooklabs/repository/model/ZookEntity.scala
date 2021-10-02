@@ -16,5 +16,7 @@ final case class ZookEntity(
     components: Int,
     dateCreated: LocalDateTime,
     dateUploaded: LocalDateTime,
-    owner: Option[Int]
+    owner: Option[Int],
+    downloads: Int,
+    views: Int
 )

@@ -77,7 +77,9 @@ case class ZookRepository(xa: Transactor[IO]) {
          |       components,
          |       dateCreated,
          |       dateUploaded,
-         |       owner
+         |       owner,
+         |       downloads,
+         |       views
          |FROM zook
          |WHERE id = $id         
          |""".stripMargin.query[ZookEntity]
@@ -118,7 +120,7 @@ case class ZookRepository(xa: Transactor[IO]) {
       zookOwner        <- OptionT(getZookOwner(zookEntity.owner).map(_.some))
 
       zookIdentifier = ZookIdentifier(zookEntity.id, zookEntity.name)
-      zookAbout      = ZookAbout(zookOwner, zookEntity.dateCreated, zookEntity.dateUploaded)
+      zookAbout      = ZookAbout(zookOwner, zookEntity.dateCreated, zookEntity.dateUploaded, zookEntity.downloads, zookEntity.views)
       zookPhysical   = ZookPhysical(
                          height = zookEntity.height,
                          length = zookEntity.length,
@@ -151,6 +153,18 @@ case class ZookRepository(xa: Transactor[IO]) {
       case Right(_) => ().asRight
       case Left(error) => error.asLeft
     }.transact(xa)
+  }
+
+  def incrementViewsQuery(zookId : Int) : doobie.Update0 = {
+    sql"UPDATE zook SET views = views + 1 WHERE id = $zookId;".update
+  }
+
+  def incrementViews(zookId : Int) : IO[Unit] = {
+    incrementViewsQuery(zookId).run.transact(xa).as(())
+  }
+
+  def incrementDownloadsQuery(zookId : Int) : doobie.Update0 = {
+    sql"UPDATE zook SET downloads = downloads + 1 WHERE id = $zookId;".update
   }
 
 }

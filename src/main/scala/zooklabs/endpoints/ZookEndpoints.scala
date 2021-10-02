@@ -16,7 +16,7 @@ import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.client.dsl.io._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.headers.`Content-Type`
+import org.http4s.headers.{`Content-Type`, `Set-Cookie`}
 import org.http4s.multipart.{Multipart, Part}
 import org.http4s.server.AuthMiddleware
 import org.typelevel.log4cats.Logger
@@ -41,14 +41,31 @@ class ZookEndpoints(
     with CirceEntityDecoder
     with CirceEntityEncoder {
 
-  val getZookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = { case GET -> Root / id =>
-    (for {
-      id   <- EitherT.fromEither[IO](id.toIntOption.toRight(BadRequest()))
-      zook <- EitherT(zookRepository.getZook(id).map(_.toRight(NotFound())))
-    } yield zook).value.flatMap {
-      case Left(resp)  => resp
-      case Right(zook) => Ok(zook)
-    }
+  val getZookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
+    case context @ GET -> Root / id =>
+      (for {
+        id          <- EitherT.fromEither[IO](id.toIntOption.toRight(BadRequest()))
+        zook        <- EitherT(zookRepository.getZook(id).map(_.toRight(NotFound())))
+        cookieId     = s"zv_$id"
+        viewCookie   = context.cookies.find(_.name == cookieId)
+        _           <- EitherT.right[IO[Response[IO]]](
+                         viewCookie.fold(zookRepository.incrementViews(id))(_ => IO.unit)
+                       )
+        viewedCookie = Header.ToRaw.foldablesToRaw(
+                         Option.when(viewCookie.isEmpty)(
+                           `Set-Cookie`(
+                             ResponseCookie(
+                               cookieId,
+                               "",
+                               maxAge = Some(60 * 60 * 24)
+                             )
+                           )
+                         )
+                       )
+      } yield (zook, viewedCookie)).value.flatMap {
+        case Left(resp)                  => resp
+        case Right((zook, viewedCookie)) => Ok(zook, viewedCookie)
+      }
   }
 
   val listZooksEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = { case GET -> Root =>
@@ -68,7 +85,9 @@ class ZookEndpoints(
       components = physical.components.data,
       dateCreated = ownership.last.adoptionDate,
       dateUploaded = LocalDateTime.now(),
-      owner = ownerId
+      owner = ownerId,
+      downloads = 0,
+      views = 0
     )
   }
 

@@ -18,5 +18,12 @@ class StaticEndpoints()(implicit logger: Logger[IO]
         .getOrElseF(NotFound())
   }
 
+  val zookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
+    case GET -> Root / "zooks" / id / name =>
+      StaticFile
+        .fromURL[IO](new URL(s"http://static.zooklabs.com/zooks/$id/$name.zook"))
+        .getOrElseF(NotFound())
+  }
+
   val endpoints: HttpRoutes[IO] = HttpRoutes.of[IO](imageEndpoint)
 }

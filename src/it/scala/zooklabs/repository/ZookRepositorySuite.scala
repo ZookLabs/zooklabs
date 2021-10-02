@@ -54,7 +54,9 @@ class ZookRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
     components = 123,
     dateCreated = nowLocalDateTime,
     dateUploaded = nowLocalDateTime,
-    owner = 1.some
+    owner = 1.some,
+    downloads = 1,
+    views = 2
   )
 
   test("persistZookQuery type checks") {
@@ -79,6 +81,14 @@ class ZookRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
 
   test("setOwnerQuery type checks") {
     check(zookRepository.setOwnerQuery(0, 0))
+  }
+
+  test("incrementViewsQuery type checks") {
+    check(zookRepository.incrementViewsQuery(0))
+  }
+
+  test("incrementDownloadsQuery type checks") {
+    check(zookRepository.incrementDownloadsQuery(0))
   }
 
 }
