@@ -167,6 +167,10 @@ case class ZookRepository(xa: Transactor[IO]) {
     sql"UPDATE zook SET downloads = downloads + 1 WHERE id = $zookId;".update
   }
 
+  def incrementDownloads(zookId : Int): IO[Unit] = {
+    incrementDownloadsQuery(zookId).run.transact(xa).as(())
+  }
+
 }
 
 object ZookRepository {
