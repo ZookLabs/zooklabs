@@ -1,9 +1,8 @@
 package zooklabs.conf
 
-import ciris.Secret
 import eu.timepit.refined.types.net.PortNumber
-import eu.timepit.refined.types.string.NonEmptyString
 import org.http4s.Uri
+import org.http4s.headers.Origin
 import zooklabs.jwt.JwtCreds
 
 case class AppConfig(
@@ -13,5 +12,6 @@ case class AppConfig(
     persistenceConfig: PersistenceConfig,
     discordWebhook: Uri,
     jwtCreds: JwtCreds,
-    discordOAuthConfig: DiscordOAuthConfig
+    discordOAuthConfig: DiscordOAuthConfig,
+    corsHost : Origin.Host
 )

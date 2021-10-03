@@ -1,15 +1,15 @@
 package zooklabs.program
 
-import cats.effect.{ExitCode, IO, _}
+import cats.effect.{ExitCode, IO, Temporal}
 import cats.implicits._
 import eu.timepit.refined.auto.autoUnwrap
 import fs2.Stream
-import org.typelevel.log4cats.Logger
+import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.client.Client
 import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
-import org.http4s.blaze.server.BlazeServerBuilder
-import org.http4s.server.middleware.{CORS, CORSConfig}
+import org.http4s.server.middleware.CORS
 import org.http4s.server.{AuthMiddleware, Router}
+import org.typelevel.log4cats.Logger
 import zooklabs.conf.AppConfig
 import zooklabs.endpoints._
 import zooklabs.endpoints.model.AuthUser
@@ -17,10 +17,8 @@ import zooklabs.jwt.{JwtCreator, JwtMiddleware}
 import zooklabs.persistence.Persistence
 import zooklabs.repository.{LeagueRepository, TournamentRepository, UserRepository, ZookRepository}
 
-import scala.concurrent.duration._
-import cats.effect.Temporal
-
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 final class ServerProgram(
     conf: AppConfig,
     client: Client[IO],
@@ -67,10 +65,10 @@ final class ServerProgram(
       "/static" -> new StaticEndpoints(zookRepository).endpoints
     ).orNotFound
 
-    val corsHttpApp = CORS(
-      httpApp,
-      CORSConfig.default
-    )
+    val corsHttpApp = CORS.policy
+      .withAllowCredentials(true)
+      .withAllowOriginHost(Set(conf.corsHost))(httpApp)
+
     BlazeServerBuilder[IO](executionContext)
       .bindHttp(conf.post, conf.host)
       .withHttpApp(corsHttpApp)
