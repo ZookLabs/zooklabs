@@ -58,7 +58,8 @@ class ZookEndpoints(
                 cookieId,
                 "",
                 maxAge = Some(60 * 60 * 24),
-                sameSite = Some(SameSite.Strict)
+                sameSite = Some(SameSite.None),
+                secure = true
               )
             )
           )
