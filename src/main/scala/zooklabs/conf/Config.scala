@@ -1,7 +1,6 @@
 package zooklabs.conf
 
 import java.nio.file.{Path, Paths}
-
 import cats.effect.IO
 import cats.implicits._
 import ciris._
@@ -13,6 +12,7 @@ import eu.timepit.refined.string.Url
 import eu.timepit.refined.types.net.PortNumber
 import eu.timepit.refined.types.string.NonEmptyString
 import org.http4s.Uri
+import org.http4s.headers.Origin
 import org.http4s.implicits.http4sLiteralsSyntax
 import pdi.jwt.JwtAlgorithm
 import pdi.jwt.algorithms.JwtHmacAlgorithm
@@ -20,6 +20,32 @@ import zooklabs.conf.PersistenceConfig.nonEmptyStringPathConfigDecoder
 import zooklabs.jwt.JwtCreds
 
 object Config {
+
+  def load(): IO[AppConfig] =
+    env("LOCAL").option.default(None).load[IO].map{
+      case None => Origin.Host(Uri.Scheme.https, Uri.RegName("zooklabs.com"), None)
+      case Some(_) => Origin.Host(Uri.Scheme.http, Uri.RegName("localhost"), Some(3000))
+    }.flatMap(corsHost => config(corsHost).load[IO])
+
+
+  def config(corsHost: Origin.Host): ConfigValue[IO, AppConfig] =
+    (
+      env("PORT").as[PortNumber].default(8080),
+      env("HOST").as[String].default("0.0.0.0"),
+      DatabaseConfig.load,
+      persistenceConfig,
+      env("DISCORD_WEBHOOK")
+        .as[String]
+        .map(Uri.unsafeFromString)
+        .default(
+          uri"https://discordapp.com/api/webhooks/678034781069377537/lwBF1yc_ZqRppSdU1zfrMm1YYSpomQ9LIJwwRM_rXek0IJ-lGYhcfnXN_Vl-AuC1wnql"
+        )
+        .as[Uri],
+      jwtCredsConfig,
+      discordOAuthConfig,
+      ConfigValue.default(corsHost)
+      )
+      .parMapN(AppConfig)
 
   val persistenceConfig: ConfigValue[IO, PersistenceConfig] =
     env("PERSISTENCE_PATH")
@@ -63,23 +89,6 @@ object Config {
     )
   }
 
-  val config: ConfigValue[IO, AppConfig] =
-    (
-      env("PORT").as[PortNumber].default(8080),
-      env("HOST").as[String].default("0.0.0.0"),
-      DatabaseConfig.load,
-      persistenceConfig,
-      env("DISCORD_WEBHOOK")
-        .as[String]
-        .map(Uri.unsafeFromString)
-        .default(
-          uri"https://discordapp.com/api/webhooks/678034781069377537/lwBF1yc_ZqRppSdU1zfrMm1YYSpomQ9LIJwwRM_rXek0IJ-lGYhcfnXN_Vl-AuC1wnql"
-        )
-        .as[Uri],
-      jwtCredsConfig,
-      discordOAuthConfig
-    )
-      .parMapN(AppConfig)
 
-  def load(): IO[AppConfig] = config.load[IO]
+
 }
