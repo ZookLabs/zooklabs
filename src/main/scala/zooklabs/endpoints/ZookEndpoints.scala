@@ -44,24 +44,25 @@ class ZookEndpoints(
   val getZookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
     case context @ GET -> Root / id =>
       (for {
-        id          <- EitherT.fromEither[IO](id.toIntOption.toRight(BadRequest()))
-        zook        <- EitherT(zookRepository.getZook(id).map(_.toRight(NotFound())))
-        cookieId     = s"zv_$id"
-        viewCookie   = context.cookies.find(_.name == cookieId)
-        _           <- EitherT.right[IO[Response[IO]]](
-                         viewCookie.fold(zookRepository.incrementViews(id))(_ => IO.unit)
-                       )
+        id   <- EitherT.fromEither[IO](id.toIntOption.toRight(BadRequest()))
+        zook <- EitherT(zookRepository.getZook(id).map(_.toRight(NotFound())))
+        cookieId   = s"zv_$id"
+        viewCookie = context.cookies.find(_.name == cookieId)
+        _ <- EitherT.right[IO[Response[IO]]](
+          viewCookie.fold(zookRepository.incrementViews(id))(_ => IO.unit)
+        )
         viewedCookie = Header.ToRaw.foldablesToRaw(
-                         Option.when(viewCookie.isEmpty)(
-                           `Set-Cookie`(
-                             ResponseCookie(
-                               cookieId,
-                               "",
-                               maxAge = Some(60 * 60 * 24)
-                             )
-                           )
-                         )
-                       )
+          Option.when(viewCookie.isEmpty)(
+            `Set-Cookie`(
+              ResponseCookie(
+                cookieId,
+                "",
+                maxAge = Some(60 * 60 * 24),
+                sameSite = Some(SameSite.Strict)
+              )
+            )
+          )
+        )
       } yield (zook, viewedCookie)).value.flatMap {
         case Left(resp)                  => resp
         case Right((zook, viewedCookie)) => Ok(zook, viewedCookie)
@@ -115,27 +116,27 @@ class ZookEndpoints(
       } else {
         context.req.decode[Multipart[IO]] { reqPart =>
           (for {
-            zookPart  <- EitherT.fromEither[IO](
-                           reqPart.parts
-                             .find(_.name.contains(ZOOK))
-                             .toRight(APIError("No zook form field"))
-                         )
-            _         <- EitherT.fromEither[IO](
-                           zookPart.filename
-                             .find(_.endsWith(ZOOKEXT))
-                             .toRight[APIError](APIError("Not a .zook file"))
-                         )
+            zookPart <- EitherT.fromEither[IO](
+              reqPart.parts
+                .find(_.name.contains(ZOOK))
+                .toRight(APIError("No zook form field"))
+            )
+            _ <- EitherT.fromEither[IO](
+              zookPart.filename
+                .find(_.endsWith(ZOOKEXT))
+                .toRight[APIError](APIError("Not a .zook file"))
+            )
             zookBytes <- EitherT
-                           .right[APIError](
-                             zookPart.body.compile.toList.map(_.toArray)
-                           )
-            coreZook  <-
+              .right[APIError](
+                zookPart.body.compile.toList.map(_.toArray)
+              )
+            coreZook <-
               EitherT.fromEither[IO](
                 ZookCore
                   .parseZook(zookBytes)
                   .leftMap {
-                    case ImageMissingError   => APIError("Passport Photo Required!")
-                    case StreetRulesError    =>
+                    case ImageMissingError => APIError("Passport Photo Required!")
+                    case StreetRulesError =>
                       APIError("Street Rules Zooks are not currently supported!")
                     case GeneralZookError(_) => APIError("Somethings wrong with that Zook!")
                     case ExampleZookError    => APIError("Cannot Upload Example Zooks!")
@@ -166,45 +167,44 @@ class ZookEndpoints(
                 })
 
             multipart = Multipart[IO](
-                          Vector(
-                            Part.formData(
-                              "payload_json",
-                              DiscordWebhook(
-                                embeds = List(
-                                  discord.Embed(
-                                    title = coreZook.name,
-                                    url = s"https://zooklabs.com/zooks/$id",
-                                    color = 16725286,
-                                    description = user.username.map(username =>
-                                      s"__Uploaded By__:\n**$username**"
-                                    ),
-                                    thumbnail = Thumbnail("attachment://image.png"),
-                                    fields = List(
-                                      Field(
-                                        name = "Physical",
-                                        value = "Height\nLength\nWidth\nWeight\nComponents"
-                                      ),
-                                      Field(
-                                        name = "Measurement",
-                                        value = s"""${coreZook.passport.physical.height.data} cm
+              Vector(
+                Part.formData(
+                  "payload_json",
+                  DiscordWebhook(
+                    embeds = List(
+                      discord.Embed(
+                        title = coreZook.name,
+                        url = s"https://zooklabs.com/zooks/$id",
+                        color = 16725286,
+                        description =
+                          user.username.map(username => s"__Uploaded By__:\n**$username**"),
+                        thumbnail = Thumbnail("attachment://image.png"),
+                        fields = List(
+                          Field(
+                            name = "Physical",
+                            value = "Height\nLength\nWidth\nWeight\nComponents"
+                          ),
+                          Field(
+                            name = "Measurement",
+                            value = s"""${coreZook.passport.physical.height.data} cm
                                |${coreZook.passport.physical.length.data} cm
                                |${coreZook.passport.physical.width.data} cm
                                |${coreZook.passport.physical.weight.data} kg
                                |${coreZook.passport.physical.components.data}""".stripMargin
-                                      )
-                                    )
-                                  )
-                                )
-                              ).asJson.toString
-                            ),
-                            Part.fileData(
-                              "file",
-                              "image.png",
-                              fs2.Stream.emits(coreZook.image.imageBytes),
-                              `Content-Type`(MediaType.image.png)
-                            )
                           )
                         )
+                      )
+                    )
+                  ).asJson.toString
+                ),
+                Part.fileData(
+                  "file",
+                  "image.png",
+                  fs2.Stream.emits(coreZook.image.imageBytes),
+                  `Content-Type`(MediaType.image.png)
+                )
+              )
+            )
 
             _ <-
               EitherT(
@@ -217,7 +217,7 @@ class ZookEndpoints(
                   )
                   .use {
                     case Ok(_) => IO.pure(().asRight[APIError])
-                    case resp  =>
+                    case resp =>
                       resp
                         .decodeJson[DiscordWebhookError]
                         .flatMap(error => {
