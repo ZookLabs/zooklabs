@@ -23,7 +23,7 @@ object Config {
 
   def load(): IO[AppConfig] =
     env("LOCAL").option.default(None).load[IO].map{
-      case None => Origin.Host(Uri.Scheme.https, Uri.RegName("https://zooklabs.com"), None)
+      case None => Origin.Host(Uri.Scheme.https, Uri.RegName("zooklabs.com"), None)
       case Some(_) => Origin.Host(Uri.Scheme.http, Uri.RegName("localhost"), Some(3000))
     }.flatMap(corsHost => config(corsHost).load[IO])
 
