@@ -56,7 +56,8 @@ final class ServerProgram(
       "/leagues"     -> new LeaguesEndpoints(leagueRepository).endpoints,
       "/users"       -> new UserEndpoints(usersRepository).endpoints,
       "/tournaments" -> new TournamentEndpoints(tournamentRepository).endpoints,
-      "/admin"       -> new AdminEndpoints(zookRepository, usersRepository, secureMiddleware).endpoints
+      "/admin"       -> new AdminEndpoints(zookRepository, usersRepository, secureMiddleware).endpoints,
+      "/version"     -> VersionEndpoint.endpoint
     )
 
     val httpApp = Router(
