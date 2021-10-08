@@ -66,8 +66,7 @@ final class ServerProgram(
     ).orNotFound
 
     val corsHttpApp = CORS.policy
-      .withAllowCredentials(true)
-      .withAllowOriginHost(Set(conf.corsHost))(httpApp)
+      .withAllowCredentials(true)(httpApp)
 
     BlazeServerBuilder[IO](executionContext)
       .bindHttp(conf.post, conf.host)
