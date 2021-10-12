@@ -10,7 +10,7 @@ object Dependencies {
     val flyway         = "7.10.0"
     val fs2            = "3.1.5"
     val googleCloudNio = "0.123.14"
-    val http4s         = "0.23.5"
+    val http4s         = "0.23.6"
     val log4Cats       = "2.1.1"
     val logback        = "1.2.3"
     val logbackClassic = "1.2.6"
