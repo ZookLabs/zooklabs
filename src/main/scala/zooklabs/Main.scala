@@ -17,10 +17,10 @@ object Main extends IOApp {
   def run(args: List[String]): IO[ExitCode] = {
     (for {
       implicit0(logger: Logger[IO]) <- Stream.eval(Slf4jLogger.create[IO])
-      _                             <- Stream.eval {
-                                         logger.info(s"ZookLabs Starting...")
-                                       }
-      conf                          <- Stream.resource(Resource.eval(Config.load()))
+      _ <- Stream.eval {
+        logger.info(s"ZookLabs Starting...")
+      }
+      conf <- Stream.resource(Resource.eval(Config.load()))
 
       transactor <- Stream.resource(Database.makeTransactor[IO](conf.databaseConfig))
       _          <- Stream.eval(Database.initialize(transactor))
@@ -53,10 +53,10 @@ object Main extends IOApp {
       updateLeagueProgram = new UpdateLeagueProgram(leagueRepository)
 
       service <- Stream(
-                   serverProgram.run(),
-                   keepAliveProgram.run(),
-                   updateLeagueProgram.run()
-                 ).parJoinUnbounded
+        serverProgram.run(),
+        keepAliveProgram.run(),
+        updateLeagueProgram.run()
+      ).parJoinUnbounded
     } yield service).compile.drain.as(ExitCode.Error)
   }
 }

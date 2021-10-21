@@ -31,13 +31,13 @@ object Database {
       databaseConfig: DatabaseConfig
   ): Resource[F, HikariTransactor[F]] = {
     for {
-      ce    <-
+      ce <-
         ExecutionContexts.fixedThreadPool[F](databaseConfig.maxConnections.value)
       config = hikariConfig(databaseConfig)
-      xa    <- HikariTransactor.fromHikariConfig[F](
-                 config,
-                 ce
-               )
+      xa <- HikariTransactor.fromHikariConfig[F](
+        config,
+        ce
+      )
     } yield xa
 
   }

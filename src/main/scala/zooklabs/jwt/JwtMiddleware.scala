@@ -50,13 +50,13 @@ object JwtMiddleware extends Http4sDsl[IO] {
       options: JwtOptions = JwtOptions.DEFAULT
   )(implicit clock: Clock[IO]): EitherT[IO, JWTMiddlewareError, JwtClaim] =
     for {
-      instant   <- EitherT.right(clock.realTimeInstant)
+      instant <- EitherT.right(clock.realTimeInstant)
       fixedClock = JClock.fixed(instant, ZoneOffset.UTC)
-      claim     <- Jwt(fixedClock)
-                     .decode(token, key, Seq(algorithm), options)
-                     .toEither
-                     .leftMap[JWTMiddlewareError](FailedToDecode)
-                     .toEitherT[IO]
+      claim <- Jwt(fixedClock)
+        .decode(token, key, Seq(algorithm), options)
+        .toEither
+        .leftMap[JWTMiddlewareError](FailedToDecode)
+        .toEitherT[IO]
     } yield claim
 
   private def decodeContent[A: Decoder](
@@ -68,7 +68,8 @@ object JwtMiddleware extends Http4sDsl[IO] {
   /** @param key
     * @param algorithm
     * @param options
-    * @param recoverWith allows authentication to be optional if no Authorization token is supplied.
+    * @param recoverWith
+    *   allows authentication to be optional if no Authorization token is supplied.
     * @tparam A
     * @return
     */

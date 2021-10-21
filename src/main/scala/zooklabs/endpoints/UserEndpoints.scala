@@ -20,7 +20,7 @@ class UserEndpoints(
     case GET -> Root / username =>
       (for {
         refinedUsername <- EitherT.fromEither[IO](Username.from(username)).leftMap(_ => NotFound())
-        user            <- EitherT(userRepository.getUser(refinedUsername).map(_.toRight(NotFound())))
+        user <- EitherT(userRepository.getUser(refinedUsername).map(_.toRight(NotFound())))
       } yield user).value.flatMap {
         case Left(resp)  => resp
         case Right(user) => Ok(user)

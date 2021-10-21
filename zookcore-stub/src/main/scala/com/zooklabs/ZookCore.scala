@@ -11,7 +11,7 @@ import scala.util.{Success, Try}
 
 object ZookCore {
 
-  def serialiseZook(zook: Zook): Try[Array[Byte]]           =
+  def serialiseZook(zook: Zook): Try[Array[Byte]] =
     Success(LoadResource.load("/Magnificent_Turtle.zook"))
   def parseZook(data: Array[Byte]): Either[ZookError, Zook] =
     Right(

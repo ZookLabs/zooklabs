@@ -13,5 +13,5 @@ case class AppConfig(
     discordWebhook: Uri,
     jwtCreds: JwtCreds,
     discordOAuthConfig: DiscordOAuthConfig,
-    corsHost : Origin.Host
+    corsHost: Origin.Host
 )

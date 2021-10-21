@@ -40,16 +40,16 @@ object Dependencies {
       "org.tpolecat" %% "doobie-refined"
     ).map(_ % Version.doobie)
 
-    val doobieTest            = "org.tpolecat" %% "doobie-scalatest" % Version.doobie
+    val doobieTest = "org.tpolecat" %% "doobie-scalatest" % Version.doobie
 
-    val circe: Seq[ModuleID]    = Seq(
+    val circe: Seq[ModuleID] = Seq(
       "io.circe" %% "circe-core",
       "io.circe" %% "circe-generic",
       "io.circe" %% "circe-parser",
       "io.circe" %% "circe-refined"
     ).map(_ % Version.circe)
 
-    val refined: Seq[ModuleID]  = Seq(
+    val refined: Seq[ModuleID] = Seq(
       "eu.timepit" %% "refined",
       "eu.timepit" %% "refined-cats"
     ).map(_ % Version.refined)
@@ -59,14 +59,14 @@ object Dependencies {
       "log4cats-slf4j"
     ).map("org.typelevel" %% _ % Version.log4Cats)
 
-    val logbackClassic          = "ch.qos.logback" % "logback-classic" % Version.logbackClassic
+    val logbackClassic = "ch.qos.logback" % "logback-classic" % Version.logbackClassic
 
     val ciris: Seq[ModuleID] = Seq(
       "is.cir" %% "ciris",
       "is.cir" %% "ciris-refined"
     ).map(_ % Version.ciris)
 
-    val fs2: Seq[ModuleID]   = Seq("co.fs2" %% "fs2-core", "co.fs2" %% "fs2-io").map(_ % Version.fs2)
+    val fs2: Seq[ModuleID] = Seq("co.fs2" %% "fs2-core", "co.fs2" %% "fs2-io").map(_ % Version.fs2)
 
     val googleCloudNio = "com.google.cloud" % "google-cloud-nio" % Version.googleCloudNio
 

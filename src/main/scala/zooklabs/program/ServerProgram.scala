@@ -36,17 +36,17 @@ final class ServerProgram(
 
     val permissiveSecureMiddleware: AuthMiddleware[IO, AuthUser] =
       JwtMiddleware.make[AuthUser](conf.jwtCreds, recoverWith = AuthUser.anonymousUser.some)
-    val secureMiddleware: AuthMiddleware[IO, AuthUser]           = JwtMiddleware.make[AuthUser](conf.jwtCreds)
+    val secureMiddleware: AuthMiddleware[IO, AuthUser] = JwtMiddleware.make[AuthUser](conf.jwtCreds)
 
     val api = Router(
-      "/login"       -> new LoginEndpoints(
+      "/login" -> new LoginEndpoints(
         conf.discordOAuthConfig,
         client,
         usersRepository,
         jwtCreator,
         secureMiddleware
       ).endpoints,
-      "/zooks"       -> new ZookEndpoints(
+      "/zooks" -> new ZookEndpoints(
         persistence,
         conf.discordWebhook,
         zookRepository,
@@ -56,8 +56,8 @@ final class ServerProgram(
       "/leagues"     -> new LeaguesEndpoints(leagueRepository).endpoints,
       "/users"       -> new UserEndpoints(usersRepository).endpoints,
       "/tournaments" -> new TournamentEndpoints(tournamentRepository).endpoints,
-      "/admin"       -> new AdminEndpoints(zookRepository, usersRepository, secureMiddleware).endpoints,
-      "/version"     -> VersionEndpoint.endpoint
+      "/admin"   -> new AdminEndpoints(zookRepository, usersRepository, secureMiddleware).endpoints,
+      "/version" -> VersionEndpoint.endpoint
     )
 
     val httpApp = Router(

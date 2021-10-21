@@ -30,7 +30,7 @@ case class TournamentRepository(xa: Transactor[IO]) {
 
   def getTournament(id: Int): IO[Option[Tournament]] = {
     (for {
-      entityTournament    <- OptionT(getTournamentQuery(id).option)
+      entityTournament <- OptionT(getTournamentQuery(id).option)
       tournamentIdentifier = TournamentIdentifier(entityTournament.id, entityTournament.title)
       tournamentAbout      = TournamentAbout(entityTournament.description, entityTournament.ownerId)
     } yield Tournament(tournamentIdentifier, tournamentAbout, entityTournament.zooks))
