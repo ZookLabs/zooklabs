@@ -58,12 +58,12 @@ class LoginEndpoints(
       : PartialFunction[AuthedRequest[IO, AuthUser], IO[Response[IO]]] = {
     case GET -> Root / "availability" / usernameStr as user =>
       (for {
-        _          <- Either.cond(!user.isRegistered, (), AlreadyRegistered: AvailabilityError).toEitherT[IO]
-        username   <-
+        _ <- Either.cond(!user.isRegistered, (), AlreadyRegistered: AvailabilityError).toEitherT[IO]
+        username <-
           Username.from(usernameStr).leftMap(_ => InvalidUsername: AvailabilityError).toEitherT[IO]
         userExists <- EitherT.right[AvailabilityError](
-                        usersRepository.usernameExists(username)
-                      )
+          usersRepository.usernameExists(username)
+        )
       } yield userExists).value.flatMap {
         case Left(value)       => BadRequest("oh no")
         case Right(userExists) => Ok(Availability(userExists.isEmpty))
@@ -78,7 +78,7 @@ class LoginEndpoints(
       } else {
         context.req.decode[Register] { register =>
           usersRepository.setUsername(user.id, register.username).flatMap {
-            case Left(_)  => InternalServerError("Username already exists")
+            case Left(_) => InternalServerError("Username already exists")
             case Right(_) => {
               jwtCreator
                 .issueJwt(AuthUser(user.id, register.username.some))
@@ -99,7 +99,7 @@ class LoginEndpoints(
 
       token <- EitherT.right[String](jwtCreator.issueJwt(AuthUser(user.id, user.username)))
     } yield token).value.flatMap {
-      case Left(error)  =>
+      case Left(error) =>
         logger.error(error) >> InternalServerError("something went wrong")
       case Right(token) =>
         Ok.headers(Authorization(Credentials.Token(AuthScheme.Bearer, token)))
@@ -109,23 +109,23 @@ class LoginEndpoints(
   def getOrCreateUser(userIdentity: UserIdentity): IO[UserEntity] =
     for {
       instant <- clock.realTimeInstant
-      now      = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-      user    <- usersRepository.getByDiscordId(userIdentity.id).flatMap {
-                   case None       =>
-                     val discordUsername = NonEmptyString
-                       .unsafeFrom(s"${userIdentity.username.value}#${userIdentity.discriminator}")
+      now = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+      user <- usersRepository.getByDiscordId(userIdentity.id).flatMap {
+        case None =>
+          val discordUsername = NonEmptyString
+            .unsafeFrom(s"${userIdentity.username.value}#${userIdentity.discriminator}")
 
-                     val user = UserEntity(
-                       username = None,
-                       discordId = userIdentity.id,
-                       discordUsername = discordUsername,
-                       signUpAt = now,
-                       lastLoginAt = now
-                     )
-                     usersRepository.persistUser(user)
-                   case Some(user) =>
-                     usersRepository.updateLastLogin(user.id, now) >> user.pure[IO]
-                 }
+          val user = UserEntity(
+            username = None,
+            discordId = userIdentity.id,
+            discordUsername = discordUsername,
+            signUpAt = now,
+            lastLoginAt = now
+          )
+          usersRepository.persistUser(user)
+        case Some(user) =>
+          usersRepository.updateLastLogin(user.id, now) >> user.pure[IO]
+      }
     } yield user
 
   def getAccessToken(code: String): IO[Either[String, AccessTokenResponse]] = {
@@ -142,9 +142,9 @@ class LoginEndpoints(
         discordOAuthConfig.discordApi / "oauth2" / "token"
       )
     ) {
-      case Status.Successful(r)    =>
+      case Status.Successful(r) =>
         r.attemptAs[AccessTokenResponse].leftMap(_.message).value
-      case Status.ClientError(r)   =>
+      case Status.ClientError(r) =>
         r.toString.asLeft[AccessTokenResponse].pure[IO]
 
 //
@@ -152,11 +152,11 @@ class LoginEndpoints(
 //          case Left(error) => Ok(error)
 //          case Right(resp) => Ok(resp)
 //        }
-      case Status.ServerError(r)   =>
+      case Status.ServerError(r) =>
         r.toString.asLeft[AccessTokenResponse].pure[IO]
       case Status.Informational(r) =>
         r.toString.asLeft[AccessTokenResponse].pure[IO]
-      case Status.Redirection(r)   =>
+      case Status.Redirection(r) =>
         r.toString.asLeft[AccessTokenResponse].pure[IO]
 
     }
@@ -169,9 +169,9 @@ class LoginEndpoints(
         Authorization(Credentials.Token(AuthScheme.Bearer, accessToken.toString))
       )
     ) {
-      case Status.Successful(r)    =>
+      case Status.Successful(r) =>
         r.attemptAs[UserIdentity].leftMap(_.message).value
-      case Status.ClientError(r)   =>
+      case Status.ClientError(r) =>
         r.toString.asLeft[UserIdentity].pure[IO]
 
 //
@@ -179,11 +179,11 @@ class LoginEndpoints(
 //          case Left(error) => Ok(error)
 //          case Right(resp) => Ok(resp)
 //        }
-      case Status.ServerError(r)   =>
+      case Status.ServerError(r) =>
         r.toString.asLeft[UserIdentity].pure[IO]
       case Status.Informational(r) =>
         r.toString.asLeft[UserIdentity].pure[IO]
-      case Status.Redirection(r)   =>
+      case Status.Redirection(r) =>
         r.toString.asLeft[UserIdentity].pure[IO]
     }
   }

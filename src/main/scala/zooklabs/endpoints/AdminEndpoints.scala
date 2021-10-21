@@ -29,12 +29,12 @@ class AdminEndpoints(
         .isUserAdmin(user.id)
         .ifA[Response[IO]](
           (for {
-            zookId          <- EitherT.fromEither[IO](zookIdStr.toIntOption.toRight(BadRequest()))
+            zookId <- EitherT.fromEither[IO](zookIdStr.toIntOption.toRight(BadRequest()))
             refinedUsername <-
               EitherT.fromEither[IO](Username.from(username)).leftMap(_ => BadRequest())
-            ownerId         <-
+            ownerId <-
               EitherT(userRepository.getUserId(refinedUsername).map(_.toRight(BadRequest())))
-            setOwnerResult  <-
+            setOwnerResult <-
               EitherT(zookRepository.setOwner(zookId, ownerId)).leftMap(e => BadRequest(e))
           } yield setOwnerResult).value.flatMap {
             case Left(resp) => resp

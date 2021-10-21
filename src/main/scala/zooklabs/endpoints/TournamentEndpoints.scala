@@ -19,7 +19,7 @@ class TournamentEndpoints(tournamentRepository: TournamentRepository)(implicit
     case GET -> Root / id =>
       (for {
         tournamentId <- EitherT.fromEither[IO](id.toIntOption.toRight(BadRequest()))
-        tournament   <-
+        tournament <-
           EitherT(tournamentRepository.getTournament(tournamentId).map(_.toRight(NotFound())))
       } yield tournament).value.flatMap {
         case Left(resp)        => resp

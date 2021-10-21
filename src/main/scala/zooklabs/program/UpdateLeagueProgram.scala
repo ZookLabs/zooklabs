@@ -40,8 +40,8 @@ final class UpdateLeagueProgram(leagueRepository: LeagueRepository)(implicit tim
   def updateOverallLeague = {
     for {
       container <- leagueRepository.getRanks
-      results    = getOverallScores(container)
-      _         <- leagueRepository.updateOverallLeagueData(results)
+      results = getOverallScores(container)
+      _ <- leagueRepository.updateOverallLeagueData(results)
     } yield ()
   }
 

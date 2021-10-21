@@ -44,19 +44,19 @@ case class ZookRepository(xa: Transactor[IO]) {
 
   def persistZook(zookContainer: ZookContainer): IO[NonNegInt] = {
     (for {
-      zookId  <- persistZookQuery(zookContainer.zook).withUniqueGeneratedKeys[NonNegInt]("id")
+      zookId <- persistZookQuery(zookContainer.zook).withUniqueGeneratedKeys[NonNegInt]("id")
       toEntity = (zookTrial: ZookTrial) =>
-                   TrialEntity(
-                     zookId,
-                     name = zookContainer.zook.name,
-                     score = zookTrial.score,
-                     position = zookTrial.position
-                   )
-      _       <- persistTrialQuery(Trials.Sprint).updateMany(zookContainer.sprint.map(toEntity))
-      _       <- persistTrialQuery(Trials.BlockPush).updateMany(zookContainer.blockPush.map(toEntity))
-      _       <- persistTrialQuery(Trials.Hurdles).updateMany(zookContainer.hurdles.map(toEntity))
-      _       <- persistTrialQuery(Trials.HighJump).updateMany(zookContainer.highJump.map(toEntity))
-      _       <- persistTrialQuery(Trials.Lap).updateMany(zookContainer.lap.map(toEntity))
+        TrialEntity(
+          zookId,
+          name = zookContainer.zook.name,
+          score = zookTrial.score,
+          position = zookTrial.position
+        )
+      _ <- persistTrialQuery(Trials.Sprint).updateMany(zookContainer.sprint.map(toEntity))
+      _ <- persistTrialQuery(Trials.BlockPush).updateMany(zookContainer.blockPush.map(toEntity))
+      _ <- persistTrialQuery(Trials.Hurdles).updateMany(zookContainer.hurdles.map(toEntity))
+      _ <- persistTrialQuery(Trials.HighJump).updateMany(zookContainer.highJump.map(toEntity))
+      _ <- persistTrialQuery(Trials.Lap).updateMany(zookContainer.lap.map(toEntity))
     } yield zookId).transact(xa)
   }
 
@@ -109,7 +109,7 @@ case class ZookRepository(xa: Transactor[IO]) {
         sql"SELECT username from users where id = $id"
           .query[UserIdentifier]
           .option
-      case None     => Option.empty[UserIdentifier].pure[ConnectionIO]
+      case None => Option.empty[UserIdentifier].pure[ConnectionIO]
     }
   }
 
@@ -120,14 +120,20 @@ case class ZookRepository(xa: Transactor[IO]) {
       zookOwner        <- OptionT(getZookOwner(zookEntity.owner).map(_.some))
 
       zookIdentifier = ZookIdentifier(zookEntity.id, zookEntity.name)
-      zookAbout      = ZookAbout(zookOwner, zookEntity.dateCreated, zookEntity.dateUploaded, zookEntity.downloads, zookEntity.views)
-      zookPhysical   = ZookPhysical(
-                         height = zookEntity.height,
-                         length = zookEntity.length,
-                         width = zookEntity.width,
-                         weight = zookEntity.weight,
-                         components = zookEntity.components
-                       )
+      zookAbout = ZookAbout(
+        zookOwner,
+        zookEntity.dateCreated,
+        zookEntity.dateUploaded,
+        zookEntity.downloads,
+        zookEntity.views
+      )
+      zookPhysical = ZookPhysical(
+        height = zookEntity.height,
+        length = zookEntity.length,
+        width = zookEntity.width,
+        weight = zookEntity.weight,
+        components = zookEntity.components
+      )
     } yield zooks.Zook(zookIdentifier, zookAbout, zookPhysical, zookAchievements))
       .transact(xa)
       .value
@@ -144,30 +150,32 @@ case class ZookRepository(xa: Transactor[IO]) {
     sql"UPDATE zook SET owner = $ownerId WHERE id = $zookId".update
   }
 
-  def setOwner(zookId: Int, ownerId: Int): IO[Either[SetOwnerErrors,Unit]] = {
-    setOwnerQuery(zookId, ownerId).run.attemptSomeSqlState {
-      case sqlstate.class23.FOREIGN_KEY_VIOLATION =>
+  def setOwner(zookId: Int, ownerId: Int): IO[Either[SetOwnerErrors, Unit]] = {
+    setOwnerQuery(zookId, ownerId).run
+      .attemptSomeSqlState { case sqlstate.class23.FOREIGN_KEY_VIOLATION =>
         UserDoesNotExist
-    }.map{
-      case Right(0) => ZookDoesNotExist.asLeft
-      case Right(_) => ().asRight
-      case Left(error) => error.asLeft
-    }.transact(xa)
+      }
+      .map {
+        case Right(0)    => ZookDoesNotExist.asLeft
+        case Right(_)    => ().asRight
+        case Left(error) => error.asLeft
+      }
+      .transact(xa)
   }
 
-  def incrementViewsQuery(zookId : Int) : doobie.Update0 = {
+  def incrementViewsQuery(zookId: Int): doobie.Update0 = {
     sql"UPDATE zook SET views = views + 1 WHERE id = $zookId;".update
   }
 
-  def incrementViews(zookId : Int) : IO[Unit] = {
+  def incrementViews(zookId: Int): IO[Unit] = {
     incrementViewsQuery(zookId).run.transact(xa).as(())
   }
 
-  def incrementDownloadsQuery(zookId : Int) : doobie.Update0 = {
+  def incrementDownloadsQuery(zookId: Int): doobie.Update0 = {
     sql"UPDATE zook SET downloads = downloads + 1 WHERE id = $zookId;".update
   }
 
-  def incrementDownloads(zookId : Int): IO[Unit] = {
+  def incrementDownloads(zookId: Int): IO[Unit] = {
     incrementDownloadsQuery(zookId).run.transact(xa).as(())
   }
 

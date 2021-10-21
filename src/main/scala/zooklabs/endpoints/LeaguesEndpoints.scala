@@ -32,7 +32,7 @@ class LeaguesEndpoints(leagueRepository: LeagueRepository)
             .parse(trial)
             .map(leagueRepository.getLeague)
             .fold(NotFound())(Ok(_))
-        case GET -> Root         =>
+        case GET -> Root =>
           Ok(
             Trials.values
               .traverse(t => leagueRepository.getLeader(t).map(t.value -> _))

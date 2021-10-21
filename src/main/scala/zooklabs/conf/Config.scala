@@ -22,11 +22,14 @@ import zooklabs.jwt.JwtCreds
 object Config {
 
   def load(): IO[AppConfig] =
-    env("LOCAL").option.default(None).load[IO].map{
-      case None => Origin.Host(Uri.Scheme.https, Uri.RegName("zooklabs.com"), None)
-      case Some(_) => Origin.Host(Uri.Scheme.http, Uri.RegName("localhost"), Some(3000))
-    }.flatMap(corsHost => config(corsHost).load[IO])
-
+    env("LOCAL").option
+      .default(None)
+      .load[IO]
+      .map {
+        case None    => Origin.Host(Uri.Scheme.https, Uri.RegName("zooklabs.com"), None)
+        case Some(_) => Origin.Host(Uri.Scheme.http, Uri.RegName("localhost"), Some(3000))
+      }
+      .flatMap(corsHost => config(corsHost).load[IO])
 
   def config(corsHost: Origin.Host): ConfigValue[IO, AppConfig] =
     (
@@ -44,7 +47,7 @@ object Config {
       jwtCredsConfig,
       discordOAuthConfig,
       ConfigValue.default(corsHost)
-      )
+    )
       .parMapN(AppConfig)
 
   val persistenceConfig: ConfigValue[IO, PersistenceConfig] =
@@ -88,7 +91,5 @@ object Config {
       DiscordOAuthConfig
     )
   }
-
-
 
 }
