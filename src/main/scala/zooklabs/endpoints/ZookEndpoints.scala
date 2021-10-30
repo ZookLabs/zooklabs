@@ -112,7 +112,7 @@ class ZookEndpoints(
 
   val uploadZookEndpoint: PartialFunction[AuthedRequest[IO, AuthUser], IO[Response[IO]]] = {
     case context @ POST -> Root / "upload" as user =>
-      if (context.req.contentLength.exists(_ > 100000)) { //100 kb
+      if (context.req.contentLength.exists(_ > 100000)) { // 100 kb
         BadRequest(APIError("File Too Big"))
       } else {
         context.req.decode[Multipart[IO]] { reqPart =>
