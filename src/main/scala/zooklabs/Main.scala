@@ -30,12 +30,9 @@ object Main extends IOApp {
       usersRepository      = repository.UserRepository(transactor)
       tournamentRepository = repository.TournamentRepository(transactor)
 
-      clientEc <- Stream.resource(ExecutionContexts.fixedThreadPool[IO](2))
-      client   <- Stream.resource(BlazeClientBuilder[IO](clientEc).resource)
+      client <- Stream.resource(BlazeClientBuilder[IO].resource)
 
       persistence = new PersistenceImpl[IO](conf.persistenceConfig)
-
-      executionContext <- Stream.eval(IO.executionContext)
 
       serverProgram =
         new ServerProgram(
@@ -45,8 +42,7 @@ object Main extends IOApp {
           zookRepository = zookRepository,
           usersRepository = usersRepository,
           tournamentRepository = tournamentRepository,
-          persistence = persistence,
-          executionContext = executionContext
+          persistence = persistence
         )
 
       keepAliveProgram    = new KeepAliveProgram(client)

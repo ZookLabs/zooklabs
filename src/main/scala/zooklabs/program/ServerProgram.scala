@@ -17,7 +17,6 @@ import zooklabs.jwt.{JwtCreator, JwtMiddleware}
 import zooklabs.persistence.Persistence
 import zooklabs.repository.{LeagueRepository, TournamentRepository, UserRepository, ZookRepository}
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 final class ServerProgram(
     conf: AppConfig,
@@ -26,8 +25,7 @@ final class ServerProgram(
     zookRepository: ZookRepository,
     usersRepository: UserRepository,
     tournamentRepository: TournamentRepository,
-    persistence: Persistence[IO],
-    executionContext: ExecutionContext
+    persistence: Persistence[IO]
 )(implicit logger: Logger[IO], timer: Temporal[IO]) {
 
   def run(): Stream[IO, ExitCode] = {
@@ -63,16 +61,19 @@ final class ServerProgram(
     val httpApp = Router(
       "/health" -> HealthEndpoint.endpoint,
       "/api"    -> api,
-      "/static" -> new StaticEndpoints(zookRepository).endpoints
+      "/static" -> new StaticEndpoints(zookRepository, conf.persistenceConfig).endpoints
     ).orNotFound
 
     val corsHttpApp = CORS.policy
       .withAllowCredentials(true)
+      .withExposeHeadersAll
+      .withAllowHeadersAll
       .withAllowOriginHost(Set(conf.corsHost))(httpApp)
 
-    BlazeServerBuilder[IO](executionContext)
+    BlazeServerBuilder[IO]
       .bindHttp(conf.post, conf.host)
       .withHttpApp(corsHttpApp)
+      .withMaxConnections(5)
       .serve
   }
 }

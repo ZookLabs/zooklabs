@@ -12,7 +12,6 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.headers._
 import org.http4s.server.AuthMiddleware
 import org.http4s.{AuthedRoutes, _}
-import org.typelevel.ci.CIString
 import org.typelevel.log4cats.Logger
 import zooklabs.conf.DiscordOAuthConfig
 import zooklabs.endpoints.discord.AccessTokenResponse.decoder
@@ -25,6 +24,7 @@ import zooklabs.repository.model.UserEntity
 import zooklabs.types.Username
 
 import java.time.{LocalDateTime, ZoneId}
+import scala.util.control.NoStackTrace
 
 class LoginEndpoints(
     discordOAuthConfig: DiscordOAuthConfig,
@@ -50,7 +50,8 @@ class LoginEndpoints(
   sealed trait AvailabilityError
 
   case object AlreadyRegistered extends AvailabilityError
-  case object InvalidUsername   extends AvailabilityError
+
+  case object InvalidUsername extends AvailabilityError
 
   case class Availability(available: Boolean)
 
@@ -91,19 +92,33 @@ class LoginEndpoints(
       }
   }
 
+  sealed trait LoginError extends NoStackTrace
+
+  case class AccessTokenFailure(status: Int, responseBody: String) extends LoginError
+
+  case class UserIdentityFailure(status: Int, responseBody: String) extends LoginError
+
   def loginRegister(code: String): IO[Response[IO]] = {
     (for {
-      accessToken  <- EitherT(getAccessToken(code))
-      userIdentity <- EitherT(getUserIdentity(accessToken.accessToken))
-      user         <- EitherT.right[String](getOrCreateUser(userIdentity))
-
-      token <- EitherT.right[String](jwtCreator.issueJwt(AuthUser(user.id, user.username)))
-    } yield token).value.flatMap {
-      case Left(error) =>
-        logger.error(error) >> InternalServerError("something went wrong")
-      case Right(token) =>
-        Ok.headers(Authorization(Credentials.Token(AuthScheme.Bearer, token)))
-    }
+      accessToken  <- getAccessToken(code)
+      userIdentity <- getUserIdentity(accessToken.accessToken)
+      user         <- getOrCreateUser(userIdentity)
+      token        <- jwtCreator.issueJwt(AuthUser(user.id, user.username))
+      response     <- Ok.headers(Authorization(Credentials.Token(AuthScheme.Bearer, token)))
+    } yield response)
+      .handleErrorWith {
+        case loginError: LoginError =>
+          (loginError match {
+            case AccessTokenFailure(status, responseBody) =>
+              logger.error(s"AccessTokenFailure status=$status, body=$responseBody")
+            case UserIdentityFailure(status, responseBody) =>
+              logger.error(s"UserIdentityFailure status=$status, body=$responseBody")
+          }) >> InternalServerError("something went wrong")
+        case error =>
+          logger.error(s"not sure what happend ${error}") >> InternalServerError(
+            "something went wrong"
+          )
+      }
   }
 
   def getOrCreateUser(userIdentity: UserIdentity): IO[UserEntity] =
@@ -128,65 +143,47 @@ class LoginEndpoints(
       }
     } yield user
 
-  def getAccessToken(code: String): IO[Either[String, AccessTokenResponse]] = {
-    client.fetch(
-      POST(
-        UrlForm(
-          "client_id"     -> discordOAuthConfig.clientId.value,
-          "client_secret" -> discordOAuthConfig.clientSecret.value,
-          "grant_type"    -> "authorization_code",
-          "code"          -> code,
-          "scope"         -> "identify",
-          "redirect_uri"  -> discordOAuthConfig.redirectUri.value
-        ),
-        discordOAuthConfig.discordApi / "oauth2" / "token"
+  def getAccessToken(code: String): IO[AccessTokenResponse] =
+    client
+      .run(
+        POST(
+          UrlForm(
+            "client_id"     -> discordOAuthConfig.clientId.value,
+            "client_secret" -> discordOAuthConfig.clientSecret.value,
+            "grant_type"    -> "authorization_code",
+            "code"          -> code,
+            "scope"         -> "identify",
+            "redirect_uri"  -> discordOAuthConfig.redirectUri.value
+          ),
+          discordOAuthConfig.discordApi / "oauth2" / "token"
+        )
       )
-    ) {
-      case Status.Successful(r) =>
-        r.attemptAs[AccessTokenResponse].leftMap(_.message).value
-      case Status.ClientError(r) =>
-        r.toString.asLeft[AccessTokenResponse].pure[IO]
+      .use {
+        case Status.Successful(r) =>
+          r.as[AccessTokenResponse]
+        case unSuccessful =>
+          unSuccessful
+            .as[String]
+            .flatMap(body => IO.raiseError(AccessTokenFailure(unSuccessful.status.code, body)))
+      }
 
-//
-//            r.attemptAs[DiscordApiError].leftMap(_.message).flatm.value.flatMap {
-//          case Left(error) => Ok(error)
-//          case Right(resp) => Ok(resp)
-//        }
-      case Status.ServerError(r) =>
-        r.toString.asLeft[AccessTokenResponse].pure[IO]
-      case Status.Informational(r) =>
-        r.toString.asLeft[AccessTokenResponse].pure[IO]
-      case Status.Redirection(r) =>
-        r.toString.asLeft[AccessTokenResponse].pure[IO]
-
-    }
-  }
-
-  def getUserIdentity(accessToken: AccessToken): IO[Either[String, UserIdentity]] = {
-    client.fetch(
-      GET(
-        discordOAuthConfig.discordApi / "users" / "@me",
-        Authorization(Credentials.Token(AuthScheme.Bearer, accessToken.toString))
+  def getUserIdentity(accessToken: AccessToken): IO[UserIdentity] =
+    client
+      .run(
+        GET(
+          discordOAuthConfig.discordApi / "users" / "@me",
+          Authorization(Credentials.Token(AuthScheme.Bearer, accessToken.toString))
+        )
       )
-    ) {
-      case Status.Successful(r) =>
-        r.attemptAs[UserIdentity].leftMap(_.message).value
-      case Status.ClientError(r) =>
-        r.toString.asLeft[UserIdentity].pure[IO]
+      .use {
+        case Status.Successful(r) =>
+          r.as[UserIdentity]
+        case unSuccessful =>
+          unSuccessful
+            .as[String]
+            .flatMap(body => IO.raiseError(UserIdentityFailure(unSuccessful.status.code, body)))
 
-//
-//            r.attemptAs[DiscordApiError].leftMap(_.message).flatm.value.flatMap {
-//          case Left(error) => Ok(error)
-//          case Right(resp) => Ok(resp)
-//        }
-      case Status.ServerError(r) =>
-        r.toString.asLeft[UserIdentity].pure[IO]
-      case Status.Informational(r) =>
-        r.toString.asLeft[UserIdentity].pure[IO]
-      case Status.Redirection(r) =>
-        r.toString.asLeft[UserIdentity].pure[IO]
-    }
-  }
+      }
 
   val endpoints: HttpRoutes[IO] = {
     HttpRoutes.of[IO](loginRegisterEndpoint) <+>
