@@ -42,7 +42,7 @@ lazy val root = (project in file("."))
     buildInfoUsePackageAsPath := true
   )
   .settings(
-    scalaVersion := "2.13.6",
+    scalaVersion := "2.13.7",
     releaseSettings,
     dockerSettings,
     resolvers ++= Dependencies.resolvers,
@@ -57,4 +57,4 @@ lazy val root = (project in file("."))
 lazy val zookcoreStub = project
   .in(file("zookcore-stub"))
   .settings(name := "zookcore", organization := "com.zooklabs")
-  .settings(scalaVersion := "2.13.6", version := Dependencies.Version.zookcore)
+  .settings(scalaVersion := "2.13.7", version := Dependencies.Version.zookcore)
