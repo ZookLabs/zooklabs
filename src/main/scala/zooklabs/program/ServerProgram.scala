@@ -69,7 +69,8 @@ final class ServerProgram(
       .withAllowCredentials(true)
       .withExposeHeadersAll
       .withAllowHeadersAll
-      .withAllowMethodsIn(Set(Method.GET, Method.PATCH, Method.POST, Method.OPTIONS))
+      .withAllowMethodsAll
+//      .withAllowMethodsIn(Set(Method.GET, Method.PATCH, Method.POST, Method.OPTIONS))
       .withAllowOriginHost(Set(conf.corsHost))(httpApp)
 
     BlazeServerBuilder[IO]
