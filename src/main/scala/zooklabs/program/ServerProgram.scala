@@ -66,10 +66,8 @@ final class ServerProgram(
     ).orNotFound
 
     val corsHttpApp = CORS.policy
-      .withAllowCredentials(true)
-      .withExposeHeadersAll
-      .withAllowHeadersAll
-      .withAllowMethodsAll
+//      .withAllowCredentials(true)
+      .withExposeHeadersAll.withAllowHeadersAll.withAllowMethodsAll
 //      .withAllowMethodsIn(Set(Method.GET, Method.PATCH, Method.POST, Method.OPTIONS))
       .withAllowOriginHost(Set(conf.corsHost))(httpApp)
 
