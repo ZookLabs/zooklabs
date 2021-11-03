@@ -50,7 +50,8 @@ final class ServerProgram(
         conf.discordWebhook,
         zookRepository,
         client,
-        permissiveSecureMiddleware
+        permissiveSecureMiddleware,
+        conf
       ).endpoints,
       "/leagues"     -> new LeaguesEndpoints(leagueRepository).endpoints,
       "/users"       -> new UserEndpoints(usersRepository).endpoints,

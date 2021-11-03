@@ -20,6 +20,7 @@ import org.http4s.headers.{`Content-Type`, `Set-Cookie`}
 import org.http4s.multipart.{Multipart, Part}
 import org.http4s.server.AuthMiddleware
 import org.typelevel.log4cats.Logger
+import zooklabs.conf.AppConfig
 import zooklabs.endpoints.discord.{DiscordWebhook, DiscordWebhookError, Field, Thumbnail}
 import zooklabs.endpoints.model.AuthUser
 import zooklabs.model.ZookTrial
@@ -34,7 +35,8 @@ class ZookEndpoints(
     discordWebhook: Uri,
     zookRepository: ZookRepository,
     httpClient: Client[IO],
-    permissiveSecureMiddleware: AuthMiddleware[IO, AuthUser]
+    permissiveSecureMiddleware: AuthMiddleware[IO, AuthUser],
+    config: AppConfig
 )(implicit logger: Logger[IO])
     extends Http4sDsl[IO]
     with AutoDerivation
@@ -58,8 +60,10 @@ class ZookEndpoints(
                 cookieId,
                 "",
                 maxAge = Some(60 * 60 * 24),
+                domain = Some(config.corsHost.host.value),
                 sameSite = Some(SameSite.None),
-                secure = true
+                secure = true,
+                httpOnly = true
               )
             )
           )

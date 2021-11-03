@@ -107,13 +107,14 @@ class LoginEndpoints(
       response     <- Ok.headers(Authorization(Credentials.Token(AuthScheme.Bearer, token)))
     } yield response)
       .handleErrorWith {
-        case loginError: LoginError =>
-          (loginError match {
-            case AccessTokenFailure(status, responseBody) =>
-              logger.error(s"AccessTokenFailure status=$status, body=$responseBody")
-            case UserIdentityFailure(status, responseBody) =>
-              logger.error(s"UserIdentityFailure status=$status, body=$responseBody")
-          }) >> InternalServerError("something went wrong")
+        case AccessTokenFailure(status, responseBody) =>
+          logger.error(
+            s"AccessTokenFailure status=$status, body=$responseBody"
+          ) >> InternalServerError("something went wrong")
+        case UserIdentityFailure(status, responseBody) =>
+          logger.error(
+            s"UserIdentityFailure status=$status, body=$responseBody"
+          ) >> InternalServerError("something went wrong")
         case error =>
           logger.error(s"not sure what happend ${error}") >> InternalServerError(
             "something went wrong"
