@@ -4,6 +4,7 @@ import cats.effect.{ExitCode, IO, Temporal}
 import cats.implicits._
 import eu.timepit.refined.auto.autoUnwrap
 import fs2.Stream
+import org.http4s.Method
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.client.Client
 import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
@@ -68,6 +69,7 @@ final class ServerProgram(
       .withAllowCredentials(true)
       .withExposeHeadersAll
       .withAllowHeadersAll
+      .withAllowMethodsIn(Set(Method.GET, Method.PATCH, Method.POST, Method.OPTIONS))
       .withAllowOriginHost(Set(conf.corsHost))(httpApp)
 
     BlazeServerBuilder[IO]
