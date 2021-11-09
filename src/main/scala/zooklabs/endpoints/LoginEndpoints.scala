@@ -83,9 +83,7 @@ class LoginEndpoints(
             case Right(_) => {
               jwtCreator
                 .issueJwt(AuthUser(user.id, register.username.some))
-                .flatMap(token =>
-                  Ok.headers(Authorization(Credentials.Token(AuthScheme.Bearer, token)))
-                )
+                .flatMap(token => Ok(token))
             }
           }
         }
@@ -104,7 +102,7 @@ class LoginEndpoints(
       userIdentity <- getUserIdentity(accessToken.accessToken)
       user         <- getOrCreateUser(userIdentity)
       token        <- jwtCreator.issueJwt(AuthUser(user.id, user.username))
-      response     <- Ok.headers(Authorization(Credentials.Token(AuthScheme.Bearer, token)))
+      response     <- Ok(token)
     } yield response)
       .handleErrorWith {
         case AccessTokenFailure(status, responseBody) =>

@@ -4,7 +4,6 @@ import cats.effect.{ExitCode, IO, Temporal}
 import cats.implicits._
 import eu.timepit.refined.auto.autoUnwrap
 import fs2.Stream
-import org.http4s.Method
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.client.Client
 import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
@@ -66,13 +65,14 @@ final class ServerProgram(
       "/static" -> new StaticEndpoints(zookRepository, conf.persistenceConfig).endpoints
     ).orNotFound
 
+//    val corsHttpApp = CORS(
+//      httpApp,
+//      CORS.DefaultCORSConfig.withAllowCredentials(true).withAllowedOrigins(Set(conf.corsHost))
+//    )
+
     val corsHttpApp = CORS.policy
-      .withAllowCredentials(true)
-      .withExposeHeadersAll
-      .withAllowHeadersAll
-      .withAllowMethodsAll
-//      .withAllowMethodsIn(Set(Method.GET, Method.PATCH, Method.POST, Method.OPTIONS))
-      .withAllowOriginHost(Set(conf.corsHost))(httpApp)
+      .withAllowOriginHost(Set(conf.corsHost))
+      .withAllowCredentials(true)(httpApp)
 
     BlazeServerBuilder[IO]
       .bindHttp(conf.post, conf.host)

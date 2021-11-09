@@ -1,11 +1,10 @@
 package zooklabs.persistence
 
-import java.nio.file.{Files, OpenOption, Path}
 import cats.effect.Sync
 import cats.implicits._
-import com.google.cloud.storage.contrib.nio.CloudStorageOptions.withMimeType
-import com.google.common.net.MediaType
 import zooklabs.conf.PersistenceConfig
+
+import java.nio.file.{Files, Path}
 
 trait Persistence[F[_]] {
   def createZookPathAndDirectories(id: String): F[Path]
@@ -28,7 +27,7 @@ class PersistenceImpl[F[_]: Sync](persistenceConfig: PersistenceConfig) extends 
 
   def writeImage(path: Path, imageBytes: Array[Byte]): F[Path] = {
     Sync[F].delay(
-      Files.write(path.resolve(IMAGE), imageBytes, withMimeType(MediaType.PNG.toString))
+      Files.write(path.resolve(IMAGE), imageBytes)
     )
   }
 
