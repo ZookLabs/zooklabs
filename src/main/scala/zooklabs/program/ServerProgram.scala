@@ -62,13 +62,12 @@ final class ServerProgram(
     val httpApp = Router(
       "/health" -> HealthEndpoint.endpoint,
       "/api"    -> api,
-      "/static" -> new StaticEndpoints(zookRepository, conf.persistenceConfig).endpoints
+      "/static" -> new StaticEndpoints(
+        zookRepository,
+        conf.persistenceConfig,
+        conf.corsHost
+      ).endpoints
     ).orNotFound
-
-//    val corsHttpApp = CORS(
-//      httpApp,
-//      CORS.DefaultCORSConfig.withAllowCredentials(true).withAllowedOrigins(Set(conf.corsHost))
-//    )
 
     val corsHttpApp = CORS.policy
       .withAllowOriginHost(Set(conf.corsHost))
