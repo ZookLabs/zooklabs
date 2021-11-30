@@ -15,7 +15,7 @@ object Dependencies {
     val logback        = "1.2.3"
     val logbackClassic = "1.2.7"
     val postgres       = "42.2.22"
-    val refined        = "0.9.27"
+    val refined        = "0.9.28"
     val scalaJwt       = "8.0.2"
     val scalatest      = "3.2.10"
     val zookcore       = "1.0.2"
