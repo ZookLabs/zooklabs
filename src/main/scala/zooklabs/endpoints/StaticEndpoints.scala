@@ -29,7 +29,7 @@ class StaticEndpoints(
   val zookEndpoint: PartialFunction[Request[IO], IO[Response[IO]]] = {
     case context @ GET -> Root / "zooks" / id / name =>
       StaticFile
-        .fromPath[IO](FS2Path.fromNioPath(persistenceConfig.path).resolve(s"zooks/$id/$name.zook"))
+        .fromPath[IO](FS2Path.fromNioPath(persistenceConfig.path).resolve(s"zooks/$id/$name"))
         .map(
           _.withContentType(
             `Content-Type`(
@@ -47,7 +47,7 @@ class StaticEndpoints(
           _.withHeaders(
             `Content-Disposition`(
               "form-data",
-              Map(ci"name" -> name, ci"filename" -> s"$name.zook")
+              Map(ci"name" -> name, ci"filename" -> name)
             )
           )
         )
