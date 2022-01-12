@@ -6,7 +6,7 @@ object Dependencies {
     val catsEffect     = "3.3.4"
     val circe          = "0.14.1"
     val ciris          = "2.3.1"
-    val doobie         = "1.0.0-M5"
+    val doobie         = "1.0.0-RC2"
     val flyway         = "7.10.0"
     val fs2            = "3.2.4"
     val googleCloudNio = "0.123.18"
