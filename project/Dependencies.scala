@@ -11,7 +11,7 @@ object Dependencies {
     val fs2            = "3.2.4"
     val googleCloudNio = "0.123.18"
     val http4s         = "0.23.7"
-    val log4Cats       = "2.1.1"
+    val log4Cats       = "2.3.1"
     val logback        = "1.2.3"
     val logbackClassic = "1.2.10"
     val postgres       = "42.2.22"
