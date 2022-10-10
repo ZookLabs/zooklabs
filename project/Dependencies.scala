@@ -2,24 +2,26 @@ import sbt._
 
 object Dependencies {
   object Version {
-    val cats           = "2.8.0"
-    val catsEffect     = "3.3.14"
-    val circe          = "0.14.3"
-    val ciris          = "2.4.0"
-    val doobie         = "1.0.0-RC2"
-    val flyway         = "9.4.0"
-    val fs2            = "3.3.0"
-    val googleCloudNio = "0.124.17"
-    val http4s         = "0.23.16"
-    val http4sBlaze    = "0.23.12"
-    val log4Cats       = "2.5.0"
-    val logbackClassic = "1.4.3"
-    val postgres       = "42.2.22"
-    val refined        = "0.10.1"
-    val scalaJwt       = "9.1.1"
-    val scalatest      = "3.2.10"
-    val munit          = "0.7.29"
-    val zookcore       = "1.0.2"
+    val cats            = "2.8.0"
+    val catsEffect      = "3.3.14"
+    val circe           = "0.14.3"
+    val ciris           = "2.4.0"
+    val doobie          = "1.0.0-RC2"
+    val flyway          = "9.4.0"
+    val fs2             = "3.3.0"
+    val googleCloudNio  = "0.124.17"
+    val http4s          = "0.23.16"
+    val http4sBlaze     = "0.23.12"
+    val log4Cats        = "2.5.0"
+    val logbackClassic  = "1.4.3"
+    val postgres        = "42.2.22"
+    val refined         = "0.10.1"
+    val scalaJwt        = "9.1.1"
+    val scalatest       = "3.2.10"
+    val munit           = "0.7.29"
+    val http4sMunit     = "0.14.0"
+    val munitCatsEffect = "1.0.7"
+    val zookcore        = "1.0.2"
   }
 
   object Library {
@@ -63,7 +65,7 @@ object Dependencies {
       "log4cats-slf4j"
     ).map("org.typelevel" %% _ % Version.log4Cats)
 
-      val logbackClassic = "ch.qos.logback" % "logback-classic" % Version.logbackClassic
+    val logbackClassic = "ch.qos.logback" % "logback-classic" % Version.logbackClassic
 
     val ciris: Seq[ModuleID] = Seq(
       "is.cir" %% "ciris",
@@ -90,8 +92,12 @@ object Dependencies {
       "com.github.jwt-scala" %% "jwt-circe"
     ).map(_ % Version.scalaJwt)
 
-
     val munit = "org.scalameta" %% "munit" % Version.munit
+
+    val http4sMunit = "com.alejandrohdezma" %% "http4s-munit" % Version.http4sMunit
+
+    val munitCatsEffect = "org.typelevel" %% "munit-cats-effect-3" % Version.munitCatsEffect
+
   }
 
   object Resolvers {
@@ -119,7 +125,13 @@ object Dependencies {
       Library.fs2
 
   lazy val testDependencies: List[ModuleID] =
-    List(Library.scalatest, Library.doobieTest, Library.munit)
+    List(
+      Library.scalatest,
+      Library.doobieTest,
+      Library.munit,
+      Library.http4sMunit,
+      Library.munitCatsEffect
+    )
       .map(_ % "it,test")
 
   lazy val resolvers: List[MavenRepository] =

@@ -13,7 +13,11 @@ import zooklabs.endpoints.model.zooks.ZookIdentifier
 import zooklabs.endpoints.model.zooks.ZookIdentifier._
 import zooklabs.repository.model.EntityTournament
 
-case class TournamentRepository(xa: Transactor[IO]) {
+trait TournamentRepository {
+  def getTournament(id: Int): IO[Option[Tournament]]
+  def listTournaments(): IO[List[TournamentIdentifier]]
+}
+object TournamentRepository {
 
   implicit val jsonbGetZookIdentifier: Get[List[ZookIdentifier]] =
     pgDecoderGetT[List[ZookIdentifier]]
@@ -28,18 +32,21 @@ case class TournamentRepository(xa: Transactor[IO]) {
     sql"""SELECT * FROM tournament where id = $id""".query[EntityTournament]
   }
 
-  def getTournament(id: Int): IO[Option[Tournament]] = {
-    (for {
-      entityTournament <- OptionT(getTournamentQuery(id).option)
-      tournamentIdentifier = TournamentIdentifier(entityTournament.id, entityTournament.title)
-      tournamentAbout      = TournamentAbout(entityTournament.description, entityTournament.ownerId)
-    } yield Tournament(tournamentIdentifier, tournamentAbout, entityTournament.zooks))
-      .transact(xa)
-      .value
-  }
+  def make(xa: Transactor[IO]): TournamentRepository = new TournamentRepository {
 
-  def listTournaments(): IO[List[TournamentIdentifier]] = {
-    listTournamentsQuery().to[List].transact(xa)
-  }
+    def getTournament(id: Int): IO[Option[Tournament]] = {
+      (for {
+        entityTournament <- OptionT(getTournamentQuery(id).option)
+        tournamentIdentifier = TournamentIdentifier(entityTournament.id, entityTournament.title)
+        tournamentAbout = TournamentAbout(entityTournament.description, entityTournament.ownerId)
+      } yield Tournament(tournamentIdentifier, tournamentAbout, entityTournament.zooks))
+        .transact(xa)
+        .value
+    }
 
+    def listTournaments(): IO[List[TournamentIdentifier]] = {
+      listTournamentsQuery().to[List].transact(xa)
+    }
+
+  }
 }
