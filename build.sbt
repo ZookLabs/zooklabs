@@ -42,7 +42,7 @@ lazy val root = (project in file("."))
     buildInfoUsePackageAsPath := true
   )
   .settings(
-    scalaVersion := "2.13.9",
+    scalaVersion := "2.13.10",
     releaseSettings,
     dockerSettings,
     resolvers ++= Dependencies.resolvers,
