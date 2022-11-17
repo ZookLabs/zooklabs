@@ -16,7 +16,7 @@ object Dependencies {
     val logbackClassic = "1.4.3"
     val postgres       = "42.2.22"
     val refined        = "0.10.1"
-    val scalaJwt       = "9.1.1"
+    val scalaJwt       = "9.1.2"
     val scalatest      = "3.2.10"
     val munit          = "0.7.29"
     val zookcore       = "1.0.2"
@@ -63,7 +63,7 @@ object Dependencies {
       "log4cats-slf4j"
     ).map("org.typelevel" %% _ % Version.log4Cats)
 
-      val logbackClassic = "ch.qos.logback" % "logback-classic" % Version.logbackClassic
+    val logbackClassic = "ch.qos.logback" % "logback-classic" % Version.logbackClassic
 
     val ciris: Seq[ModuleID] = Seq(
       "is.cir" %% "ciris",
@@ -89,7 +89,6 @@ object Dependencies {
       "com.github.jwt-scala" %% "jwt-core",
       "com.github.jwt-scala" %% "jwt-circe"
     ).map(_ % Version.scalaJwt)
-
 
     val munit = "org.scalameta" %% "munit" % Version.munit
   }
