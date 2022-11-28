@@ -1,8 +1,8 @@
 val appName = "zooklabs"
 
 lazy val herokuSettings = Seq(
-  herokuJdkVersion := "19",
-  herokuAppName := appName
+  Compile / herokuJdkVersion := "19",
+  Compile / herokuAppName := appName
 )
 
 lazy val root = (project in file("."))
