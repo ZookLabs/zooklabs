@@ -18,9 +18,9 @@ lazy val root = (project in file("."))
   )
   .settings(
     scalaVersion := "2.13.10",
-    releaseSettings,
-    dockerSettings,
-    resolvers ++= Dependencies.resolvers,
+    herokuSettings,
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
+    resolvers ++= "zookcore" at "https://maven.pkg.github.com/BearRebel/ZookCore",
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
     libraryDependencies ++= Dependencies.dependencies,
     libraryDependencies ++= Dependencies.testDependencies,

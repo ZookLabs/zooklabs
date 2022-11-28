@@ -94,10 +94,6 @@ object Dependencies {
     val munit = "org.scalameta" %% "munit" % Version.munit
   }
 
-  object Resolvers {
-    val zookcore: MavenRepository = "zookcore" at "https://maven.pkg.github.com/BearRebel/ZookCore"
-  }
-
   lazy val dependencies: List[ModuleID] =
     List(
       Library.googleCloudNio,
@@ -121,8 +117,5 @@ object Dependencies {
   lazy val testDependencies: List[ModuleID] =
     List(Library.scalatest, Library.doobieTest, Library.munit)
       .map(_ % "it,test")
-
-  lazy val resolvers: List[MavenRepository] =
-    List(Resolvers.zookcore, Resolver.sonatypeOssRepos("snapshots"))
 
 }
