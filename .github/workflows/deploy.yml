@@ -33,6 +33,6 @@ jobs:
           CREDS_PASSWORD: ${{ secrets.CREDS_PASSWORD }}
         run: echo "credentials += Credentials(\"GitHub Package Registry\",\"maven.pkg.github.com\",\"$CREDS_USERNAME\",\"$CREDS_PASSWORD\")" > credentials.sbt
       - name: Trigger release in Heroku
-        run: sbt release deployHeroku 
+        run: sbt stage deployHeroku 
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}

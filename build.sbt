@@ -1,7 +1,7 @@
 val appName = "zooklabs"
 
 lazy val herokuSettings = Seq(
-  herokuJdkVersion in Compile := "19",
+  herokuJdkVersion := "19",
   herokuAppName := appName
 )
 
