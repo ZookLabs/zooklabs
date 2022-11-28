@@ -2,7 +2,13 @@ val appName = "zooklabs"
 
 lazy val herokuSettings = Seq(
   Compile / herokuJdkVersion := "19",
-  Compile / herokuAppName := appName
+  Compile / herokuAppName := appName,
+  Compile / herokuIncludePaths := Seq(
+    "scripts"
+  ),
+  Compile / herokuProcessTypes := Map(
+  "web" -> "scripts/entrypoint target/universal/stage/bin/my-app -Dhttp.port=$PORT",
+)
 )
 
 lazy val root = (project in file("."))
