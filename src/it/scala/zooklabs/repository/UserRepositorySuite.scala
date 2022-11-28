@@ -28,8 +28,6 @@ class UserRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
     "Nosey"
   )
 
-  val userRepository: UserRepository = UserRepository(transactor)
-
   override def beforeAll() {
     Flyway
       .configure()
@@ -43,19 +41,19 @@ class UserRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
   }
 
   test("getUserEntityQuery type checks") {
-    check(userRepository.getUserEntityQuery(testUsername))
+    check(UserRepository.getUserEntityQuery(testUsername))
   }
 
   test("getZooksByUserQuery type checks") {
-    check(userRepository.getZooksByUserQuery(1))
+    check(UserRepository.getZooksByUserQuery(1))
   }
 
   test("listUserIdentifiersQuery type checks") {
-    check(userRepository.listUserIdentifiersQuery)
+    check(UserRepository.listUserIdentifiersQuery)
   }
 
   test("getByDiscordIdQuery type checks") {
-    check(userRepository.getByDiscordIdQuery("test"))
+    check(UserRepository.getByDiscordIdQuery("test"))
   }
 
   val userEntityFixture: UserEntity = UserEntity(
@@ -67,27 +65,27 @@ class UserRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
   )
 
   test("persistUserQuery type checks") {
-    check(userRepository.persistUserQuery(userEntityFixture))
+    check(UserRepository.persistUserQuery(userEntityFixture))
   }
 
   test("updateLastLoginQuery type checks") {
-    check(userRepository.updateLastLoginQuery(1, LocalDateTime.now()))
+    check(UserRepository.updateLastLoginQuery(1, LocalDateTime.now()))
   }
 
   test("setUsernameQuery type checks") {
-    check(userRepository.setUsernameQuery(1, testUsername))
+    check(UserRepository.setUsernameQuery(1, testUsername))
   }
 
   test("usernameExistsQuery type checks") {
-    check(userRepository.usernameExistsQuery(testUsername))
+    check(UserRepository.usernameExistsQuery(testUsername))
   }
 
   test("isUserAdminQuery type checks") {
-    check(userRepository.isUserAdminQuery(1))
+    check(UserRepository.isUserAdminQuery(1))
   }
 
   test("getUserIdQuery type checks") {
-    check(userRepository.getUserIdQuery(testUsername))
+    check(UserRepository.getUserIdQuery(testUsername))
   }
 
 }

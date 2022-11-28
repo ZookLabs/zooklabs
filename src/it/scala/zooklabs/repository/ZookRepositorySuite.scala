@@ -25,9 +25,7 @@ class ZookRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
     "Bernard",
     "Nosey"
   )
-
-  val zookRepository: ZookRepository = ZookRepository(transactor)
-
+  
   override def beforeAll() {
     Flyway
       .configure()
@@ -41,7 +39,7 @@ class ZookRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
   }
 
   test("persistTrialQuery type checks") {
-    check(zookRepository.persistTrialQuery(Trials.Lap))
+    check(ZookRepository.persistTrialQuery(Trials.Lap))
   }
 
   def zookEntityFixture: ZookEntity = ZookEntity(
@@ -60,35 +58,35 @@ class ZookRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfter
   )
 
   test("persistZookQuery type checks") {
-    check(zookRepository.persistZookQuery(zookEntityFixture))
+    check(ZookRepository.persistZookQuery(zookEntityFixture))
   }
 
   test("dropZookQuery type checks") {
-    check(zookRepository.dropZookQuery(0))
+    check(ZookRepository.dropZookQuery(0))
   }
 
   test("getZookEntity type checks") {
-    check(zookRepository.getZookEntity(0))
+    check(ZookRepository.getZookEntity(0))
   }
 
   test("listZooksQuery type checks") {
-    check(zookRepository.listZooksQuery)
+    check(ZookRepository.listZooksQuery)
   }
 
   test("getZookTrial type checks") {
-    check(zookRepository.getZookTrial(0)(Trials.Lap))
+    check(ZookRepository.getZookTrial(0)(Trials.Lap))
   }
 
   test("setOwnerQuery type checks") {
-    check(zookRepository.setOwnerQuery(0, 0))
+    check(ZookRepository.setOwnerQuery(0, 0))
   }
 
   test("incrementViewsQuery type checks") {
-    check(zookRepository.incrementViewsQuery(0))
+    check(ZookRepository.incrementViewsQuery(0))
   }
 
   test("incrementDownloadsQuery type checks") {
-    check(zookRepository.incrementDownloadsQuery(0))
+    check(ZookRepository.incrementDownloadsQuery(0))
   }
 
 }

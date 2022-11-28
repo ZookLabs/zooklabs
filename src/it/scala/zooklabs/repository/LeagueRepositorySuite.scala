@@ -14,17 +14,12 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 class LeagueRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAfterAll {
 
-  val blockingEc: ExecutionContextExecutor =
-    ExecutionContext.fromExecutor(Executors.newCachedThreadPool)
-
   val transactor: doobie.Transactor[IO] = Transactor.fromDriverManager[IO](
     "org.postgresql.Driver",
     "jdbc:postgresql://localhost:5432/zooklabs",
     "Bernard",
     "Nosey"
   )
-
-  val leagueRepository: LeagueRepository = LeagueRepository(transactor)
 
   override def beforeAll() {
     Flyway
@@ -39,34 +34,34 @@ class LeagueRepositorySuite extends AnyFunSuite with IOChecker with BeforeAndAft
   }
 
   test("listLeagueQuery type checks") {
-    check(leagueRepository.listLeagueQuery(Trials.Lap))
+    check(LeagueRepository.listLeagueQuery(Trials.Lap))
   }
 
   test("getLeagueUpdatedAtQuery type checks") {
-    check(leagueRepository.getLeagueUpdatedAtQuery(Trials.Lap))
+    check(LeagueRepository.getLeagueUpdatedAtQuery(Trials.Lap))
   }
 
   test("updateLeagueOrderQuery type checks") {
-    check(leagueRepository.updateLeagueOrderQuery(Trials.Lap))
+    check(LeagueRepository.updateLeagueOrderQuery(Trials.Lap))
   }
 
   test("updateDisqualifiedQuery type checks") {
-    check(leagueRepository.updateDisqualifiedQuery(Trials.Lap))
+    check(LeagueRepository.updateDisqualifiedQuery(Trials.Lap))
   }
 
   test("getLeaderQuery type checks") {
-    check(leagueRepository.getLeaderQuery(Trials.Lap))
+    check(LeagueRepository.getLeaderQuery(Trials.Lap))
   }
 
   test("getCountQuery type checks") {
-    check(leagueRepository.getCountQuery(Trials.Lap))
+    check(LeagueRepository.getCountQuery(Trials.Lap))
   }
 
   test("getRanksQuery type checks") {
-    check(leagueRepository.getRanksQuery)
+    check(LeagueRepository.getRanksQuery)
   }
 
   test("insertOverallLeagueDataQuery type checks") {
-    check(leagueRepository.insertOverallLeagueDataQuery)
+    check(LeagueRepository.insertOverallLeagueDataQuery)
   }
 }

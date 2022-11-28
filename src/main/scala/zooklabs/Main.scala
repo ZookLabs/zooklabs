@@ -11,6 +11,7 @@ import zooklabs.conf.Config
 import zooklabs.db.Database
 import zooklabs.persistence.PersistenceImpl
 import zooklabs.program.{KeepAliveProgram, ServerProgram, UpdateLeagueProgram}
+import zooklabs.repository.{LeagueRepository, TournamentRepository, UserRepository, ZookRepository}
 
 object Main extends IOApp {
 
@@ -25,10 +26,10 @@ object Main extends IOApp {
       transactor <- Stream.resource(Database.makeTransactor[IO](conf.databaseConfig))
       _          <- Stream.eval(Database.initialize(transactor))
 
-      leagueRepository     = repository.LeagueRepository(transactor)
-      zookRepository       = repository.ZookRepository(transactor)
-      usersRepository      = repository.UserRepository(transactor)
-      tournamentRepository = repository.TournamentRepository(transactor)
+      leagueRepository     = LeagueRepository.make(transactor)
+      zookRepository       = ZookRepository.make(transactor)
+      usersRepository      = UserRepository.make(transactor)
+      tournamentRepository = TournamentRepository.make(transactor)
 
       client <- Stream.resource(BlazeClientBuilder[IO].resource)
 
