@@ -27,6 +27,11 @@ jobs:
             ~/.m2
             ~/.cache/coursier/
           key: ${{ hashFiles('project/Dependencies.scala') }}
+      - name: create credentials
+        env:
+          CREDS_USERNAME: ${{ secrets.CREDS_USERNAME }}
+          CREDS_PASSWORD: ${{ secrets.CREDS_PASSWORD }}
+        run: echo "credentials += Credentials(\"GitHub Package Registry\",\"maven.pkg.github.com\",\"$CREDS_USERNAME\",\"$CREDS_PASSWORD\")" > credentials.sbt
       - name: Trigger release in Heroku
         run: sbt release deployHeroku 
         env:

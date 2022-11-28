@@ -123,6 +123,6 @@ object Dependencies {
       .map(_ % "it,test")
 
   lazy val resolvers: List[MavenRepository] =
-    List(Resolvers.zookcore, Resolver.sonatypeRepo("snapshots"))
+    List(Resolvers.zookcore, Resolver.sonatypeOssRepos("snapshots"))
 
 }
