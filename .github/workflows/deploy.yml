@@ -29,6 +29,5 @@ jobs:
           key: ${{ hashFiles('project/Dependencies.scala') }}
       - name: Trigger release in Heroku
         run: sbt release deployHeroku 
-        heroku container:release -a $HEROKU_APP web
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
