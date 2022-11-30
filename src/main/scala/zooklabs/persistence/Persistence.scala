@@ -3,35 +3,31 @@ package zooklabs.persistence
 import cats.effect.Sync
 import cats.implicits._
 import zooklabs.conf.PersistenceConfig
+import zooklabs.conf.LocalPersistenceConfig
+import zooklabs.conf.GcsPersistenceConfig
 
 import java.nio.file.{Files, Path}
+import cats.effect.IO
+import eu.timepit.refined.types.all.NonNegInt
 
-trait Persistence[F[_]] {
-  def createZookPathAndDirectories(id: String): F[Path]
-  def writeImage(path: Path, imageBytes: Array[Byte]): F[Path]
-  def writeZook(path: Path, zookName: String, zookBytes: Array[Byte]): F[Path]
-}
-
-class PersistenceImpl[F[_]: Sync](persistenceConfig: PersistenceConfig) extends Persistence[F] {
+trait Persistence {
 
   val ZOOK  = s"zook"
   val ZOOKS = s"${ZOOK}s"
   val IMAGE = "image.png"
 
-  val zookPath: Path = persistenceConfig.path.resolve(ZOOKS)
+  def writeImage(id: String, imageBytes: Array[Byte]): IO[Unit]
+  def writeZook(id: String, zookName: String, zookBytes: Array[Byte]): IO[Unit]
+}
 
-  def createZookPathAndDirectories(id: String): F[Path] = {
-    val path = zookPath.resolve(id)
-    Sync[F].delay(Files.createDirectories(path)).as(path)
-  }
+object Persistence {
 
-  def writeImage(path: Path, imageBytes: Array[Byte]): F[Path] = {
-    Sync[F].delay(
-      Files.write(path.resolve(IMAGE), imageBytes)
-    )
-  }
+  def make(persistenceConfig: PersistenceConfig) = {
 
-  def writeZook(path: Path, zookName: String, zookBytes: Array[Byte]): F[Path] = {
-    Sync[F].delay(Files.write(path.resolve(s"$zookName.$ZOOK"), zookBytes))
+    persistenceConfig match {
+      case localPersistenceConfig: LocalPersistenceConfig =>
+        LocalPersistence.make(localPersistenceConfig)
+      case gcsPersistenceConfig: GcsPersistenceConfig => GcsPersistence.make(gcsPersistenceConfig)
+    }
   }
 }
