@@ -27,7 +27,7 @@ final class ServerProgram(
     zookRepository: ZookRepository,
     usersRepository: UserRepository,
     tournamentRepository: TournamentRepository,
-    persistence: Persistence[IO]
+    persistence: Persistence
 )(implicit logger: Logger[IO], timer: Temporal[IO]) {
 
   def run(): Stream[IO, ExitCode] = {
@@ -79,7 +79,7 @@ final class ServerProgram(
       Header.Raw(CIString("Content-Security-Policy"), "default-src https:"),
       Header.Raw(CIString("Strict-Transport-Security"), "max-age=63072000"),
       Header.Raw(CIString("X-Content-Type-Options"), "nosniff"),
-      Header.Raw(CIString("X-Frame-Options"), "DENY"),
+      Header.Raw(CIString("X-Frame-Options"), "DENY")
     )
 
     val staticHeadersApp = StaticHeaders(securityHeaders)(corsHttpApp)
