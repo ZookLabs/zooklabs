@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
   object Version {
-    val cats           = "2.9.0"
+    val cats           = "2.8.0"
     val catsEffect     = "3.3.14"
     val circe          = "0.14.3"
     val ciris          = "2.4.0"
@@ -63,7 +63,7 @@ object Dependencies {
       "log4cats-slf4j"
     ).map("org.typelevel" %% _ % Version.log4Cats)
 
-    val logbackClassic = "ch.qos.logback" % "logback-classic" % Version.logbackClassic
+      val logbackClassic = "ch.qos.logback" % "logback-classic" % Version.logbackClassic
 
     val ciris: Seq[ModuleID] = Seq(
       "is.cir" %% "ciris",
@@ -89,6 +89,7 @@ object Dependencies {
       "com.github.jwt-scala" %% "jwt-core",
       "com.github.jwt-scala" %% "jwt-circe"
     ).map(_ % Version.scalaJwt)
+
 
     val munit = "org.scalameta" %% "munit" % Version.munit
   }
