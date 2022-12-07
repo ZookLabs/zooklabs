@@ -1,51 +1,26 @@
-import com.typesafe.sbt.packager.docker.{DockerChmodType, DockerVersion}
-import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+val appName = "zooklabs"
 
-lazy val dockerSettings = List(
-  dockerBaseImage := "adoptopenjdk/openjdk11:alpine-slim",
-  dockerExposedPorts += 8080,
-  dockerAlias := DockerAlias(Some("registry.heroku.com"), Some("zooklabs"), "web", None),
-  Docker / dockerPackageMappings ++= List(
-    baseDirectory.value / "scripts" / "entrypoint" -> "/opt/docker/bin/entrypoint"
-  ),
-  dockerEntrypoint := "/opt/docker/bin/entrypoint" +: dockerEntrypoint.value,
-  dockerChmodType  := DockerChmodType.UserGroupWriteExecute,
-  dockerVersion    := Some(DockerVersion(18, 9, 0, Some("ce"))) // required for github actions
-)
-
-lazy val releaseSettings = Seq(
-  releaseUseGlobalVersion     := true,
-  releaseIgnoreUntrackedFiles := true,
-  releaseTagName              := s"v${(ThisBuild / version).value}",
-  releaseTagComment           := s"Release version ${(ThisBuild / version).value}",
-  releaseCommitMessage        := s"Set version to ${(ThisBuild / version).value} [ci skip]",
-  releaseProcess := Seq[ReleaseStep](
-    checkSnapshotDependencies,
-    inquireVersions,
-    setReleaseVersion,
-    releaseStepCommand("docker:publish"),
-    commitReleaseVersion,
-    tagRelease,
-    setNextVersion,
-    commitNextVersion,
-    pushChanges
-  )
+lazy val herokuSettings = Seq(
+  Compile / herokuJdkVersion := "19",
+  Compile / herokuAppName := appName
 )
 
 lazy val root = (project in file("."))
-  .settings(name := "zooklabs", organization := "com.zooklabs")
-  .enablePlugins(JavaAppPackaging, DockerPlugin, AshScriptPlugin, BuildInfoPlugin)
+  .settings(name := appName, 
+    organization := "com.zooklabs"
+  )
+  .enablePlugins(JavaAppPackaging, BuildInfoPlugin)
   .configs(IntegrationTest)
   .settings(
     buildInfoKeys             := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage          := "zooklabs",
+    buildInfoPackage          := appName,
     buildInfoUsePackageAsPath := true
   )
   .settings(
-    scalaVersion := "2.13.9",
-    releaseSettings,
-    dockerSettings,
-    resolvers ++= Dependencies.resolvers,
+    scalaVersion := "2.13.10",
+    herokuSettings,
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
+    resolvers += "zookcore" at "https://maven.pkg.github.com/BearRebel/ZookCore",
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
     libraryDependencies ++= Dependencies.dependencies,
     libraryDependencies ++= Dependencies.testDependencies,
@@ -57,4 +32,4 @@ lazy val root = (project in file("."))
 lazy val zookcoreStub = project
   .in(file("zookcore-stub"))
   .settings(name := "zookcore", organization := "com.zooklabs")
-  .settings(scalaVersion := "2.13.7", version := Dependencies.Version.zookcore)
+  .settings(scalaVersion := "2.13.10", version := Dependencies.Version.zookcore)
