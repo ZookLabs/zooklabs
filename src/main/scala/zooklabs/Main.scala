@@ -9,8 +9,9 @@ import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import zooklabs.conf.Config
 import zooklabs.db.Database
-import zooklabs.persistence.PersistenceImpl
 import zooklabs.program.{KeepAliveProgram, ServerProgram, UpdateLeagueProgram}
+import zooklabs.persistence.LocalPersistence
+import zooklabs.persistence.Persistence
 
 object Main extends IOApp {
 
@@ -32,7 +33,7 @@ object Main extends IOApp {
 
       client <- Stream.resource(BlazeClientBuilder[IO].resource)
 
-      persistence = new PersistenceImpl[IO](conf.persistenceConfig)
+      persistence = Persistence.make(conf.persistenceConfig)
 
       serverProgram =
         new ServerProgram(
