@@ -31,7 +31,7 @@ import zooklabs.repository.model.{ZookContainer, ZookEntity}
 import java.time.LocalDateTime
 
 class ZookEndpoints(
-    persistence: Persistence[IO],
+    persistence: Persistence,
     discordWebhook: Uri,
     zookRepository: ZookRepository,
     httpClient: Client[IO],
@@ -152,11 +152,8 @@ class ZookEndpoints(
 
             id <- EitherT.right[APIError](zookRepository.persistZook(zookContainer))
 
-            zookPath <-
-              EitherT.right[APIError](persistence.createZookPathAndDirectories(id.toString))
-
             _ <-
-              EitherT(persistence.writeZook(zookPath, coreZook.name, zookBytes).attempt)
+              EitherT(persistence.writeZook(id.toString, coreZook.name, zookBytes).attempt)
                 .leftSemiflatMap(exception => {
                   logger
                     .error(s"Zook persistence error : ${exception.getLocalizedMessage}") >>
@@ -164,7 +161,7 @@ class ZookEndpoints(
                 })
 
             _ <-
-              EitherT(persistence.writeImage(zookPath, coreZook.image.imageBytes).attempt)
+              EitherT(persistence.writeImage(id.toString, coreZook.image.imageBytes).attempt)
                 .leftSemiflatMap(exception => {
                   logger
                     .error(s"Zook Image persistence error : ${exception.getLocalizedMessage}") >>
