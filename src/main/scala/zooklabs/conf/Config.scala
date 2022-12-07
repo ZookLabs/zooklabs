@@ -18,25 +18,51 @@ import pdi.jwt.JwtAlgorithm
 import pdi.jwt.algorithms.JwtHmacAlgorithm
 import zooklabs.conf.PersistenceConfig.nonEmptyStringPathConfigDecoder
 import zooklabs.jwt.JwtCreds
+import com.google.auth.oauth2.ServiceAccountCredentials
+import java.io.ByteArrayInputStream
 
 object Config {
 
-  def load(): IO[AppConfig] =
-    env("LOCAL").option
-      .default(None)
-      .load[IO]
-      .map {
-        case None    => Origin.Host(Uri.Scheme.https, Uri.RegName("zooklabs.com"), None)
-        case Some(_) => Origin.Host(Uri.Scheme.http, Uri.RegName("localhost"), Some(3000))
-      }
-      .flatMap(corsHost => config(corsHost).load[IO])
+  sealed trait DeploymentEnv
 
-  def config(corsHost: Origin.Host): ConfigValue[IO, AppConfig] =
+  object DeploymentEnv {
+    case object Local extends DeploymentEnv
+    case object Prod  extends DeploymentEnv
+  }
+
+  def load(): IO[AppConfig] =
+    (for {
+      deploymentEnv <- env("LOCAL").option
+        .flatMap {
+          case None    => ConfigValue.default[DeploymentEnv](DeploymentEnv.Prod)
+          case Some(_) => ConfigValue.default[DeploymentEnv](DeploymentEnv.Local)
+        }
+        .as[DeploymentEnv]
+      _ = println(s"Loading $deploymentEnv env")
+      config <- loadConfig(deploymentEnv)
+    } yield config).load[IO]
+
+  def loadCorsConfig(deploymentEnv: DeploymentEnv): ConfigValue[IO, Origin.Host] = {
+    deploymentEnv match {
+      case DeploymentEnv.Local =>
+        ConfigValue.default(Origin.Host(Uri.Scheme.http, Uri.RegName("localhost"), Some(3000)))
+      case DeploymentEnv.Prod =>
+        ConfigValue.default(Origin.Host(Uri.Scheme.https, Uri.RegName("zooklabs.com"), None))
+    }
+  }
+
+  def loadPersistenceConfig(deploymentEnv: DeploymentEnv) =
+    deploymentEnv match {
+      case DeploymentEnv.Local => localPersistenceConfig
+      case DeploymentEnv.Prod  => gcsPersistenceConfig
+    }
+
+  def loadConfig(deploymentEnv: DeploymentEnv): ConfigValue[IO, AppConfig] =
     (
       env("PORT").as[PortNumber].default(8080),
       env("HOST").as[String].default("0.0.0.0"),
       DatabaseConfig.load,
-      persistenceConfig,
+      loadPersistenceConfig(deploymentEnv),
       env("DISCORD_WEBHOOK")
         .as[String]
         .map(Uri.unsafeFromString)
@@ -46,16 +72,30 @@ object Config {
         .as[Uri],
       jwtCredsConfig,
       discordOAuthConfig,
-      ConfigValue.default(corsHost)
+      loadCorsConfig(deploymentEnv)
     )
       .parMapN(AppConfig)
 
-  val persistenceConfig: ConfigValue[IO, PersistenceConfig] =
+  val gcsPersistenceConfig: ConfigValue[IO, GcsPersistenceConfig] = {
+    for {
+      creds <- env("GOOGLE_CREDENTIALS")
+        .as[String]
+        .map(config =>
+          ServiceAccountCredentials.fromStream(new ByteArrayInputStream(config.getBytes()))
+        )
+      bucketName <- env("BUCKET_NAME").as[String]
+      path <- env("PERSISTENCE_PATH")
+        .as[NonEmptyString]
+        .as[Path]
+    } yield GcsPersistenceConfig(creds, bucketName, path)
+  }
+
+  val localPersistenceConfig: ConfigValue[IO, LocalPersistenceConfig] =
     env("PERSISTENCE_PATH")
       .as[NonEmptyString]
       .as[Path]
       .default(Paths.get(System.getProperty("user.home")))
-      .map(PersistenceConfig.apply)
+      .map(LocalPersistenceConfig.apply)
 
   val jwtCredsConfig: ConfigValue[IO, JwtCreds] = {
 
