@@ -2,23 +2,25 @@ import sbt._
 
 object Dependencies {
   object Version {
-    val cats           = "2.7.0"
-    val catsEffect     = "3.3.4"
-    val circe          = "0.14.1"
-    val ciris          = "2.3.1"
-    val doobie         = "1.0.0-M5"
-    val flyway         = "7.10.0"
-    val fs2            = "3.2.4"
-    val googleCloudNio = "0.123.18"
-    val http4s         = "0.23.7"
-    val log4Cats       = "2.1.1"
-    val logback        = "1.2.3"
-    val logbackClassic = "1.2.10"
-    val postgres       = "42.2.22"
-    val refined        = "0.9.28"
-    val scalaJwt       = "8.0.2"
-    val scalatest      = "3.2.10"
-    val zookcore       = "1.0.2"
+    val cats               = "2.8.0"
+    val catsEffect         = "3.3.14"
+    val circe              = "0.14.3"
+    val ciris              = "2.4.0"
+    val doobie             = "1.0.0-RC2"
+    val flyway             = "9.4.0"
+    val fs2                = "3.3.0"
+    val googleCloudNio     = "0.124.17"
+    val googleCloudStorage = "2.15.1"
+    val http4s             = "0.23.16"
+    val http4sBlaze        = "0.23.12"
+    val log4Cats           = "2.5.0"
+    val logbackClassic     = "1.4.3"
+    val postgres           = "42.2.22"
+    val refined            = "0.10.1"
+    val scalaJwt           = "9.1.1"
+    val scalatest          = "3.2.10"
+    val munit              = "0.7.29"
+    val zookcore           = "1.0.2"
   }
 
   object Library {
@@ -26,11 +28,14 @@ object Dependencies {
     val http4s: Seq[ModuleID] = Seq(
       "org.http4s" %% "http4s-core",
       "org.http4s" %% "http4s-server",
-      "org.http4s" %% "http4s-blaze-server",
-      "org.http4s" %% "http4s-blaze-client",
       "org.http4s" %% "http4s-circe",
       "org.http4s" %% "http4s-dsl"
     ).map(_ % Version.http4s)
+
+    val http4sBlaze: Seq[ModuleID] = Seq(
+      "org.http4s" %% "http4s-blaze-server",
+      "org.http4s" %% "http4s-blaze-client"
+    ).map(_ % Version.http4sBlaze)
 
     val doobie: Seq[ModuleID] = Seq(
       "org.tpolecat" %% "doobie-core",
@@ -70,6 +75,9 @@ object Dependencies {
 
     val googleCloudNio = "com.google.cloud" % "google-cloud-nio" % Version.googleCloudNio
 
+    val googleCloudStorage =
+      "com.google.cloud" % "google-cloud-storage" % Version.googleCloudStorage
+
     val scalatest = "org.scalatest" %% "scalatest" % Version.scalatest
 
     val flyway = "org.flywaydb" % "flyway-core" % Version.flyway
@@ -86,14 +94,12 @@ object Dependencies {
       "com.github.jwt-scala" %% "jwt-circe"
     ).map(_ % Version.scalaJwt)
 
-  }
-
-  object Resolvers {
-    val zookcore: MavenRepository = "zookcore" at "https://maven.pkg.github.com/BearRebel/ZookCore"
+    val munit = "org.scalameta" %% "munit" % Version.munit
   }
 
   lazy val dependencies: List[ModuleID] =
     List(
+      Library.googleCloudStorage,
       Library.googleCloudNio,
       Library.flyway,
       Library.postgres,
@@ -103,6 +109,7 @@ object Dependencies {
       Library.logbackClassic
     ) ++
       Library.http4s ++
+      Library.http4sBlaze ++
       Library.doobie ++
       Library.circe ++
       Library.ciris ++
@@ -112,10 +119,7 @@ object Dependencies {
       Library.fs2
 
   lazy val testDependencies: List[ModuleID] =
-    List(Library.scalatest, Library.doobieTest)
+    List(Library.scalatest, Library.doobieTest, Library.munit)
       .map(_ % "it,test")
-
-  lazy val resolvers: List[MavenRepository] =
-    List(Resolvers.zookcore, Resolver.sonatypeRepo("snapshots"))
 
 }
