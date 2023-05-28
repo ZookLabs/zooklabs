@@ -18,7 +18,7 @@ object Dependencies {
     val postgres           = "42.2.22"
     val refined            = "0.10.1"
     val scalaJwt           = "9.1.1"
-    val scalatest          = "3.2.10"
+    val scalatest          = "3.2.16"
     val munit              = "0.7.29"
     val zookcore           = "1.0.2"
   }
