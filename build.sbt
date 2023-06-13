@@ -2,13 +2,11 @@ val appName = "zooklabs"
 
 lazy val herokuSettings = Seq(
   Compile / herokuJdkVersion := "19",
-  Compile / herokuAppName := appName
+  Compile / herokuAppName    := appName
 )
 
 lazy val root = (project in file("."))
-  .settings(name := appName, 
-    organization := "com.zooklabs"
-  )
+  .settings(name := appName, organization := "com.zooklabs")
   .enablePlugins(JavaAppPackaging, BuildInfoPlugin)
   .configs(IntegrationTest)
   .settings(
@@ -17,7 +15,7 @@ lazy val root = (project in file("."))
     buildInfoUsePackageAsPath := true
   )
   .settings(
-    scalaVersion := "2.13.10",
+    scalaVersion := "2.13.11",
     herokuSettings,
     resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     resolvers += "zookcore" at "https://maven.pkg.github.com/BearRebel/ZookCore",
@@ -32,4 +30,4 @@ lazy val root = (project in file("."))
 lazy val zookcoreStub = project
   .in(file("zookcore-stub"))
   .settings(name := "zookcore", organization := "com.zooklabs")
-  .settings(scalaVersion := "2.13.10", version := Dependencies.Version.zookcore)
+  .settings(scalaVersion := "2.13.11", version := Dependencies.Version.zookcore)
