@@ -23,7 +23,7 @@ object DbCreds {
     Try(URI.create(uri.value)).toOption.flatMap { uri =>
       (
         NonEmptyString
-          .from(s"jdbc:postgresql://${uri.getHost}${uri.getPath}"),
+          .from(s"jdbc:postgresql://${uri.getHost}:${uri.getPort}${uri.getPath}"),
         NonEmptyString.from(uri.getUserInfo.split(":")(0)),
         NonEmptyString.from(uri.getUserInfo.split(":")(1))
       ).mapN { case (host, user, password) =>
