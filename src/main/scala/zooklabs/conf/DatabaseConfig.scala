@@ -17,7 +17,7 @@ final case class DatabaseConfig(
 object DatabaseConfig {
   def load: ConfigValue[IO, DatabaseConfig] = {
     (
-      env("DATABASE_URL")
+      env("NEW_DATABASE_URL")
         .as[NonEmptyString]
         .secret
         .default(Secret("postgres://Bernard:Nosey@localhost:5432/zooklabs"))
