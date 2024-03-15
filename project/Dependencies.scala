@@ -15,7 +15,7 @@ object Dependencies {
     val http4sBlaze        = "0.23.12"
     val log4Cats           = "2.5.0"
     val logbackClassic     = "1.4.3"
-    val postgres           = "42.2.22"
+    val postgres           = "42.2.29"
     val refined            = "0.10.1"
     val scalaJwt           = "9.1.1"
     val scalatest          = "3.2.10"
