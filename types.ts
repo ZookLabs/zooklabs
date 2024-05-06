@@ -59,3 +59,14 @@ export interface Zook {
   physical: ZookPhysical
   achievement: ZookAchievement
 }
+
+// export type LeagueTrial = 'sprint' | 'block_push' | 'hurdles' | 'high_jump' | 'lap' | 'overall_league';
+
+export interface Leagues {
+  sprint: number,
+  block_push: number,
+  hurdles: number,
+  high_jump: number,
+  lap: number,
+  overall_league: number,
+}

@@ -1,7 +1,8 @@
 {
   "tasks": {
     "dev": "deno run --allow-read --allow-net --watch main.ts",
-    "deploy": "deployctl deploy --project=zooklabs --prod"
+    "deploy": "deployctl deploy --project=zooklabs --prod",
+    "deploy-test": "deployctl deploy --project=zooklabs"
   },
   "deploy": {
     "project": "82b0b482-0d0f-4007-9d63-49e2864526ae",
