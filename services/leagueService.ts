@@ -14,8 +14,8 @@ export const getLeagues = async (): Promise<Leagues> => {
 
 export const getLeague = async (trial: Trial): Promise<League> => {
   return {
-    entries: await leaguesRepo.listLeague(trial),
     updatedAt: await leaguesRepo.getLeagueUpdatedAt(trial) ??
       "not updated yet",
+    entries: await leaguesRepo.listLeague(trial),
   }
 }

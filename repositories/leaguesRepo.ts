@@ -12,7 +12,8 @@ class LeaguesRepo {
   async listLeague(trial: Trial): Promise<LeagueTrial[]> {
     const result = await client.queryObject<LeagueTrial>({
       text:
-        `select zookid as zookId, name, score, position from ${trial} where not disqualified order by position`,
+        `select zookid as zook_id, name, score, position from ${trial} where not disqualified order by position`,
+      camelCase: true,
     })
     return result.rows
   }
