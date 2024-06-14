@@ -1,5 +1,5 @@
 import leaguesRepo from "../repositories/leaguesRepo.ts"
-import {League, Leagues, Trial} from "../types.ts"
+import { League, Leagues, Trial } from "../types.ts"
 
 export const getLeagues = async (): Promise<Leagues> => {
   return {
@@ -15,6 +15,7 @@ export const getLeagues = async (): Promise<Leagues> => {
 export const getLeague = async (trial: Trial): Promise<League> => {
   return {
     entries: await leaguesRepo.listLeague(trial),
-    updatedAt: await leaguesRepo.getLeagueUpdatedAt(trial) ?? "not updated yet",
+    updatedAt: await leaguesRepo.getLeagueUpdatedAt(trial) ??
+      "not updated yet",
   }
 }
