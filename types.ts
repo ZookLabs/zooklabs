@@ -60,7 +60,8 @@ export interface Zook {
   achievement: ZookAchievement
 }
 
-// export type LeagueTrial = 'sprint' | 'block_push' | 'hurdles' | 'high_jump' | 'lap' | 'overall_league';
+export const trial = ['sprint', 'block_push', 'hurdles', 'high_jump', 'lap', 'overall_league']
+export type Trial = typeof trial[number];
 
 export interface Leagues {
   sprint: number,
@@ -69,4 +70,16 @@ export interface Leagues {
   high_jump: number,
   lap: number,
   overall_league: number,
+}
+
+export interface LeagueTrial {
+  zookId: number,
+  name: string,
+  score: number,
+  position: number
+}
+
+export interface League {
+  updatedAt : string,
+  entries : LeagueTrial[]
 }
