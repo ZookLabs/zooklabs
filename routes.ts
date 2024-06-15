@@ -3,6 +3,7 @@ import listZooks from "./controllers/listZooks.ts"
 import getZook from "./controllers/getZook.ts"
 import getLeagues from "./controllers/getLeagues.ts"
 import getLeague from "./controllers/getLeague.ts"
+import listUsers from "./controllers/listUsers.ts"
 
 const router = new Router()
 
@@ -16,8 +17,7 @@ router
   )
   .get("/api/leagues", getLeagues)
   .get("/api/leagues/:trial", async (context) => {
-      await getLeague(context?.params?.trial, context)
-    },
-)
+    await getLeague(context?.params?.trial, context)
+  }).get("/api/users", listUsers)
 
 export default router

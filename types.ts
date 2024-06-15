@@ -83,3 +83,7 @@ export interface League {
   updatedAt : string,
   entries : LeagueTrial[]
 }
+
+export interface UserIdentifier {
+  username: string // LetterOrDigit, 3 to 20 characters
+}
