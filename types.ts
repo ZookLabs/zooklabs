@@ -60,30 +60,57 @@ export interface Zook {
   achievement: ZookAchievement
 }
 
-export const trial = ['sprint', 'block_push', 'hurdles', 'high_jump', 'lap', 'overall_league']
-export type Trial = typeof trial[number];
+export const trial = [
+  "sprint",
+  "block_push",
+  "hurdles",
+  "high_jump",
+  "lap",
+  "overall_league",
+]
+export type Trial = typeof trial[number]
 
 export interface Leagues {
-  sprint: number,
-  block_push: number,
-  hurdles: number,
-  high_jump: number,
-  lap: number,
-  overall_league: number,
+  sprint: number
+  block_push: number
+  hurdles: number
+  high_jump: number
+  lap: number
+  overall_league: number
 }
 
 export interface LeagueTrial {
-  zookId: number,
-  name: string,
-  score: number,
+  zookId: number
+  name: string
+  score: number
   position: number
 }
 
 export interface League {
-  updatedAt : string,
-  entries : LeagueTrial[]
+  updatedAt: string
+  entries: LeagueTrial[]
 }
 
 export interface UserIdentifier {
   username: string // LetterOrDigit, 3 to 20 characters
+}
+
+export interface UserAbout {
+  signUpAt: string
+  lastLoginAt: string
+}
+
+export interface User {
+  identifier: UserIdentifier
+  about: UserAbout
+  zooks: ZookIdentifier[]
+}
+
+export interface UserEntity {
+    id:  number;
+    username: string | undefined;
+    discordId: string;
+    discordUsername: string;
+    signUpAt: Date;
+    lastLoginAt: Date
 }
