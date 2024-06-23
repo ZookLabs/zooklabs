@@ -1,8 +1,10 @@
-export default async ({ response }, nextFn) => {
+import { Context } from "oak"
+
+export default async (context: Context, next: () => Promise<unknown>) => {
   try {
-    await nextFn()
+    await next()
   } catch (err) {
-    response.status = 500
-    response.body = { msg: err.message }
+    context.response.status = 500
+    context.response.body = { msg: err.message }
   }
 }

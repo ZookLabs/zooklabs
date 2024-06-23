@@ -2,7 +2,8 @@
   "tasks": {
     "dev": "deno run --allow-read --allow-net --watch main.ts",
     "deploy": "deployctl deploy --project=zooklabs --prod",
-    "deploy-test": "deployctl deploy --project=zooklabs"
+    "deploy-test": "deployctl deploy --project=zooklabs",
+    "check-all": "deno fmt && deno lint && deno check **/*.ts"
   },
   "deploy": {
     "project": "82b0b482-0d0f-4007-9d63-49e2864526ae",
@@ -17,8 +18,10 @@
   },
   "lock": false,
   "imports": {
+    "djwt": "https://deno.land/x/djwt@v3.0.2/mod.ts",
     "cors": "https://deno.land/x/cors@v1.2.2/mod.ts",
-    "oak": "https://deno.land/x/oak@14.2.0/mod.ts",
-    "postgres": "https://deno.land/x/postgres@v0.19.3/mod.ts"
+    "oak": "https://deno.land/x/oak@v12.6.1/mod.ts",
+    "postgres": "https://deno.land/x/postgres@v0.19.3/mod.ts",
+    "oak-middleware-jwt": "https://deno.land/x/oak_middleware_jwt@2.2.2/mod.ts"
   }
 }

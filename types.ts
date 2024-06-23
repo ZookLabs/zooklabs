@@ -107,10 +107,16 @@ export interface User {
 }
 
 export interface UserEntity {
-    id:  number;
-    username: string | undefined;
-    discordId: string;
-    discordUsername: string;
-    signUpAt: Date;
-    lastLoginAt: Date
+  id: number
+  username: string | undefined
+  discordId: string
+  discordUsername: string
+  signUpAt: Date
+  lastLoginAt: Date
+}
+
+export interface AuthUser {
+  id: number
+  username?: string
+  anonymous: boolean
 }

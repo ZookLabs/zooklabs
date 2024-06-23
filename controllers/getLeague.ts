@@ -1,5 +1,5 @@
 import { Context } from "oak"
-import {League, trial} from "../types.ts"
+import { League, trial } from "../types.ts"
 import { getLeague } from "../services/leagueService.ts"
 import { Status } from "jsr:@oak/commons@0.7/status"
 

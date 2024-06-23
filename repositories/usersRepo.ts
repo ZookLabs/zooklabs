@@ -1,10 +1,4 @@
-import {
-  User,
-  UserAbout,
-  UserIdentifier,
-  ZookEntity,
-  ZookIdentifier,
-} from "../types.ts"
+import { User, UserAbout, UserIdentifier, ZookIdentifier } from "../types.ts"
 import client from "../db/database.ts"
 import { UserEntity } from "../types.ts"
 
@@ -44,20 +38,20 @@ class UsersRepo {
     }
 
     function formatDate(date: Date): string {
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+      const options: Intl.DateTimeFormatOptions = {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }
+
+      const dateTimeFormat = new Intl.DateTimeFormat("en-GB", options)
+
+      return dateTimeFormat.formatToParts(date)
+        .filter((p) => p.type != "literal")
+        .map((p) => p.value)
+        .join(" ")
     }
-
-    const dateTimeFormat = new Intl.DateTimeFormat("en-GB", options)
-
-    return dateTimeFormat.formatToParts(date)
-      .filter((p) => p.type != "literal")
-      .map((p) => p.value)
-      .join(" ")
-  }
 
     const userAbout: UserAbout = {
       signUpAt: formatDate(userEntity.signUpAt),
@@ -71,6 +65,22 @@ class UsersRepo {
     }
 
     return user
+  }
+
+  async usernameExists(username: string): Promise<boolean> {
+    const result = await client.queryObject<number>(
+      "SELECT 1 from users WHERE LOWER(username) = $1",
+      [username.toLowerCase()],
+    )
+    return (result.rowCount ?? 0) > 0
+  }
+
+  async setUsername(id: number, username: string): Promise<void> {
+    await client.queryArray(
+      "UPDATE users SET username = $2 WHERE id = $1",
+      [id, username],
+    )
+    return
   }
 }
 

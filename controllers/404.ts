@@ -1,4 +1,6 @@
-export default ({ response }) => {
-  response.status = 404
-  response.body = { msg: "Not Found" }
+import { Context } from "oak"
+
+export default (context: Context) => {
+  context.response.status = 404
+  context.response.body = { msg: "Not Found" }
 }
