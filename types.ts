@@ -108,7 +108,7 @@ export interface User {
 
 export interface UserEntity {
   id: number
-  username: string | undefined
+  username?: string
   discordId: string
   discordUsername: string
   signUpAt: Date
