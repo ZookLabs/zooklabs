@@ -31,13 +31,11 @@ class LeaguesRepo {
   async updateLeagueOrder(trial: Trials): Promise<void> {
     await client.queryObject({
       text:
-        "update " + trial.value + " trial" +
-        "set position = t.pos" +
-        "from (" +
-        "  select row_number() over (order by t.score " + trial.ordering.sql + ", t.zookid asc) as pos, t.zookid" +
-        "  from " + trial.value + " t where not t.disqualified" +
-        ") t" +
-        "where trial.zookid = t.zookid and not trial.disqualified"
+        "UPDATE " + trial.value + " trial SET position = t.pos " +
+        "FROM (" +
+        "  SELECT row_number() OVER (ORDER BY t.score " + trial.ordering.sql + ", t.zookid ASC) as pos, t.zookid" +
+        "  FROM " + trial.value + " t WHERE NOT t.disqualified" +
+        ") t WHERE trial.zookid = t.zookid AND NOT trial.disqualified"
       ,
     });
   }
