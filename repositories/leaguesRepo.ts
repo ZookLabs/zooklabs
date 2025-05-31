@@ -71,7 +71,7 @@ class LeaguesRepo {
 
   async getCountQuery(trial: Trials): Promise<number> {
     const result = await client.queryObject<{ count: number }>({
-      text: `SELECT COUNT(*) as count FROM ${trial.value} WHERE NOT disqualified`,
+      text: `SELECT COUNT(*)::int as count FROM ${trial.value} WHERE NOT disqualified`,
     });
     return result.rows[0].count;
   }
