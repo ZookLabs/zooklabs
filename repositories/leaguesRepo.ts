@@ -89,8 +89,13 @@ class LeaguesRepo {
   async getRanksQuery(): Promise<LeagueRanks[]> {
     const result = await client.queryObject<LeagueRanks>({
       text: `
-        SELECT z.id, z.name, s.position AS sprintPosition, b.position AS blockPushPosition,
-               h.position AS hurdlesPosition, hj.position AS highJumpPosition, l.position AS lapPosition
+        SELECT z.id,
+              z.name,
+              s.position AS sprintPosition,
+              b.position AS blockPushPosition,
+              h.position AS hurdlesPosition,
+              hj.position AS highJumpPosition,
+              l.position AS lapPosition
         FROM zook z
         INNER JOIN sprint s ON z.id = s.zookid
         INNER JOIN block_push b ON z.id = b.zookid
@@ -100,7 +105,6 @@ class LeaguesRepo {
         WHERE NOT s.disqualified AND NOT b.disqualified AND NOT h.disqualified
           AND NOT hj.disqualified AND NOT l.disqualified
       `,
-      camelCase: true,
     });
     return result.rows;
   }
