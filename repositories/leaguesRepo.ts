@@ -43,9 +43,7 @@ class LeaguesRepo {
   async updateDisqualified(trial: Trials): Promise<void> {
     await client.queryObject({
       text:
-        "update " + trial.value + " trial" +
-        "set position = 2147483647" +
-        "where disqualified and position != 2147483647"
+        "UPDATE " + trial.value + " SET position = 2147483647 WHERE disqualified AND position != 2147483647"
       ,
     });
   }

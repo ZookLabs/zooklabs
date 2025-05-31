@@ -15,7 +15,10 @@ export class OverallScoreCalculations {
 
     static getSingleLeagueScore(position: number, entries: number): number {
         const normalised = OverallScoreCalculations.normaliseRank(position, entries);
-        return OverallScoreCalculations.processNormalised(normalised);
+        console.log(normalised)
+        const processNormalised = OverallScoreCalculations.processNormalised(normalised);
+        console.log(processNormalised)
+        return processNormalised
     }
 
     static calculateOverallScore(
@@ -31,7 +34,7 @@ export class OverallScoreCalculations {
         ];
 
         // We want biggest to be best
-        const totalScore = trialPositions.reduce((sum, [position, count]) => {
+        const totalScore: number = trialPositions.reduce((sum, [position, count]) => {
             return sum + OverallScoreCalculations.getSingleLeagueScore(position, count);
         }, 0);
 
