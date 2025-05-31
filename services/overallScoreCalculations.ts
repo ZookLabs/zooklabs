@@ -1,7 +1,7 @@
 import { LeagueCounts, LeagueRanks } from "../types.ts"
 
 export class OverallScoreCalculations {
-    static readonly MAXIMUM_SCORE = 50_000;
+    static readonly maximumScore: number = 50000;
 
     static square = (x: number): number => x * x;
 
@@ -35,6 +35,6 @@ export class OverallScoreCalculations {
             return sum + OverallScoreCalculations.getSingleLeagueScore(position, count);
         }, 0);
 
-        return OverallScoreCalculations.MAXIMUM_SCORE - totalScore;
+        return OverallScoreCalculations.maximumScore - totalScore;
     }
 }

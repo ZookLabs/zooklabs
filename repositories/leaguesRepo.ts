@@ -30,25 +30,25 @@ class LeaguesRepo {
 
   async updateLeagueOrder(trial: Trials): Promise<void> {
     await client.queryObject({
-      text: `
-        update ${trial.value} trial
-        set position = t.pos
-        from (
-          select row_number() over (order by t.score ${trial.ordering.sql}, t.zookid asc) as pos, t.zookid
-          from ${trial.value} t where not t.disqualified
-        ) t
-        where trial.zookid = t.zookid and not trial.disqualified
-      `,
+      text:
+        "update " + trial.value + " trial" +
+        "set position = t.pos" +
+        "from (" +
+        "  select row_number() over (order by t.score " + trial.ordering.sql + ", t.zookid asc) as pos, t.zookid" +
+        "  from " + trial.value + " t where not t.disqualified" +
+        ") t" +
+        "where trial.zookid = t.zookid and not trial.disqualified"
+      ,
     });
   }
 
   async updateDisqualified(trial: Trials): Promise<void> {
     await client.queryObject({
-      text: `
-        update ${trial.value} trial
-        set position = 2147483647
-        where disqualified and position != 2147483647
-      `,
+      text:
+        "update " + trial.value + " trial" +
+        "set position = 2147483647" +
+        "where disqualified and position != 2147483647"
+      ,
     });
   }
 
@@ -71,7 +71,7 @@ class LeaguesRepo {
 
   async getCountQuery(trial: Trials): Promise<number> {
     const result = await client.queryObject<{ count: number }>({
-      text: `SELECT COUNT(*)::int as count FROM ${trial.value} WHERE NOT disqualified`,
+      text: "SELECT COUNT(*)::int as count FROM " + trial.value + " WHERE NOT disqualified",
     });
     return result.rows[0].count;
   }
