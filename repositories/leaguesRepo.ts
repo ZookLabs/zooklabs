@@ -1,5 +1,11 @@
 import client from "../db/database.ts"
-import { LeagueCounts, LeagueRanks, LeagueRanksContainer, LeagueTrial, Trial } from "../types.ts"
+import {
+  LeagueCounts,
+  LeagueRanks,
+  LeagueRanksContainer,
+  LeagueTrial,
+  Trial,
+} from "../types.ts"
 import { Trials } from "./trialsEnum.ts"
 
 class LeaguesRepo {
@@ -27,25 +33,22 @@ class LeaguesRepo {
     return result.rows.at(0)?.updated_at
   }
 
-
   async updateLeagueOrder(trial: Trials): Promise<void> {
     await client.queryObject({
-      text:
-        "UPDATE " + trial.value + " trial SET position = t.pos " +
+      text: "UPDATE " + trial.value + " trial SET position = t.pos " +
         "FROM (" +
-        "  SELECT row_number() OVER (ORDER BY t.score " + trial.ordering.sql + ", t.zookid ASC) as pos, t.zookid" +
+        "  SELECT row_number() OVER (ORDER BY t.score " + trial.ordering.sql +
+        ", t.zookid ASC) as pos, t.zookid" +
         "  FROM " + trial.value + " t WHERE NOT t.disqualified" +
-        ") t WHERE trial.zookid = t.zookid AND NOT trial.disqualified"
-      ,
-    });
+        ") t WHERE trial.zookid = t.zookid AND NOT trial.disqualified",
+    })
   }
 
   async updateDisqualified(trial: Trials): Promise<void> {
     await client.queryObject({
-      text:
-        "UPDATE " + trial.value + " SET position = 2147483647 WHERE disqualified AND position != 2147483647"
-      ,
-    });
+      text: "UPDATE " + trial.value +
+        " SET position = 2147483647 WHERE disqualified AND position != 2147483647",
+    })
   }
 
   async setLeagueUpdatedAt(trial: Trials): Promise<void> {
@@ -56,20 +59,21 @@ class LeaguesRepo {
         where league = $1
       `,
       args: [trial.value],
-    });
+    })
   }
 
   async updateLeagues(trial: Trials): Promise<void> {
-    await this.updateLeagueOrder(trial);
-    await this.updateDisqualified(trial);
-    await this.setLeagueUpdatedAt(trial);
+    await this.updateLeagueOrder(trial)
+    await this.updateDisqualified(trial)
+    await this.setLeagueUpdatedAt(trial)
   }
 
   async getCountQuery(trial: Trials): Promise<number> {
     const result = await client.queryObject<{ count: number }>({
-      text: "SELECT COUNT(*)::int as count FROM " + trial.value + " WHERE NOT disqualified",
-    });
-    return result.rows[0].count;
+      text: "SELECT COUNT(*)::int as count FROM " + trial.value +
+        " WHERE NOT disqualified",
+    })
+    return result.rows[0].count
   }
 
   async getLeagueCounts(): Promise<LeagueCounts> {
@@ -79,12 +83,10 @@ class LeaguesRepo {
       this.getCountQuery(Trials.Hurdles),
       this.getCountQuery(Trials.HighJump),
       this.getCountQuery(Trials.Lap),
-    ]);
+    ])
 
-    return { sprint, blockPush, hurdles, highJump, lap };
+    return { sprint, blockPush, hurdles, highJump, lap }
   }
-
-
 
   async getRanksQuery(): Promise<LeagueRanks[]> {
     const result = await client.queryObject<LeagueRanks>({
@@ -106,16 +108,16 @@ class LeaguesRepo {
           AND NOT hj.disqualified AND NOT l.disqualified
       `,
       camelCase: true,
-    });
-    return result.rows;
+    })
+    return result.rows
   }
 
   async getRanks(): Promise<LeagueRanksContainer> {
     const [leagueRanks, leagueCounts] = await Promise.all([
       this.getRanksQuery(),
       this.getLeagueCounts(),
-    ]);
-    return { leagueRanks, leagueCounts };
+    ])
+    return { leagueRanks, leagueCounts }
   }
 
   async insertOverallLeagueData(overallTrials: LeagueTrial[]): Promise<void> {
@@ -125,23 +127,22 @@ class LeaguesRepo {
       ON CONFLICT (zookid) DO UPDATE
       SET score = excluded.score,
           position = excluded.position
-    `;
+    `
 
-    const queries = overallTrials.map(trial =>
+    const queries = overallTrials.map((trial) =>
       client.queryObject({
         text: queryText,
         args: [trial.zookId, trial.name, trial.score, trial.position],
       })
-    );
+    )
 
-    await Promise.all(queries);
+    await Promise.all(queries)
   }
 
   async updateOverallLeagueData(overallTrials: LeagueTrial[]): Promise<void> {
-    await this.insertOverallLeagueData(overallTrials);
-    await this.setLeagueUpdatedAt(Trials.Overall);
+    await this.insertOverallLeagueData(overallTrials)
+    await this.setLeagueUpdatedAt(Trials.Overall)
   }
-
 }
 
 export default new LeaguesRepo()

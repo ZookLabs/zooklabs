@@ -1,6 +1,6 @@
-import { format as formatDate, parse as parseDate } from "date-fns";
+import { format as formatDate, parse as parseDate } from "date-fns"
 
-const format = "EEE MMM d HH:mm:ss yyyy '(GMT)'";
+const format = "EEE MMM d HH:mm:ss yyyy '(GMT)'"
 
 /**
  * Converts a date string to a JavaScript Date object.
@@ -8,7 +8,7 @@ const format = "EEE MMM d HH:mm:ss yyyy '(GMT)'";
  * @returns A Date object.
  */
 export const stringToLocalDate = (dateStr: string) => {
-    return parseDate(dateStr, format, new Date());
+  return parseDate(dateStr, format, new Date())
 }
 
 /**
@@ -17,5 +17,5 @@ export const stringToLocalDate = (dateStr: string) => {
  * @returns A formatted date string.
  */
 export const localDateToString = (date: Date) => {
-    return formatDate(date, format);
+  return formatDate(date, format)
 }

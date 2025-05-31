@@ -1,17 +1,15 @@
 import { Transaction } from "postgres"
 import client from "../db/database.ts"
 import {
-  ZookContainer,
+  createTrialEntity,
+  TrialEntity,
   UserIdentifier,
+  ZookContainer,
   ZookEntity,
   ZookIdentifier,
   ZookTrial,
-  TrialEntity,
-  createTrialEntity
 } from "../types.ts"
-import {
-  Trials
-} from "./trialsEnum.ts"
+import { Trials } from "./trialsEnum.ts"
 
 class ZookRepo {
   async list(): Promise<Array<ZookIdentifier>> {
@@ -70,7 +68,7 @@ class ZookRepo {
              SET downloads = downloads + 1
              WHERE id = $1`,
       args: [zookId],
-    });
+    })
   }
 
   async getOwner(ownerId?: number): Promise<UserIdentifier> {
@@ -90,7 +88,11 @@ class ZookRepo {
     return result.rows[0]
   }
 
-  async persistTrialQuery(trials: Trials, trialEntity: TrialEntity, transaction: Transaction): Promise<void> {
+  async persistTrialQuery(
+    trials: Trials,
+    trialEntity: TrialEntity,
+    transaction: Transaction,
+  ): Promise<void> {
     await transaction.queryArray({
       text: `INSERT INTO ${trials.value}
              (zookid, name, score, position, disqualified)
@@ -102,11 +104,13 @@ class ZookRepo {
         trialEntity.position,
         trialEntity.disqualified,
       ],
-    });
+    })
   }
 
-
-  async persistZookQuery(zookEntity: ZookEntity, transaction: Transaction): Promise<number> {
+  async persistZookQuery(
+    zookEntity: ZookEntity,
+    transaction: Transaction,
+  ): Promise<number> {
     const result = await transaction.queryArray<[number]>({
       text: `INSERT INTO zook
              (name, height, length, width, weight, components, dateCreated, dateUploaded, owner)
@@ -123,54 +127,77 @@ class ZookRepo {
         zookEntity.dateuploaded,
         zookEntity.owner,
       ],
-    });
-    return result.rows[0][0];
+    })
+    return result.rows[0][0]
   }
 
-
-  async persistZook(zookContainer: ZookContainer, transactionalFunction: (zookId: number) => Promise<void>): Promise<number> {
-
+  async persistZook(
+    zookContainer: ZookContainer,
+    transactionalFunction: (zookId: number) => Promise<void>,
+  ): Promise<number> {
     try {
-      const transaction = client.createTransaction('persistZook')
-      await transaction.begin();
+      const transaction = client.createTransaction("persistZook")
+      await transaction.begin()
 
       // Persist the Zook entity and get the generated ID
-      const zookId = await this.persistZookQuery(zookContainer.zook, transaction);
+      const zookId = await this.persistZookQuery(
+        zookContainer.zook,
+        transaction,
+      )
 
       const toEntity = (zookTrial: ZookTrial): TrialEntity =>
         createTrialEntity(
           zookId,
           zookContainer.zook.name,
           zookTrial.score,
-        );
+        )
 
       if (zookContainer.sprint) {
-        await this.persistTrialQuery(Trials.Sprint, toEntity(zookContainer.sprint), transaction);
+        await this.persistTrialQuery(
+          Trials.Sprint,
+          toEntity(zookContainer.sprint),
+          transaction,
+        )
       }
       if (zookContainer.blockPush) {
-        await this.persistTrialQuery(Trials.BlockPush, toEntity(zookContainer.blockPush), transaction);
+        await this.persistTrialQuery(
+          Trials.BlockPush,
+          toEntity(zookContainer.blockPush),
+          transaction,
+        )
       }
       if (zookContainer.hurdles) {
-        await this.persistTrialQuery(Trials.Hurdles, toEntity(zookContainer.hurdles), transaction);
+        await this.persistTrialQuery(
+          Trials.Hurdles,
+          toEntity(zookContainer.hurdles),
+          transaction,
+        )
       }
       if (zookContainer.highJump) {
-        await this.persistTrialQuery(Trials.HighJump, toEntity(zookContainer.highJump), transaction);
+        await this.persistTrialQuery(
+          Trials.HighJump,
+          toEntity(zookContainer.highJump),
+          transaction,
+        )
       }
       if (zookContainer.lap) {
-        await this.persistTrialQuery(Trials.Lap, toEntity(zookContainer.lap), transaction);
+        await this.persistTrialQuery(
+          Trials.Lap,
+          toEntity(zookContainer.lap),
+          transaction,
+        )
       }
 
-      await transactionalFunction(zookId);
+      await transactionalFunction(zookId)
 
-      await transaction.commit();
+      await transaction.commit()
 
-      return zookId;
+      return zookId
     } catch (error) {
-      console.error("Error persisting Zook:", error);
-      throw error; // Re-throw the error to be handled by the caller
+      console.error("Error persisting Zook:", error)
+      throw error // Re-throw the error to be handled by the caller
     }
   }
-
 
   async setOwner(zookId: number, ownerId: number): Promise<void> {
     await client.queryArray({
@@ -178,8 +205,7 @@ class ZookRepo {
                SET owner = $1
                WHERE id = $2`,
       args: [ownerId, zookId],
-    });
+    })
   }
-
 }
 export default new ZookRepo()

@@ -1,10 +1,10 @@
 export interface ZookContainer {
-  zook: ZookEntity;
-  sprint?: ZookTrial;
-  blockPush?: ZookTrial;
-  hurdles?: ZookTrial;
-  highJump?: ZookTrial;
-  lap?: ZookTrial;
+  zook: ZookEntity
+  sprint?: ZookTrial
+  blockPush?: ZookTrial
+  hurdles?: ZookTrial
+  highJump?: ZookTrial
+  lap?: ZookTrial
 }
 
 export interface ZookIdentifier {
@@ -38,11 +38,11 @@ export interface ZookTrial {
 }
 
 export interface TrialEntity {
-  zookid: number; // Non-negative integer
-  name: string; // Non-empty string
-  score: number; // Double
-  position?: number; // Defaults to 2147483647
-  disqualified?: boolean; // Defaults to false
+  zookid: number // Non-negative integer
+  name: string // Non-empty string
+  score: number // Double
+  position?: number // Defaults to 2147483647
+  disqualified?: boolean // Defaults to false
 }
 
 // Default values can be handled when creating an instance of TrialEntity
@@ -51,14 +51,14 @@ export const createTrialEntity = (
   name: string,
   score: number,
   position: number = 2147483647,
-  disqualified: boolean = false
+  disqualified: boolean = false,
 ): TrialEntity => ({
   zookid,
   name,
   score,
   position,
   disqualified,
-});
+})
 
 export interface ZookAchievement {
   sprint?: ZookTrial
@@ -153,26 +153,25 @@ export interface AuthUser {
   anonymous: boolean
 }
 
-
 export interface LeagueRanks {
-  id: number;
-  name: string;
-  sprintPosition: number;
-  blockPushPosition: number;
-  hurdlesPosition: number;
-  highJumpPosition: number;
-  lapPosition: number;
+  id: number
+  name: string
+  sprintPosition: number
+  blockPushPosition: number
+  hurdlesPosition: number
+  highJumpPosition: number
+  lapPosition: number
 }
 
 export interface LeagueCounts {
-  sprint: number;
-  blockPush: number;
-  hurdles: number;
-  highJump: number;
-  lap: number;
+  sprint: number
+  blockPush: number
+  hurdles: number
+  highJump: number
+  lap: number
 }
 
 export interface LeagueRanksContainer {
-  leagueRanks: LeagueRanks[];
-  leagueCounts: LeagueCounts;
+  leagueRanks: LeagueRanks[]
+  leagueCounts: LeagueCounts
 }

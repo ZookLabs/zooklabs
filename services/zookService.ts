@@ -1,10 +1,10 @@
 import zookRepo from "../repositories/zookRepo.ts"
 import {
-  ZookContainer,
   UserIdentifier,
   Zook,
   ZookAbout,
   ZookAchievement,
+  ZookContainer,
   ZookEntity,
   ZookIdentifier,
   ZookPhysical,
@@ -97,6 +97,9 @@ export const getZook = async (id: number, increaseViews: boolean) => {
   } as Zook
 }
 
-export const persistZook = async (zookContainer: ZookContainer, transactionalFunction: (zookId: number) => Promise<number>) => {
-  return await zookRepo.persistZook(zookContainer, transactionalFunction);
+export const persistZook = async (
+  zookContainer: ZookContainer,
+  transactionalFunction: (zookId: number) => Promise<void>,
+) => {
+  return await zookRepo.persistZook(zookContainer, transactionalFunction)
 }

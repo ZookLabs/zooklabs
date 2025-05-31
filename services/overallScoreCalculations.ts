@@ -1,41 +1,47 @@
 import { LeagueCounts, LeagueRanks } from "../types.ts"
 
 export class OverallScoreCalculations {
-    static readonly maximumScore: number = 50000;
+  static readonly maximumScore: number = 50000
 
-    static square = (x: number): number => x * x;
+  static square = (x: number): number => x * x
 
-    static processNormalised = (value: number): number =>
-        Math.round(OverallScoreCalculations.square(value));
+  static processNormalised = (value: number): number =>
+    Math.round(OverallScoreCalculations.square(value))
 
-    // Converts a position on the scale 1 to (entries) to 0 to 100
-    static normaliseRank(position: number, entries: number): number {
-        return (position - 1) * (100.0 / entries);
-    }
+  // Converts a position on the scale 1 to (entries) to 0 to 100
+  static normaliseRank(position: number, entries: number): number {
+    return (position - 1) * (100.0 / entries)
+  }
 
-    static getSingleLeagueScore(position: number, entries: number): number {
-        const normalised = OverallScoreCalculations.normaliseRank(position, entries);
-        const processNormalised = OverallScoreCalculations.processNormalised(normalised);
-        return processNormalised
-    }
+  static getSingleLeagueScore(position: number, entries: number): number {
+    const normalised = OverallScoreCalculations.normaliseRank(position, entries)
+    const processNormalised = OverallScoreCalculations.processNormalised(
+      normalised,
+    )
+    return processNormalised
+  }
 
-    static calculateOverallScore(
-        leagueRanks: LeagueRanks,
-        leagueCounts: LeagueCounts
-    ): number {
-        const trialPositions: [number, number][] = [
-            [leagueRanks.sprintPosition, leagueCounts.sprint],
-            [leagueRanks.blockPushPosition, leagueCounts.blockPush],
-            [leagueRanks.hurdlesPosition, leagueCounts.hurdles],
-            [leagueRanks.highJumpPosition, leagueCounts.highJump],
-            [leagueRanks.lapPosition, leagueCounts.lap],
-        ];
+  static calculateOverallScore(
+    leagueRanks: LeagueRanks,
+    leagueCounts: LeagueCounts,
+  ): number {
+    const trialPositions: [number, number][] = [
+      [leagueRanks.sprintPosition, leagueCounts.sprint],
+      [leagueRanks.blockPushPosition, leagueCounts.blockPush],
+      [leagueRanks.hurdlesPosition, leagueCounts.hurdles],
+      [leagueRanks.highJumpPosition, leagueCounts.highJump],
+      [leagueRanks.lapPosition, leagueCounts.lap],
+    ]
 
-        // We want biggest to be best
-        const totalScore: number = trialPositions.reduce((sum, [position, count]) => {
-            return sum + OverallScoreCalculations.getSingleLeagueScore(position, count);
-        }, 0);
+    // We want biggest to be best
+    const totalScore: number = trialPositions.reduce(
+      (sum, [position, count]) => {
+        return sum +
+          OverallScoreCalculations.getSingleLeagueScore(position, count)
+      },
+      0,
+    )
 
-        return OverallScoreCalculations.maximumScore - totalScore;
-    }
+    return OverallScoreCalculations.maximumScore - totalScore
+  }
 }

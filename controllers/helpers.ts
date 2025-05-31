@@ -22,7 +22,7 @@ export async function createJwt(authUser: AuthUser): Promise<string> {
 
   return await create({ alg: "HS256", typ: "JWT" }, {
     ...authUser,
-    iat: issuedAt.epochSeconds,
-    exp: expiresAt.epochSeconds,
+    iat: Math.floor(issuedAt.epochMilliseconds / 1_000),
+    exp: Math.floor(expiresAt.epochMilliseconds / 1_000),
   }, key)
 }

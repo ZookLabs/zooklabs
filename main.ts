@@ -19,13 +19,17 @@ console.log(`Listening on port:${port}...`)
 
 const server = app.listen({ port })
 
-const updateLeaguesCron = Deno.cron("Update Leagues Cron", "0 * * * *", async () => {
-    console.log("Updating leagues...");
-    await updateLeagues();
-    console.log("Leagues updated.");
-});
+const updateLeaguesCron = Deno.cron(
+  "Update Leagues Cron",
+  "0 * * * *",
+  async () => {
+    console.log("Updating leagues...")
+    await updateLeagues()
+    console.log("Leagues updated.")
+  },
+)
 
 await Promise.all([
-    server,
-    updateLeaguesCron,
-]);
+  server,
+  updateLeaguesCron,
+])

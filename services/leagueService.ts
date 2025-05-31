@@ -1,6 +1,12 @@
 import leaguesRepo from "../repositories/leaguesRepo.ts"
 import { Trials } from "../repositories/trialsEnum.ts"
-import { League, LeagueRanksContainer, Leagues, LeagueTrial, Trial } from "../types.ts"
+import {
+  League,
+  LeagueRanksContainer,
+  Leagues,
+  LeagueTrial,
+  Trial,
+} from "../types.ts"
 import { OverallScoreCalculations } from "./overallScoreCalculations.ts"
 
 export const getLeagues = async (): Promise<Leagues> => {
@@ -23,15 +29,16 @@ export const getLeague = async (trial: Trial): Promise<League> => {
 }
 
 export const updateLeagues = async (): Promise<void> => {
-  await Promise.all(Trials.standardTrials.map((trial) => { leaguesRepo.updateLeagues(trial) }))
-  await updateOverallLeague();
+  await Promise.all(Trials.standardTrials.map((trial) => {
+    leaguesRepo.updateLeagues(trial)
+  }))
+  await updateOverallLeague()
 }
 
-
 interface UnrankedTrial {
-  id: number;
-  name: string;
-  score: number;
+  id: number
+  name: string
+  score: number
 }
 
 const getOverallScores = (container: LeagueRanksContainer): LeagueTrial[] => {
@@ -40,27 +47,27 @@ const getOverallScores = (container: LeagueRanksContainer): LeagueTrial[] => {
     name: trial.name,
     score: trial.score,
     position: index + 1,
-  });
+  })
 
   const overallResults = container.leagueRanks.map((leagueRank) => {
     const overallScore = OverallScoreCalculations.calculateOverallScore(
       leagueRank,
-      container.leagueCounts
-    );
+      container.leagueCounts,
+    )
     return {
       id: leagueRank.id,
       name: leagueRank.name,
       score: overallScore,
-    };
-  });
+    }
+  })
 
-  const sortedResults = overallResults.sort((a, b) => b.score - a.score);
+  const sortedResults = overallResults.sort((a, b) => b.score - a.score)
 
-  return sortedResults.map((result, index) => rankTrial(result, index));
-};
+  return sortedResults.map((result, index) => rankTrial(result, index))
+}
 
 export const updateOverallLeague = async (): Promise<void> => {
-  const container = await leaguesRepo.getRanks();
-  const results = getOverallScores(container);
-  await leaguesRepo.updateOverallLeagueData(results);
-};
+  const container = await leaguesRepo.getRanks()
+  const results = getOverallScores(container)
+  await leaguesRepo.updateOverallLeagueData(results)
+}

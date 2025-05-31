@@ -18,76 +18,85 @@ const router = new Router()
 
 const text_encoder = new TextEncoder()
 export const key: CryptoKey = await crypto.subtle.importKey(
-    "raw",
-    text_encoder.encode(Deno.env.get("JWT_KEY")),
-    { name: "HMAC", hash: { name: "SHA-256" } },
-    true,
-    ["sign", "verify"],
+  "raw",
+  text_encoder.encode(Deno.env.get("JWT_KEY")),
+  { name: "HMAC", hash: { name: "SHA-256" } },
+  true,
+  ["sign", "verify"],
 )
 
 const jwtMiddlewareOptions: JwtMiddlewareOptions = {
-    key: key,
-    algorithm: "HS256",
+  key: key,
+  algorithm: "HS256",
 }
 
 router.redirect("/", new URL("https://zooklabs.com"))
-    .get("/api/zooks", listZooks)
-    .get(
-        "/api/zooks/:id",
-        async (context) => {
-            await getZook(context?.params?.id, context)
-        },
-    )
-    .get("/api/leagues", getLeagues)
-    .get("/api/leagues/:trial", async (context) => {
-        await getLeague(context?.params?.trial, context)
-    }).get("/api/users", listUsers)
-    .get("/api/users/:username", async (context) => {
-        await getUser(context?.params?.username, context)
-    }).get(
-        "/api/login/availability/:username",
-        jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
-        async (context) => {
-            await checkUsernameAvailability(context?.params?.username, context)
-        },
-    ).post(
-        "/api/login/register",
-        jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
-        registerUsername,
-    ).get("/api/login", async (context) => {
-        const code = context.request.url.searchParams.get("code")
-        if (!code) {
-            context.response.status = Status.BadRequest
-            return
-        }
-        await loginRegister(code, context)
-    }).post(
-        "/api/zooks/upload",
-        jwtMiddleware<RouterMiddleware<string>>({ ...jwtMiddlewareOptions, onFailure: () => false }),
-        uploadZook,
-    ).get(
-        "/api/zooks/download/:id/:name",
-        async (context) => {
-            await downloadZook(context?.params?.id, context?.params?.name, context)
-        },
-    ).put(
-        "/api/admin/zook/:id/owner/:username",
-        jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
-        async (context) => {
-            await adminSetOwner(context?.params?.id, context?.params?.username, context)
-        },
-    ).get(
-        "/api/admin/leagues/update",
-        jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
-        async (context) => {
-            const authUser = getAuthUser(context)
-            if (!authUser) {
-                context.response.status = Status.Unauthorized
-                return
-            }
-            await updateLeagues()
-            context.response.status = Status.OK
-        },
-    )
+  .get("/api/zooks", listZooks)
+  .get(
+    "/api/zooks/:id",
+    async (context) => {
+      await getZook(context?.params?.id, context)
+    },
+  )
+  .get("/api/leagues", getLeagues)
+  .get("/api/leagues/:trial", async (context) => {
+    await getLeague(context?.params?.trial, context)
+  }).get("/api/users", listUsers)
+  .get("/api/users/:username", async (context) => {
+    await getUser(context?.params?.username, context)
+  }).get(
+    "/api/login/availability/:username",
+    jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
+    async (context) => {
+      await checkUsernameAvailability(context?.params?.username, context)
+    },
+  ).post(
+    "/api/login/register",
+    jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
+    registerUsername,
+  ).get("/api/login", async (context) => {
+    const code = context.request.url.searchParams.get("code")
+    if (!code) {
+      context.response.status = Status.BadRequest
+      return
+    }
+    await loginRegister(code, context)
+  }).post(
+    "/api/zooks/upload",
+    jwtMiddleware<RouterMiddleware<string>>({
+      ...jwtMiddlewareOptions,
+      onFailure: () => false,
+    }),
+    uploadZook,
+  ).get(
+    "/api/zooks/download/:id/:name",
+    async (context) => {
+      await downloadZook(context?.params?.id, context?.params?.name, context)
+    },
+  ).put(
+    "/api/admin/zook/:id/owner/:username",
+    jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
+    async (context) => {
+      await adminSetOwner(
+        context?.params?.id,
+        context?.params?.username,
+        context,
+      )
+    },
+  ).get(
+    "/api/admin/leagues/update",
+    jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
+    async (context) => {
+      const authUser = getAuthUser(context)
+      if (!authUser) {
+        context.response.status = Status.Unauthorized
+        return
+      }
+      await updateLeagues()
+      context.response.status = Status.OK
+    },
+  )
+
+router
 
 export default router
