@@ -5,8 +5,11 @@ import { key } from "../routes.ts"
 
 export const usernameRegex: RegExp = new RegExp("^[a-z0-9]{3,20}$", "i")
 
-export function getAuthUser(context: Context): AuthUser {
-  const authHeader = context.request.headers.get("Authorization")!
+export function getAuthUser(context: Context): AuthUser | undefined {
+  const authHeader = context.request.headers.get("Authorization")
+  if (!authHeader) {
+    return undefined
+  }
   const [, authUser]: [unknown, AuthUser, Uint8Array] = decode<AuthUser>(
     authHeader.slice(7),
   )

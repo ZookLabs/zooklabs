@@ -22,7 +22,7 @@ export default async (urlId: string, context: Context) => {
         maxAge: 60 * 60 * 24,
         httpOnly: true,
         // secure: true,
-        sameSite: "none",
+        // sameSite: "none",
       })
     }
 

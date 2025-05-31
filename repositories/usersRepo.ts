@@ -120,6 +120,14 @@ class UsersRepo {
             id: insertResult.rows[0].id,
         }
     }
+
+    async isUserAdmin(userId: number): Promise<boolean> {
+        const result = await client.queryObject<{ isAdmin: boolean }>(
+            "SELECT is_admin FROM users WHERE id = $1",
+            [userId],
+        )
+        return result.rows[0]?.isAdmin ?? false
+    }
 }
 
 export default new UsersRepo()

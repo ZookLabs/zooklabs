@@ -5,6 +5,10 @@ import { AuthUser } from "../types.ts"
 
 export default async (context: Context) => {
   const authUser = getAuthUser(context)
+  if (!authUser) {
+    context.response.status = Status.Unauthorized
+    return
+  }
 
   const body = await context.request.body().value
 

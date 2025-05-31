@@ -4,6 +4,10 @@ import usersRepo from "../repositories/usersRepo.ts"
 
 export default async (username: string, context: Context) => {
   const authUser = getAuthUser(context)
+  if (!authUser) {
+    context.response.status = Status.Unauthorized
+    return
+  }
 
   if (authUser.username) {
     context.response.body = "Username already set"

@@ -1,3 +1,12 @@
+export interface ZookContainer {
+  zook: ZookEntity;
+  sprint?: ZookTrial;
+  blockPush?: ZookTrial;
+  hurdles?: ZookTrial;
+  highJump?: ZookTrial;
+  lap?: ZookTrial;
+}
+
 export interface ZookIdentifier {
   id: number
   name: string
@@ -27,6 +36,29 @@ export interface ZookTrial {
   position: number
   disqualified: boolean
 }
+
+export interface TrialEntity {
+  zookid: number; // Non-negative integer
+  name: string; // Non-empty string
+  score: number; // Double
+  position?: number; // Defaults to 2147483647
+  disqualified?: boolean; // Defaults to false
+}
+
+// Default values can be handled when creating an instance of TrialEntity
+export const createTrialEntity = (
+  zookid: number,
+  name: string,
+  score: number,
+  position: number = 2147483647,
+  disqualified: boolean = false
+): TrialEntity => ({
+  zookid,
+  name,
+  score,
+  position,
+  disqualified,
+});
 
 export interface ZookAchievement {
   sprint?: ZookTrial

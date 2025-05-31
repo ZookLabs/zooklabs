@@ -5,10 +5,13 @@ import getLeagues from "./controllers/getLeagues.ts"
 import getLeague from "./controllers/getLeague.ts"
 import listUsers from "./controllers/listUsers.ts"
 import getUser from "./controllers/getUser.ts"
+import uploadZook from "./controllers/uploadZook.ts"
+import adminSetOwner from "./controllers/adminSetOwner.ts"
 import { jwtMiddleware, JwtMiddlewareOptions } from "oak-middleware-jwt"
 import checkUsernameAvailability from "./controllers/checkUsernameAvailability.ts"
 import registerUsername from "./controllers/registerUsername.ts"
 import loginRegister from "./controllers/loginRegister.ts"
+import { downloadZook } from "./controllers/downloadZook.ts"
 const router = new Router()
 
 const text_encoder = new TextEncoder()
@@ -56,6 +59,21 @@ router
             return
         }
         await loginRegister(code, context)
-    })
+    }).post(
+        "/api/zooks/upload",
+        jwtMiddleware<RouterMiddleware<string>>({ ...jwtMiddlewareOptions, onFailure: () => false }),
+        uploadZook,
+    ).get(
+        "/api/zooks/download/:id/:name",
+        async (context) => {
+            await downloadZook(context?.params?.id, context?.params?.name, context)
+        },
+    ).put(
+        "/api/admin/zook/:id/owner/:username",
+        jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
+        async (context) => {
+            await adminSetOwner(context?.params?.id, context?.params?.username, context)
+        },
+    )
 
 export default router
