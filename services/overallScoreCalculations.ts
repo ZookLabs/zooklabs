@@ -10,17 +10,7 @@ export class OverallScoreCalculations {
 
     // Converts a position on the scale 1 to (entries) to 0 to 100
     static normaliseRank(position: number, entries: number): number {
-        console.log(`Normalising rank: position=${position}, entries=${entries}`);
-
-        const rank = position - 1; // Convert to 0-based index
-        console.log(rank);
-        const bla = (100.0 / entries)
-        console.log(bla);
-
-        const other = rank * bla
-        console.log(other);
-
-        return other;
+        return (position - 1) * (100.0 / entries);
     }
 
     static getSingleLeagueScore(position: number, entries: number): number {

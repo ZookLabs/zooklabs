@@ -20,7 +20,7 @@ async function getAccessToken(code: string): Promise<AccessTokenResponse> {
     formData.append(
         "client_secret",
         Deno.env.get("DISCORD_OAUTH_CLIENT_SECRET") ??
-            "abcdefghij1234567890abcdef123456",
+        "abcdefghij1234567890abcdef123456",
     )
     formData.append("grant_type", "authorization_code")
     formData.append("code", code)
@@ -28,7 +28,7 @@ async function getAccessToken(code: string): Promise<AccessTokenResponse> {
     formData.append(
         "redirect_uri",
         Deno.env.get("DISCORD_OAUTH_REDIRECT_URI") ??
-            "http://localhost:3000/login",
+        "http://localhost:3000/login",
     )
 
     const resp: Response = await fetch(
@@ -58,7 +58,6 @@ interface UserIdentity {
 }
 
 async function getUserIdentity(accessToken: string): Promise<UserIdentity> {
-    console.log(accessToken)
     const resp: Response = await fetch(
         "https://discord.com/api/v6/users/@me",
         {

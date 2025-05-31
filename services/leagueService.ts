@@ -23,7 +23,7 @@ export const getLeague = async (trial: Trial): Promise<League> => {
 }
 
 export const updateLeagues = async (): Promise<void> => {
-  await Promise.all(Trials.standardTrials.map((trial) => { leaguesRepo.updateLeagueOrder(trial) }))
+  await Promise.all(Trials.standardTrials.map((trial) => { leaguesRepo.updateLeagues(trial) }))
   await updateOverallLeague();
 }
 

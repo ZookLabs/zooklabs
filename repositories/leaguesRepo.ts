@@ -91,11 +91,11 @@ class LeaguesRepo {
       text: `
         SELECT z.id,
               z.name,
-              s.position AS sprintPosition,
-              b.position AS blockPushPosition,
-              h.position AS hurdlesPosition,
-              hj.position AS highJumpPosition,
-              l.position AS lapPosition
+              s.position AS sprint_position,
+              b.position AS block_push_position,
+              h.position AS hurdles_position,
+              hj.position AS high_jump_position,
+              l.position AS lap_position
         FROM zook z
         INNER JOIN sprint s ON z.id = s.zookid
         INNER JOIN block_push b ON z.id = b.zookid
@@ -105,8 +105,8 @@ class LeaguesRepo {
         WHERE NOT s.disqualified AND NOT b.disqualified AND NOT h.disqualified
           AND NOT hj.disqualified AND NOT l.disqualified
       `,
+      camelCase: true,
     });
-    console.log("League ranks query result:", result);
     return result.rows;
   }
 
@@ -115,7 +115,6 @@ class LeaguesRepo {
       this.getRanksQuery(),
       this.getLeagueCounts(),
     ]);
-
     return { leagueRanks, leagueCounts };
   }
 
