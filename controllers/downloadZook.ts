@@ -27,7 +27,7 @@ export async function downloadZook(zookId: string, zookName: string, context: Co
         );
 
         const cookieId = `zd_${id}`;
-        const hasDownloaded = context.cookies.get(cookieId);
+        const hasDownloaded = await context.cookies.has(cookieId);
 
         if (!hasDownloaded) {
             await context.cookies.set(cookieId, " ", {
@@ -39,7 +39,7 @@ export async function downloadZook(zookId: string, zookName: string, context: Co
             })
 
             // Simulate incrementing downloads in a repository
-            await zookrepo.incrementDownloadsQuery(id);
+            await zookrepo.incrementDownloads(id);
         }
 
         context.response.body = zookFile;

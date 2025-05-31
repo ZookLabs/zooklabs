@@ -90,8 +90,6 @@ class ZookRepo {
     return result.rows[0]
   }
 
-
-
   async persistTrialQuery(trials: Trials, trialEntity: TrialEntity, transaction: Transaction): Promise<void> {
     await transaction.queryArray({
       text: `INSERT INTO ${trials.value}
