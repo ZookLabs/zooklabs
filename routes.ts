@@ -12,6 +12,8 @@ import checkUsernameAvailability from "./controllers/checkUsernameAvailability.t
 import registerUsername from "./controllers/registerUsername.ts"
 import loginRegister from "./controllers/loginRegister.ts"
 import { downloadZook } from "./controllers/downloadZook.ts"
+import { updateLeagues } from "./services/leagueService.ts"
+import { getAuthUser } from "./controllers/helpers.ts"
 const router = new Router()
 
 const text_encoder = new TextEncoder()
@@ -73,6 +75,18 @@ router.redirect("/", new URL("https://zooklabs.com"))
         jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
         async (context) => {
             await adminSetOwner(context?.params?.id, context?.params?.username, context)
+        },
+    ).get(
+        "/api/admin/leagues/update",
+        jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
+        async (context) => {
+            const authUser = getAuthUser(context)
+            if (!authUser) {
+                context.response.status = Status.Unauthorized
+                return
+            }
+            await updateLeagues()
+            context.response.status = Status.OK
         },
     )
 

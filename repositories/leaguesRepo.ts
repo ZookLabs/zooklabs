@@ -106,6 +106,7 @@ class LeaguesRepo {
           AND NOT hj.disqualified AND NOT l.disqualified
       `,
     });
+    console.log("League ranks query result:", result);
     return result.rows;
   }
 
