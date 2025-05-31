@@ -28,7 +28,7 @@ const jwtMiddlewareOptions: JwtMiddlewareOptions = {
     algorithm: "HS256",
 }
 
-router
+router.redirect("/", new URL("https://zooklabs.com"))
     .get("/api/zooks", listZooks)
     .get(
         "/api/zooks/:id",

@@ -1,5 +1,7 @@
 import leaguesRepo from "../repositories/leaguesRepo.ts"
-import { League, Leagues, Trial } from "../types.ts"
+import { Trials } from "../repositories/trialsEnum.ts"
+import { League, LeagueRanksContainer, Leagues, LeagueTrial, Trial } from "../types.ts"
+import { OverallScoreCalculations } from "./overallScoreCalculations.ts"
 
 export const getLeagues = async (): Promise<Leagues> => {
   return {
@@ -19,3 +21,46 @@ export const getLeague = async (trial: Trial): Promise<League> => {
     entries: await leaguesRepo.listLeague(trial),
   }
 }
+
+export const updateLeagues = async (): Promise<void> => {
+  await Promise.all(Trials.standardTrials.map((trial) => { leaguesRepo.updateLeagueOrder(trial) }))
+  await updateOverallLeague();
+}
+
+
+interface UnrankedTrial {
+  id: number;
+  name: string;
+  score: number;
+}
+
+const getOverallScores = (container: LeagueRanksContainer): LeagueTrial[] => {
+  const rankTrial = (trial: UnrankedTrial, index: number): LeagueTrial => ({
+    zookId: trial.id,
+    name: trial.name,
+    score: trial.score,
+    position: index + 1,
+  });
+
+  const overallResults = container.leagueRanks.map((leagueRank) => {
+    const overallScore = OverallScoreCalculations.calculateOverallScore(
+      leagueRank,
+      container.leagueCounts
+    );
+    return {
+      id: leagueRank.id,
+      name: leagueRank.name,
+      score: overallScore,
+    };
+  });
+
+  const sortedResults = overallResults.sort((a, b) => b.score - a.score);
+
+  return sortedResults.map((result, index) => rankTrial(result, index));
+};
+
+export const updateOverallLeague = async (): Promise<void> => {
+  const container = await leaguesRepo.getRanks();
+  const results = getOverallScores(container);
+  await leaguesRepo.updateOverallLeagueData(results);
+};

@@ -152,3 +152,27 @@ export interface AuthUser {
   username?: string
   anonymous: boolean
 }
+
+
+export interface LeagueRanks {
+  id: number;
+  name: string;
+  sprintPosition: number;
+  blockPushPosition: number;
+  hurdlesPosition: number;
+  highJumpPosition: number;
+  lapPosition: number;
+}
+
+export interface LeagueCounts {
+  sprint: number;
+  blockPush: number;
+  hurdles: number;
+  highJump: number;
+  lap: number;
+}
+
+export interface LeagueRanksContainer {
+  leagueRanks: LeagueRanks[];
+  leagueCounts: LeagueCounts;
+}
