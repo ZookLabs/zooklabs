@@ -25,6 +25,7 @@ export default async (
   if (!zookXml) {
     return
   }
-  context.response.status = 200
+  context.response.status = Status.OK
+  context.response.headers.set("Content-Type", "application/xml")
   context.response.body = zookXml
 }
