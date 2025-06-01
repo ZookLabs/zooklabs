@@ -85,71 +85,93 @@ function trimTrailingNewlines(bytes: Uint8Array): Uint8Array {
   return bytes.slice(0, len)
 }
 
+export const getZookFromRequest = async (
+  context: Context,
+) => {
+  const contentLength = context.request.headers.get("Content-Length")
+  if (
+    !contentLength || isNaN(Number(contentLength)) ||
+    Number(contentLength) > onehundredKb
+  ) {
+    context.response.status = Status.BadRequest
+    context.response.body = "File Too Big"
+    return undefined
+  }
+
+  const bodyform: BodyFormData = await context.request.body({
+    type: "form-data",
+  })
+  const formDataBody: FormDataBody = await bodyform.value.read({
+    maxFileSize: onehundredKb,
+    maxSize: onehundredKb,
+    bufferSize: onehundredKb,
+  })
+
+  const maybeZookFile = formDataBody.files?.find((file) => file.name === zook)
+  if (!maybeZookFile) {
+    context.response.status = Status.BadRequest
+    context.response.body = "No zook form field"
+    return
+  }
+
+  if (!maybeZookFile.originalName.endsWith(zookExt)) {
+    context.response.status = Status.BadRequest
+    context.response.body = `Not a .zook file`
+    return
+  }
+
+  if (!maybeZookFile.content) {
+    context.response.status = Status.BadRequest
+    context.response.body = "No content in zook file"
+    return
+  }
+
+  const zookBytesCleaned: Uint8Array<ArrayBufferLike> = trimTrailingNewlines(
+    maybeZookFile.content,
+  )
+  return zookBytesCleaned
+}
+
+export const decodeZook = (
+  context: Context,
+  zookBytesCleaned: Uint8Array,
+): string | undefined => {
+  if (
+    !zookBytesCleaned.slice(0, header.length).every((byte, index) =>
+      byte === header[index]
+    )
+  ) {
+    context.response.status = Status.BadRequest
+    context.response.body = `Somethings wrong with that Zook!`
+    return
+  }
+
+  // Remove the header
+  const zookBytesDroppedHeader = zookBytesCleaned.slice(header.length)
+
+  // Decrypt using Blowfish
+  const zookBytesDecrypted = blowfish.decrypt(zookBytesDroppedHeader)
+
+  // Unzip
+  const zookBytesDecompressed = gunzip(zookBytesDecrypted)
+
+  // Converted decrypted bytes to string
+  const zookXml = textDecoder.decode(zookBytesDecompressed)
+  return zookXml
+}
+
 export default async (context: Context) => {
   try {
-    const contentLength = context.request.headers.get("Content-Length")
-    if (
-      !contentLength || isNaN(Number(contentLength)) ||
-      Number(contentLength) > onehundredKb
-    ) {
-      context.response.status = Status.BadRequest
-      context.response.body = "File Too Big"
-      return
-    }
-
-    const bodyform: BodyFormData = await context.request.body({
-      type: "form-data",
-    })
-    const formDataBody: FormDataBody = await bodyform.value.read({
-      maxFileSize: onehundredKb,
-      maxSize: onehundredKb,
-      bufferSize: onehundredKb,
-    })
-
-    const maybeZookFile = formDataBody.files?.find((file) => file.name === zook)
-    if (!maybeZookFile) {
-      context.response.status = Status.BadRequest
-      context.response.body = "No zook form field"
-      return
-    }
-
-    if (!maybeZookFile.originalName.endsWith(zookExt)) {
-      context.response.status = Status.BadRequest
-      context.response.body = `Not a .zook file`
-      return
-    }
-
-    if (!maybeZookFile.content) {
-      context.response.status = Status.BadRequest
-      context.response.body = "No content in zook file"
-      return
-    }
-
-    const zookBytesCleaned: Uint8Array<ArrayBufferLike> = trimTrailingNewlines(
-      maybeZookFile.content,
-    )
-
-    if (
-      !zookBytesCleaned.slice(0, header.length).every((byte, index) =>
-        byte === header[index]
-      )
-    ) {
-      context.response.status = Status.BadRequest
-      context.response.body = `Somethings wrong with that Zook!`
-      return
-    }
-
-    // Remove the header
-    const zookBytesDroppedHeader = zookBytesCleaned.slice(header.length)
-
-    // Decrypt using Blowfish
-    const zookBytesDecrypted = blowfish.decrypt(zookBytesDroppedHeader)
-
-    // Unzip
-    const zookBytesDecompressed = gunzip(zookBytesDecrypted)
-
     // Converted decrypted bytes to string
-    const zookXml = textDecoder.decode(zookBytesDecompressed)
+
+    const zookBytesCleaned = await getZookFromRequest(context)
+    if (!zookBytesCleaned) {
+      return
+    }
+    const zookXml = decodeZook(context, zookBytesCleaned)
+    if (!zookXml) {
+      return
+    }
 
     const parsedZookXML: xml_document = parse(zookXml)
 

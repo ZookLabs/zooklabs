@@ -14,6 +14,7 @@ import loginRegister from "./controllers/loginRegister.ts"
 import { downloadZook } from "./controllers/downloadZook.ts"
 import { updateLeagues } from "./services/leagueService.ts"
 import { getAuthUser } from "./controllers/helpers.ts"
+import adminDecodeZook from "./controllers/adminDecodeZook.ts"
 const router = new Router()
 
 const text_encoder = new TextEncoder()
@@ -95,6 +96,10 @@ router.redirect("/", new URL("https://zooklabs.com"))
       await updateLeagues()
       context.response.status = Status.OK
     },
+  ).post(
+    "/api/admin/zook/decode",
+    jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
+    adminDecodeZook,
   )
 
 router
