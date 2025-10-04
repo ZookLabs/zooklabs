@@ -85,12 +85,11 @@ function trimTrailingNewlines(bytes: Uint8Array): Uint8Array {
   return bytes.slice(0, len)
 }
 
-export const getZookFromRequest = async (
-  context: Context,
-) => {
+export const getZookFromRequest = async (context: Context) => {
   const contentLength = context.request.headers.get("Content-Length")
   if (
-    !contentLength || isNaN(Number(contentLength)) ||
+    !contentLength ||
+    isNaN(Number(contentLength)) ||
     Number(contentLength) > onehundredKb
   ) {
     context.response.status = Status.BadRequest
@@ -126,7 +125,7 @@ export const getZookFromRequest = async (
     return
   }
 
-  const zookBytesCleaned: Uint8Array<ArrayBufferLike> = trimTrailingNewlines(
+  const zookBytesCleaned: Uint8Array = trimTrailingNewlines(
     maybeZookFile.content,
   )
   return zookBytesCleaned
@@ -137,9 +136,9 @@ export const decodeZook = (
   zookBytesCleaned: Uint8Array,
 ): string | undefined => {
   if (
-    !zookBytesCleaned.slice(0, header.length).every((byte, index) =>
-      byte === header[index]
-    )
+    !zookBytesCleaned
+      .slice(0, header.length)
+      .every((byte, index) => byte === header[index])
   ) {
     context.response.status = Status.BadRequest
     context.response.body = `Somethings wrong with that Zook!`
@@ -175,14 +174,36 @@ export default async (context: Context) => {
 
     const parsedZookXML: xml_document = parse(zookXml)
 
-    const ownersRaw = parsedZookXML.zook.passport.ownership.owner
+    const zookObj = parsedZookXML.zook as {
+      passport: {
+        ownership: {
+          owner:
+            | Array<{ "@zookname": string; "@adoption_date": string }>
+            | { "@zookname": string; "@adoption_date": string }
+        }
+        details: {
+          detail:
+            | Array<{
+              "@name": string
+              data: string
+            }>
+            | {
+              "@name": string
+              data: string
+            }
+        }
+      }
+      photo_album: { image: { "@image": string } }
+    }
+
+    const ownersRaw = zookObj.passport.ownership.owner
     const owners = Array.isArray(ownersRaw) ? ownersRaw : [ownersRaw]
 
     const zookName = owners.slice(-1)[0]["@zookname"]
 
     const adoptionDate = owners.slice(-1)[0]["@adoption_date"]
 
-    const detailsRaw = parsedZookXML.zook.passport.details.detail
+    const detailsRaw = zookObj.passport.details.detail
     const details = Array.isArray(detailsRaw) ? detailsRaw : [detailsRaw]
 
     const getPhysicalDetail = (name: string): number => {
@@ -192,7 +213,9 @@ export default async (context: Context) => {
     }
 
     const getZookTrial = (name: string): ZookTrial | undefined => {
-      const maybeTrial = details.filter((detail) => detail["@name"] === name)[0]
+      const maybeTrial = details.filter(
+        (detail) => detail["@name"] === name,
+      )[0]
 
       if (!maybeTrial) {
         return undefined
@@ -336,7 +359,7 @@ async function sendDiscordWebhook(
   formData.append("payload_json", JSON.stringify(webhookPayload))
 
   // Ensure the image bytes are a plain Uint8Array (Blob expects ArrayBuffer or ArrayBufferView)
-  const blobPartRaw: Uint8Array = (imageBytes instanceof Uint8Array)
+  const blobPartRaw: Uint8Array = imageBytes instanceof Uint8Array
     ? imageBytes
     : new Uint8Array(imageBytes as unknown as ArrayBuffer)
 
