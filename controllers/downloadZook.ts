@@ -1,6 +1,6 @@
 import { Context, Status } from "oak"
 import zookrepo from "../repositories/zookRepo.ts"
-import { getZookFile } from "../persistence/gcsPersistence.ts"
+import { getPersistence } from "../persistence/persistence.ts"
 
 export async function downloadZook(
   zookId: string,
@@ -15,7 +15,8 @@ export async function downloadZook(
   }
 
   try {
-    const zookFile = await getZookFile(id.toString(), zookName)
+    const persistence = await getPersistence()
+    const zookFile = await persistence.getZookFile(id.toString(), zookName)
 
     if (!zookFile) {
       context.response.status = Status.NotFound

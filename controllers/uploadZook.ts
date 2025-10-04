@@ -11,7 +11,7 @@ import { AuthUser, ZookContainer, ZookEntity, ZookTrial } from "../types.ts"
 import { stringToLocalDate } from "../util/dateParser.ts"
 import { getAuthUser } from "./helpers.ts"
 import { persistZook } from "../services/zookService.ts"
-import { writeZookAndImage } from "../persistence/gcsPersistence.ts"
+import { getPersistence } from "../persistence/persistence.ts"
 
 // Convert RGB hex string (e.g., "RRGGBBRRGGBB...") to Uint8ClampedArray with alpha added
 function hexRgbToRgbaArray(hex: string): Uint8ClampedArray {
@@ -240,9 +240,10 @@ export default async (context: Context) => {
 
     const pngBytes = await hexToPng(imageHexNoHeader, 256, 256)
 
-    const zookId = await persistZook(zookContainer, (zookId: number) => {
-      // Write zook image and zook to GCP bucket
-      return writeZookAndImage(
+    const zookId = await persistZook(zookContainer, async (zookId: number) => {
+      // Write zook image and zook to persistence backend
+      const persistence = await getPersistence()
+      return persistence.writeZookAndImage(
         zookId.toString(),
         zookName,
         zookBytesCleaned,
@@ -333,9 +334,18 @@ async function sendDiscordWebhook(
 
   const formData = new FormData()
   formData.append("payload_json", JSON.stringify(webhookPayload))
+
+  // Ensure the image bytes are a plain Uint8Array (Blob expects ArrayBuffer or ArrayBufferView)
+  const blobPartRaw: Uint8Array = (imageBytes instanceof Uint8Array)
+    ? imageBytes
+    : new Uint8Array(imageBytes as unknown as ArrayBuffer)
+
+  // Copy into a fresh ArrayBuffer-backed Uint8Array to avoid SharedArrayBuffer issues
+  const blobPart = new Uint8Array(blobPartRaw)
+
   formData.append(
     "file",
-    new Blob([imageBytes], { type: "image/png" }),
+    new Blob([blobPart], { type: "image/png" }),
     "image.png",
   )
 

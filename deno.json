@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run --allow-read --allow-net --watch main.ts",
+    "dev": "deno run --env=.env.development --allow-env --allow-read --allow-net --watch main.ts",
     "deploy": "deployctl deploy --project=zooklabs --prod",
     "deploy-test": "deployctl deploy --project=zooklabs",
     "check-all": "deno fmt && deno lint && deno check **/*.ts"
