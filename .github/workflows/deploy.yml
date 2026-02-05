@@ -20,7 +20,7 @@ jobs:
           deno-version: v2.5.3
 
       - name: Install deployctl
-        run: deno install -A --no-check --global -r https://deno.land/x/deploy/deployctl.ts
+        run: deno install -A --global deployctl
 
       - name: Run database migrations
         env:

@@ -38,6 +38,7 @@
     "@std/encoding/hex": "jsr:@std/encoding@^1.0.0/hex",
     "@google-cloud/storage": "npm:@google-cloud/storage",
     "date-fns": "npm:date-fns",
-    "xml": "https://deno.land/x/xml/mod.ts"
+    "xml": "https://deno.land/x/xml/mod.ts",
+    "deployctl": "https://deno.land/x/deploy@1.13.1/deployctl.ts"
   }
 }
