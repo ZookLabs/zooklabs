@@ -4,9 +4,9 @@ import { decodeHex } from "@std/encoding/hex"
 import { BodyFormData, Context, FormDataBody, Status } from "oak"
 import { parse, xml_document } from "xml"
 
-import { gunzip } from "jsr:@deno-library/compress"
+import { gunzip } from "compress"
 
-import { createCanvas } from "https://deno.land/x/canvas@v1.4.1/mod.ts"
+import { createCanvas } from "canvas"
 import { AuthUser, ZookContainer, ZookEntity, ZookTrial } from "../types.ts"
 import { stringToLocalDate } from "../util/dateParser.ts"
 import { getAuthUser } from "./helpers.ts"
@@ -185,11 +185,11 @@ export default async (context: Context) => {
           detail:
             | Array<{
               "@name": string
-              data: string
+              "@data": string
             }>
             | {
               "@name": string
-              data: string
+              "@data": string
             }
         }
       }
@@ -256,7 +256,8 @@ export default async (context: Context) => {
     }
 
     // Parse the image hex from the XML
-    const imageHex: string = parsedZookXML.zook.photo_album.image["@image"]
+    // const imageHex: string = parsedZookXML.zook.photo_album.image["@image"]
+    const imageHex: string = zookObj.photo_album.image["@image"]
 
     const imageHeaderHex = "0808080001000100"
     const imageHexNoHeader = imageHex.slice(imageHeaderHex.length)

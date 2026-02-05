@@ -1,7 +1,7 @@
 import { Context } from "oak"
 import { getZook } from "../services/zookService.ts"
 import { Zook } from "../types.ts"
-import { Status } from "jsr:@oak/commons@0.7/status"
+import { Status } from "oak"
 
 export default async (urlId: string, context: Context) => {
   const id: number = parseInt(urlId)

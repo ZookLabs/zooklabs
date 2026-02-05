@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Migrate and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.5.3
+
+      - name: Install deployctl
+        run: deno install -A --no-check -r https://deno.land/x/deploy/deployctl.ts
+
+      - name: Run database migrations
+        env:
+          PGDATABASE: ${{ secrets.PGDATABASE }}
+          PGHOST: ${{ secrets.PGHOST }}
+          PGUSER: ${{ secrets.PGUSER }}
+          PGPASSWORD: ${{ secrets.PGPASSWORD }}
+          PGPORT: ${{ secrets.PGPORT }}
+          PGCA: ${{ secrets.PGCA }}
+        run: deno task migrate
+
+      - name: Deploy to Deno Deploy
+        env:
+          DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
+        run: deno task deploy

@@ -1,24 +1,25 @@
 import { User, UserAbout, UserIdentifier, ZookIdentifier } from "../types.ts"
 import client from "../db/database.ts"
 import { UserEntity } from "../types.ts"
+import db from "../db/db.ts"
 
 class UsersRepo {
   async list(): Promise<Array<UserIdentifier>> {
-    const result = await client.queryObject<UserIdentifier>(
-      "SELECT username FROM users WHERE username IS NOT NULL",
-    )
-    return result.rows
+    return await db
+      .selectFrom("users")
+      .select("username")
+      .where("username", "is not", null)
+      .$castTo<UserIdentifier>()
+      .execute()
   }
 
   async getUserEntity(username: string): Promise<UserEntity> {
-    const result = await client.queryObject<UserEntity>(
-      {
-        text:
-          "SELECT id, username, discord_id, discord_username, sign_up_at, last_login_at FROM users WHERE lower(username) = $1",
-        args: [username.toLowerCase()],
-        camelCase: true,
-      },
-    )
+    const result = await client.queryObject<UserEntity>({
+      text:
+        "SELECT id, username, discord_id, discord_username, sign_up_at, last_login_at FROM users WHERE lower(username) = $1",
+      args: [username.toLowerCase()],
+      camelCase: true,
+    })
     return result.rows[0]
   }
 
@@ -49,7 +50,8 @@ class UsersRepo {
 
       const dateTimeFormat = new Intl.DateTimeFormat("en-GB", options)
 
-      return dateTimeFormat.formatToParts(date)
+      return dateTimeFormat
+        .formatToParts(date)
         .filter((p) => p.type != "literal")
         .map((p) => p.value)
         .join(" ")
@@ -78,22 +80,20 @@ class UsersRepo {
   }
 
   async setUsername(id: number, username: string): Promise<void> {
-    await client.queryArray(
-      "UPDATE users SET username = $2 WHERE id = $1",
-      [id, username],
-    )
+    await client.queryArray("UPDATE users SET username = $2 WHERE id = $1", [
+      id,
+      username,
+    ])
     return
   }
 
   async getByDiscordId(discordId: string): Promise<UserEntity | undefined> {
-    const result = await client.queryObject<UserEntity>(
-      {
-        text:
-          "SELECT id, username, discord_id, discord_username, sign_up_at, last_login_at from users WHERE discord_id = $1",
-        args: [discordId],
-        camelCase: true,
-      },
-    )
+    const result = await client.queryObject<UserEntity>({
+      text:
+        "SELECT id, username, discord_id, discord_username, sign_up_at, last_login_at from users WHERE discord_id = $1",
+      args: [discordId],
+      camelCase: true,
+    })
     return result.rows[0]
   }
 
