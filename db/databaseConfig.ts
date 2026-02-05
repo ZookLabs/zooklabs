@@ -16,18 +16,17 @@ const databaseConfig: DatabaseConfig = {
   caCertificate: Deno.env.get("PGCA"),
 }
 
-
 export const clientConfig = {
-      database: databaseConfig.database,
-      hostname: databaseConfig.hostname,
-      user: databaseConfig.user,
-      password: databaseConfig.password,
-      port: databaseConfig.port,
-      tls: databaseConfig.caCertificate
-        ? {
-          enforce: true,
-          caCertificates: [databaseConfig.caCertificate],
-          enabled: true,
-        }
-        : undefined,
+  database: databaseConfig.database,
+  hostname: databaseConfig.hostname,
+  user: databaseConfig.user,
+  password: databaseConfig.password,
+  port: databaseConfig.port,
+  tls: databaseConfig.caCertificate
+    ? {
+      enforce: true,
+      caCertificates: [databaseConfig.caCertificate],
+      enabled: true,
     }
+    : undefined,
+}

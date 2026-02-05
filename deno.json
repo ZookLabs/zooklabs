@@ -23,6 +23,7 @@
     "@std/assert": "jsr:@std/assert@^1.0.18",
     "@std/fmt/colors": "jsr:@std/fmt@^0.208.0/colors",
     "@std/semver": "jsr:@std/semver@^1.0.0",
+    "@std/flags": "jsr:@std/flags@^0.208.0",
     "canvas": "https://deno.land/x/canvas@v1.4.2/mod.ts",
     "compress": "https://deno.land/x/compress@v0.5.6/mod.ts",
     "djwt": "https://deno.land/x/djwt@v3.0.2/mod.ts",
