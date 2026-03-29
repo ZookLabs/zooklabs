@@ -1,134 +1,171 @@
-import { Transaction } from "postgres"
-import client from "../db/database.ts"
+import { Kysely, Transaction } from "kysely"
+import db from "../db/db.ts"
+import { DatabaseSchema, TrialTables } from "../db/schema.ts"
 import {
   createTrialEntity,
   TrialEntity,
   UserIdentifier,
+  Zook,
+  ZookAbout,
+  ZookAchievement,
   ZookContainer,
   ZookEntity,
   ZookIdentifier,
+  ZookPhysical,
   ZookTrial,
 } from "../types.ts"
-import { Trials } from "./trialsEnum.ts"
+import { getUsernameQuery } from "./usersRepo.ts"
+
+export const getTrialQuery = async (
+  trial: keyof TrialTables,
+  zookId: number,
+  database: Transaction<DatabaseSchema>, // maybe not?
+): Promise<ZookTrial | undefined> =>
+  await database
+    .selectFrom(trial)
+    .select(["score", "position", "disqualified"])
+    .where("zookid", "=", zookId)
+    .$castTo<ZookTrial>()
+    .executeTakeFirst()
+
+export const getEntityQuery = async (
+  zookId: number,
+  incrementViews: boolean,
+  database: Kysely<DatabaseSchema>,
+): Promise<ZookEntity> => {
+  const result = await database
+    .updateTable("zook")
+    .set((eb) => ({ views: eb("views", "+", incrementViews ? 1 : 0) }))
+    .where("id", "=", zookId)
+    .returning([
+      "id",
+      "name",
+      "height",
+      "length",
+      "width",
+      "weight",
+      "components",
+      "datecreated",
+      "dateuploaded",
+      "owner",
+      "downloads",
+      "views",
+    ])
+    .executeTakeFirstOrThrow()
+
+  return {
+    ...result,
+    datecreated: new Date(result.datecreated),
+    dateuploaded: new Date(result.dateuploaded),
+    owner: result.owner ?? undefined,
+  }
+}
 
 class ZookRepo {
   async list(): Promise<Array<ZookIdentifier>> {
-    const result = await client.queryObject<ZookIdentifier>(
-      "SELECT id, name FROM zook ORDER BY id DESC",
-    )
-    return result.rows
+    return await db
+      .selectFrom("zook")
+      .select(["id", "name"])
+      .orderBy("id", "desc")
+      .execute()
   }
 
-  async getEntity(id: number): Promise<ZookEntity> {
-    const result = await client.queryObject<ZookEntity>({
-      text: `SELECT id,
-                    name,
-                    height,
-                    length,
-                    width,
-                    weight,
-                    components,
-                    dateCreated  as datecreated,
-                    dateUploaded as dateuploaded,
-                    owner,
-                    downloads,
-                    views
-              FROM zook
-              WHERE id = $1`,
-      args: [id],
-    })
-    return result.rows[0]
-  }
+  async getZook(id: number, increaseViews: boolean) {
+    return await db.transaction().execute(async (trx) => {
+      const zookEntity: ZookEntity = await getEntityQuery(
+        id,
+        increaseViews,
+        trx,
+      )
 
-  async getEntityIncreaseViews(zookId: number): Promise<ZookEntity> {
-    const result = await client.queryObject<ZookEntity>({
-      text: `UPDATE zook
-             SET views = views + 1
-             WHERE id = $1
-             RETURNING id,
-                 name,
-                 height,
-                 length,
-                 width,
-                 weight,
-                 components,
-                 dateCreated as datecreated,
-                 dateUploaded as dateuploaded,
-                 owner,
-                 downloads,
-                 views`,
-      args: [zookId],
+      if (zookEntity == undefined) {
+        return undefined
+      }
+
+      const [
+        sprintTrial,
+        blockPushTrial,
+        hurdlesTrial,
+        highJumpTrial,
+        lapTrial,
+        overallTrial,
+      ] = await Promise.all([
+        getTrialQuery("sprint", id, trx),
+        getTrialQuery("block_push", id, trx),
+        getTrialQuery("hurdles", id, trx),
+        getTrialQuery("high_jump", id, trx),
+        getTrialQuery("lap", id, trx),
+        getTrialQuery("overall_league", id, trx),
+      ])
+
+      const zookAchievements: ZookAchievement = {
+        sprint: sprintTrial,
+        blockPush: blockPushTrial,
+        hurdles: hurdlesTrial,
+        highJump: highJumpTrial,
+        lap: lapTrial,
+        overall: overallTrial,
+      }
+
+      const anonymousUser: UserIdentifier = { username: "Anonymous" }
+
+      const zookOwner: UserIdentifier = zookEntity.owner
+        ? ((await getUsernameQuery(zookEntity.owner, trx)) ?? anonymousUser)
+        : anonymousUser
+
+      const zookIdentifier: ZookIdentifier = {
+        id: zookEntity.id,
+        name: zookEntity.name,
+      }
+
+      function formatDate(date: Date): string {
+        const options: Intl.DateTimeFormatOptions = {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }
+
+        const dateTimeFormat = new Intl.DateTimeFormat("en-GB", options)
+
+        return dateTimeFormat
+          .formatToParts(date)
+          .filter((p) => p.type != "literal")
+          .map((p) => p.value)
+          .join(" ")
+      }
+
+      const zookAbout: ZookAbout = {
+        owner: zookOwner,
+        dateCreated: formatDate(zookEntity.datecreated),
+        dateUploaded: formatDate(zookEntity.dateuploaded),
+        downloads: zookEntity.downloads,
+        views: zookEntity.views,
+      }
+
+      const zookPhysical: ZookPhysical = {
+        height: zookEntity.height,
+        length: zookEntity.length,
+        width: zookEntity.width,
+        weight: zookEntity.weight,
+        components: zookEntity.components,
+      }
+
+      return {
+        identifier: zookIdentifier,
+        about: zookAbout,
+        physical: zookPhysical,
+        achievement: zookAchievements,
+      } as Zook
     })
-    return result.rows[0]
   }
 
   async incrementDownloads(zookId: number): Promise<void> {
-    await client.queryObject({
-      text: `UPDATE zook
-             SET downloads = downloads + 1
-             WHERE id = $1`,
-      args: [zookId],
-    })
-  }
-
-  async getOwner(ownerId?: number): Promise<UserIdentifier> {
-    const result = await client.queryObject<UserIdentifier>({
-      text: `SELECT username from users where id = $1`,
-      args: [ownerId],
-    })
-    return result.rows[0]
-  }
-
-  async getTrial(trial: string, zookId: number): Promise<ZookTrial> {
-    const result = await client.queryObject<ZookTrial>({
-      text: "SELECT score, position, disqualified FROM " + trial +
-        " where zookid = $1",
-      args: [zookId],
-    })
-    return result.rows[0]
-  }
-
-  async persistTrialQuery(
-    trials: Trials,
-    trialEntity: TrialEntity,
-    transaction: Transaction,
-  ): Promise<void> {
-    await transaction.queryArray({
-      text: `INSERT INTO ${trials.value}
-             (zookid, name, score, position, disqualified)
-             VALUES ($1, $2, $3, $4, $5)`,
-      args: [
-        trialEntity.zookid,
-        trialEntity.name,
-        trialEntity.score,
-        trialEntity.position,
-        trialEntity.disqualified,
-      ],
-    })
-  }
-
-  async persistZookQuery(
-    zookEntity: ZookEntity,
-    transaction: Transaction,
-  ): Promise<number> {
-    const result = await transaction.queryArray<[number]>({
-      text: `INSERT INTO zook
-             (name, height, length, width, weight, components, dateCreated, dateUploaded, owner)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-             RETURNING id`,
-      args: [
-        zookEntity.name,
-        zookEntity.height,
-        zookEntity.length,
-        zookEntity.width,
-        zookEntity.weight,
-        zookEntity.components,
-        zookEntity.datecreated,
-        zookEntity.dateuploaded,
-        zookEntity.owner,
-      ],
-    })
-    return result.rows[0][0]
+    await db
+      .updateTable("zook")
+      .set((eb) => ({ downloads: eb("downloads", "+", 1) }))
+      .where("id", "=", zookId)
+      .execute()
   }
 
   async persistZook(
@@ -136,76 +173,114 @@ class ZookRepo {
     transactionalFunction: (zookId: number) => Promise<void>,
   ): Promise<number> {
     try {
-      const transaction = client.createTransaction("persistZook")
-      await transaction.begin()
+      return await db.transaction().execute(async (trx) => {
+        // Persist the Zook entity and get the generated ID
+        const zookResult = await trx
+          .insertInto("zook")
+          .values({
+            name: zookContainer.zook.name,
+            height: zookContainer.zook.height,
+            length: zookContainer.zook.length,
+            width: zookContainer.zook.width,
+            weight: zookContainer.zook.weight,
+            components: zookContainer.zook.components,
+            datecreated: zookContainer.zook.datecreated.toISOString(),
+            dateuploaded: zookContainer.zook.dateuploaded.toISOString(),
+            owner: zookContainer.zook.owner ?? null,
+            downloads: 0,
+            views: 0,
+          })
+          .returning("id")
+          .executeTakeFirstOrThrow()
 
-      // Persist the Zook entity and get the generated ID
-      const zookId = await this.persistZookQuery(
-        zookContainer.zook,
-        transaction,
-      )
+        const zookId = zookResult.id
 
-      const toEntity = (zookTrial: ZookTrial): TrialEntity =>
-        createTrialEntity(
-          zookId,
-          zookContainer.zook.name,
-          zookTrial.score,
-        )
+        const toEntity = (zookTrial: ZookTrial): TrialEntity =>
+          createTrialEntity(zookId, zookContainer.zook.name, zookTrial.score)
 
-      if (zookContainer.sprint) {
-        await this.persistTrialQuery(
-          Trials.Sprint,
-          toEntity(zookContainer.sprint),
-          transaction,
-        )
-      }
-      if (zookContainer.blockPush) {
-        await this.persistTrialQuery(
-          Trials.BlockPush,
-          toEntity(zookContainer.blockPush),
-          transaction,
-        )
-      }
-      if (zookContainer.hurdles) {
-        await this.persistTrialQuery(
-          Trials.Hurdles,
-          toEntity(zookContainer.hurdles),
-          transaction,
-        )
-      }
-      if (zookContainer.highJump) {
-        await this.persistTrialQuery(
-          Trials.HighJump,
-          toEntity(zookContainer.highJump),
-          transaction,
-        )
-      }
-      if (zookContainer.lap) {
-        await this.persistTrialQuery(
-          Trials.Lap,
-          toEntity(zookContainer.lap),
-          transaction,
-        )
-      }
+        // Insert into trial tables conditionally
+        if (zookContainer.sprint) {
+          const entity = toEntity(zookContainer.sprint)
+          await trx
+            .insertInto("sprint")
+            .values({
+              zookid: entity.zookid,
+              name: entity.name,
+              score: entity.score,
+              position: entity.position ?? 2147483647,
+              disqualified: entity.disqualified ?? false,
+            })
+            .execute()
+        }
+        if (zookContainer.blockPush) {
+          const entity = toEntity(zookContainer.blockPush)
+          await trx
+            .insertInto("block_push")
+            .values({
+              zookid: entity.zookid,
+              name: entity.name,
+              score: entity.score,
+              position: entity.position ?? 2147483647,
+              disqualified: entity.disqualified ?? false,
+            })
+            .execute()
+        }
+        if (zookContainer.hurdles) {
+          const entity = toEntity(zookContainer.hurdles)
+          await trx
+            .insertInto("hurdles")
+            .values({
+              zookid: entity.zookid,
+              name: entity.name,
+              score: entity.score,
+              position: entity.position ?? 2147483647,
+              disqualified: entity.disqualified ?? false,
+            })
+            .execute()
+        }
+        if (zookContainer.highJump) {
+          const entity = toEntity(zookContainer.highJump)
+          await trx
+            .insertInto("high_jump")
+            .values({
+              zookid: entity.zookid,
+              name: entity.name,
+              score: entity.score,
+              position: entity.position ?? 2147483647,
+              disqualified: entity.disqualified ?? false,
+            })
+            .execute()
+        }
+        if (zookContainer.lap) {
+          const entity = toEntity(zookContainer.lap)
+          await trx
+            .insertInto("lap")
+            .values({
+              zookid: entity.zookid,
+              name: entity.name,
+              score: entity.score,
+              position: entity.position ?? 2147483647,
+              disqualified: entity.disqualified ?? false,
+            })
+            .execute()
+        }
 
-      await transactionalFunction(zookId)
+        await transactionalFunction(zookId)
 
-      await transaction.commit()
-
-      return zookId
+        return zookId
+      })
     } catch (error) {
       console.error("Error persisting Zook:", error)
-      throw error // Re-throw the error to be handled by the caller
+      throw error
     }
   }
 
   async setOwner(zookId: number, ownerId: number): Promise<void> {
-    await client.queryArray({
-      text: `UPDATE zook
-               SET owner = $1
-               WHERE id = $2`,
-      args: [ownerId, zookId],
-    })
+    await db
+      .updateTable("zook")
+      .set({ owner: ownerId })
+      .where("id", "=", zookId)
+      .execute()
   }
 }
 export default new ZookRepo()

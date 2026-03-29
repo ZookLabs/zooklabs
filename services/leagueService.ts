@@ -1,13 +1,7 @@
 import leaguesRepo from "../repositories/leaguesRepo.ts"
-import { Trials } from "../repositories/trialsEnum.ts"
-import {
-  League,
-  LeagueRanksContainer,
-  Leagues,
-  LeagueTrial,
-  Trial,
-} from "../types.ts"
+import { League, LeagueRanksContainer, Leagues, LeagueTrial } from "../types.ts"
 import { OverallScoreCalculations } from "./overallScoreCalculations.ts"
+import { TrialTables } from "../db/schema.ts"
 
 export const getLeagues = async (): Promise<Leagues> => {
   return {
@@ -20,18 +14,16 @@ export const getLeagues = async (): Promise<Leagues> => {
   }
 }
 
-export const getLeague = async (trial: Trial): Promise<League> => {
+export const getLeague = async (trial: keyof TrialTables): Promise<League> => {
   return {
-    updatedAt: await leaguesRepo.getLeagueUpdatedAt(trial) ??
+    updatedAt: (await leaguesRepo.getLeagueUpdatedAt(trial)) ??
       "not updated yet",
     entries: await leaguesRepo.listLeague(trial),
   }
 }
 
 export const updateLeagues = async (): Promise<void> => {
-  await Promise.all(Trials.standardTrials.map((trial) => {
-    leaguesRepo.updateLeagues(trial)
-  }))
+  await leaguesRepo.updateDefaultLeagues()
   await updateOverallLeague()
 }
 

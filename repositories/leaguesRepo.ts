@@ -1,115 +1,215 @@
-import client from "../db/database.ts"
+import db from "../db/db.ts"
 import {
   LeagueCounts,
   LeagueRanks,
   LeagueRanksContainer,
   LeagueTrial,
-  Trial,
 } from "../types.ts"
-import { Trials } from "./trialsEnum.ts"
+import { DatabaseSchema, TrialTables } from "../db/schema.ts"
+import { Kysely } from "kysely"
+
+const tableOrdering: Record<keyof TrialTables, "desc" | "asc"> = {
+  sprint: "desc",
+  block_push: "desc",
+  hurdles: "desc",
+  high_jump: "desc",
+  lap: "asc",
+  overall_league: "desc",
+} as const
+
+async function updateLeagueOrderQuery(
+  trial: keyof TrialTables,
+  database: Kysely<DatabaseSchema>,
+): Promise<void> {
+  await database
+    .updateTable(trial)
+    .from((eb) =>
+      eb
+        .selectFrom(trial)
+        .select([
+          "zookid",
+          (eb) =>
+            eb.fn
+              .agg<number>("row_number")
+              .over((ob) =>
+                ob
+                  .orderBy("score", tableOrdering[trial])
+                  .orderBy("zookid", "asc")
+              )
+              .as("pos"),
+        ])
+        .where("disqualified", "=", false)
+        .as("t")
+    )
+    .set((eb) => ({
+      position: eb.ref("t.pos"),
+    }))
+    .whereRef("zookid", "=", "t.zookid")
+    .where("disqualified", "=", false)
+    .execute()
+
+  // const tableName = this.getTableName(trial.value);
+
+  // // Use raw SQL for complex window function query with dynamic table names
+  // await db.executeQuery(
+  //   sql`UPDATE ${sql.table(tableName)} trial SET position = t.pos
+  //       FROM (
+  //         SELECT row_number() OVER (ORDER BY t.score ${sql.raw(trial.ordering.sql)}, t.zookid ASC) as pos, t.zookid
+  //         FROM ${sql.table(tableName)} t WHERE NOT t.disqualified
+  //       ) t WHERE trial.zookid = t.zookid AND NOT trial.disqualified`.compile(
+  //     db,
+  //   ),
+  // );
+}
+
+async function updateDisqualifiedQuery(
+  trial: keyof TrialTables,
+  database: Kysely<DatabaseSchema>,
+): Promise<void> {
+  await database
+    .updateTable(trial)
+    .set("position", 2147483647)
+    .where("disqualified", "is", true)
+    .where("position", "!=", 2147483647)
+    .execute()
+}
+
+async function setLeagueUpdatedAtQuery(
+  trial: keyof TrialTables,
+  database: Kysely<DatabaseSchema>,
+): Promise<void> {
+  await database
+    .updateTable("leagues_metadata")
+    .set({ updatedAt: new Date() })
+    .where("league", "=", trial)
+    .execute()
+}
 
 class LeaguesRepo {
-  async getLeader(trial: Trial): Promise<number> {
-    const result = await client.queryObject<{ zookid: number }>({
-      text: `select zookid from ${trial} where position = 1`,
+  async getLeader(trial: keyof TrialTables): Promise<number> {
+    const result = await db
+      .selectFrom(trial)
+      .select("zookid")
+      .where("position", "=", 1)
+      .executeTakeFirst()
+    if (!result) throw new Error(`No leader found for trial ${trial}`)
+    return result.zookid
+  }
+
+  async listLeague(trial: keyof TrialTables): Promise<LeagueTrial[]> {
+    const results = await db
+      .selectFrom(trial)
+      .select(["zookid", "name", "score", "position"])
+      .where("disqualified", "=", false)
+      .orderBy("position")
+      .execute()
+
+    return results.map((r) => ({
+      zookId: r.zookid,
+      name: r.name,
+      score: r.score,
+      position: r.position,
+    }))
+  }
+
+  async getLeagueUpdatedAt(
+    trial: keyof TrialTables,
+  ): Promise<Date | undefined> {
+    const result = await db
+      .selectFrom("leagues_metadata")
+      .select("updatedAt")
+      .where("league", "=", trial)
+      .executeTakeFirst()
+    return result?.updatedAt
+  }
+
+  async updateLeague(
+    trial: keyof TrialTables,
+    database: Kysely<DatabaseSchema>,
+  ): Promise<void> {
+    await Promise.all([
+      updateLeagueOrderQuery(trial, database),
+      await updateDisqualifiedQuery(trial, database),
+    ])
+    await setLeagueUpdatedAtQuery(trial, database)
+  }
+
+  async updateDefaultLeagues(): Promise<void> {
+    await db.transaction().execute(async (trx) => {
+      await Promise.all([
+        this.updateLeague("sprint", trx),
+        this.updateLeague("block_push", trx),
+        this.updateLeague("hurdles", trx),
+        this.updateLeague("high_jump", trx),
+        this.updateLeague("lap", trx),
+      ])
     })
-    return result.rows[0].zookid
   }
 
-  async listLeague(trial: Trial): Promise<LeagueTrial[]> {
-    const result = await client.queryObject<LeagueTrial>({
-      text:
-        `select zookid as zook_id, name, score, position from ${trial} where not disqualified order by position`,
-      camelCase: true,
-    })
-    return result.rows
-  }
-
-  async getLeagueUpdatedAt(trial: Trial): Promise<string | undefined> {
-    const result = await client.queryObject<{ updated_at: string }>(
-      "select updated_at from leagues_metadata where league = $1",
-      [trial],
-    )
-    return result.rows.at(0)?.updated_at
-  }
-
-  async updateLeagueOrder(trial: Trials): Promise<void> {
-    await client.queryObject({
-      text: "UPDATE " + trial.value + " trial SET position = t.pos " +
-        "FROM (" +
-        "  SELECT row_number() OVER (ORDER BY t.score " + trial.ordering.sql +
-        ", t.zookid ASC) as pos, t.zookid" +
-        "  FROM " + trial.value + " t WHERE NOT t.disqualified" +
-        ") t WHERE trial.zookid = t.zookid AND NOT trial.disqualified",
-    })
-  }
-
-  async updateDisqualified(trial: Trials): Promise<void> {
-    await client.queryObject({
-      text: "UPDATE " + trial.value +
-        " SET position = 2147483647 WHERE disqualified AND position != 2147483647",
-    })
-  }
-
-  async setLeagueUpdatedAt(trial: Trials): Promise<void> {
-    await client.queryObject({
-      text: `
-        update leagues_metadata
-        set updated_at = now()
-        where league = $1
-      `,
-      args: [trial.value],
-    })
-  }
-
-  async updateLeagues(trial: Trials): Promise<void> {
-    await this.updateLeagueOrder(trial)
-    await this.updateDisqualified(trial)
-    await this.setLeagueUpdatedAt(trial)
-  }
-
-  async getCountQuery(trial: Trials): Promise<number> {
-    const result = await client.queryObject<{ count: number }>({
-      text: "SELECT COUNT(*)::int as count FROM " + trial.value +
-        " WHERE NOT disqualified",
-    })
-    return result.rows[0].count
+  async getCountQuery(trial: keyof TrialTables): Promise<number> {
+    const result = await db
+      .selectFrom(trial)
+      .select((eb) => eb.fn.count<number>("zookid").as("count"))
+      .where("disqualified", "=", false)
+      .executeTakeFirst()
+    return result?.count ? result.count : 0
   }
 
   async getLeagueCounts(): Promise<LeagueCounts> {
     const [sprint, blockPush, hurdles, highJump, lap] = await Promise.all([
-      this.getCountQuery(Trials.Sprint),
-      this.getCountQuery(Trials.BlockPush),
-      this.getCountQuery(Trials.Hurdles),
-      this.getCountQuery(Trials.HighJump),
-      this.getCountQuery(Trials.Lap),
+      this.getCountQuery("sprint"),
+      this.getCountQuery("block_push"),
+      this.getCountQuery("hurdles"),
+      this.getCountQuery("high_jump"),
+      this.getCountQuery("lap"),
     ])
 
     return { sprint, blockPush, hurdles, highJump, lap }
   }
 
   async getRanksQuery(): Promise<LeagueRanks[]> {
-    const result = await client.queryObject<LeagueRanks>({
-      text: `
-        SELECT z.id,
-              z.name,
-              s.position AS sprint_position,
-              b.position AS block_push_position,
-              h.position AS hurdles_position,
-              hj.position AS high_jump_position,
-              l.position AS lap_position
-        FROM zook z
-        INNER JOIN sprint s ON z.id = s.zookid
-        INNER JOIN block_push b ON z.id = b.zookid
-        INNER JOIN hurdles h ON z.id = h.zookid
-        INNER JOIN high_jump hj ON z.id = hj.zookid
-        INNER JOIN lap l ON z.id = l.zookid
-        WHERE NOT s.disqualified AND NOT b.disqualified AND NOT h.disqualified
-          AND NOT hj.disqualified AND NOT l.disqualified
-      `,
-      camelCase: true,
-    })
-    return result.rows
+    const results = await db
+      .selectFrom("zook as z")
+      .innerJoin("sprint as s", "z.id", "s.zookid")
+      .innerJoin("block_push as b", "z.id", "b.zookid")
+      .innerJoin("hurdles as h", "z.id", "h.zookid")
+      .innerJoin("high_jump as hj", "z.id", "hj.zookid")
+      .innerJoin("lap as l", "z.id", "l.zookid")
+      .select([
+        "z.id",
+        "z.name",
+        "s.position as sprint_position",
+        "b.position as block_push_position",
+        "h.position as hurdles_position",
+        "hj.position as high_jump_position",
+        "l.position as lap_position",
+      ])
+      .where("s.disqualified", "=", false)
+      .where("b.disqualified", "=", false)
+      .where("h.disqualified", "=", false)
+      .where("hj.disqualified", "=", false)
+      .where("l.disqualified", "=", false)
+      .execute()
+
+    return results.map((
+      r: {
+        id: number
+        name: string
+        sprint_position: number
+        block_push_position: number
+        hurdles_position: number
+        high_jump_position: number
+        lap_position: number
+      },
+    ) => ({
+      id: r.id,
+      name: r.name,
+      sprintPosition: r.sprint_position,
+      blockPushPosition: r.block_push_position,
+      hurdlesPosition: r.hurdles_position,
+      highJumpPosition: r.high_jump_position,
+      lapPosition: r.lap_position,
+    }))
   }
 
   async getRanks(): Promise<LeagueRanksContainer> {
@@ -120,28 +220,38 @@ class LeaguesRepo {
     return { leagueRanks, leagueCounts }
   }
 
-  async insertOverallLeagueData(overallTrials: LeagueTrial[]): Promise<void> {
-    const queryText = `
-      INSERT INTO overall_league (zookid, name, score, position)
-      VALUES ($1, $2, $3, $4)
-      ON CONFLICT (zookid) DO UPDATE
-      SET score = excluded.score,
-          position = excluded.position
-    `
-
-    const queries = overallTrials.map((trial) =>
-      client.queryObject({
-        text: queryText,
-        args: [trial.zookId, trial.name, trial.score, trial.position],
-      })
-    )
-
-    await Promise.all(queries)
+  async insertOverallLeagueData(
+    overallTrials: LeagueTrial[],
+    database: Kysely<DatabaseSchema>,
+  ): Promise<void> {
+    // Use Kysely's batch insert with ON CONFLICT (upsert)
+    for (const trial of overallTrials) {
+      await database
+        .insertInto("overall_league")
+        .values({
+          zookid: trial.zookId,
+          name: trial.name,
+          score: trial.score,
+          position: trial.position,
+          disqualified: false,
+        })
+        .onConflict((oc) =>
+          oc.column("zookid").doUpdateSet({
+            score: trial.score,
+            position: trial.position,
+          })
+        )
+        .execute()
+    }
   }
 
-  async updateOverallLeagueData(overallTrials: LeagueTrial[]): Promise<void> {
-    await this.insertOverallLeagueData(overallTrials)
-    await this.setLeagueUpdatedAt(Trials.Overall)
+  async updateOverallLeagueData(
+    overallTrials: LeagueTrial[],
+  ): Promise<void> {
+    await db.transaction().execute(async (tx) => {
+      await this.insertOverallLeagueData(overallTrials, tx)
+      await setLeagueUpdatedAtQuery("overall_league", tx)
+    })
   }
 }
 

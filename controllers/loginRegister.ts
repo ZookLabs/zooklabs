@@ -86,7 +86,7 @@ async function getOrCreateUser(
       lastLoginAt: now,
     }
   } else {
-    const userEntity: UserEntity = {
+    const userEntity: Omit<UserEntity, "username"> = {
       id: 0,
       discordId: userIdentity.id,
       discordUsername: `${userIdentity.username}#${userIdentity.discriminator}`,
@@ -106,7 +106,7 @@ export default async (code: string, context: Context) => {
   const user = await getOrCreateUser(userIdentity)
   const authUser: AuthUser = {
     id: user.id,
-    username: user.username,
+    username: user.username ?? undefined,
     anonymous: false,
   }
   context.response.body = await createJwt(authUser)

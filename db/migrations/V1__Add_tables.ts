@@ -11,8 +11,8 @@ export async function up(db: Kysely<DatabaseSchema>): Promise<void> {
     .addColumn("width", "double precision", (col) => col.notNull())
     .addColumn("weight", "double precision", (col) => col.notNull())
     .addColumn("components", "integer", (col) => col.notNull())
-    .addColumn("dateCreated", "timestamp", (col) => col.notNull())
-    .addColumn("dateUploaded", "timestamp", (col) => col.notNull())
+    .addColumn("datecreated", "timestamp", (col) => col.notNull())
+    .addColumn("dateuploaded", "timestamp", (col) => col.notNull())
     .execute()
 
   await db.schema

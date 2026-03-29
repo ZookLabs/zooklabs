@@ -2,6 +2,7 @@
 import { PostgresDriver } from "../db/PgDriver.ts"
 
 import {
+  CamelCasePlugin,
   Kysely,
   PostgresAdapter,
   PostgresIntrospector,
@@ -37,6 +38,7 @@ export class Db {
           return new PostgresQueryCompiler()
         },
       },
+      plugins: [new CamelCasePlugin()],
     })
   }
 }

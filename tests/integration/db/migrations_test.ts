@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert"
-import { Database } from "./databaseClient.ts"
+import { Database } from "../../../db/databaseClient.ts"
 
 // Helper to run shell commands
 async function runCommand(

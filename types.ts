@@ -119,7 +119,7 @@ export interface LeagueTrial {
 }
 
 export interface League {
-  updatedAt: string
+  updatedAt: Date | string
   entries: LeagueTrial[]
 }
 
@@ -140,7 +140,7 @@ export interface User {
 
 export interface UserEntity {
   id: number
-  username?: string
+  username: string | null
   discordId: string
   discordUsername: string
   signUpAt: Date

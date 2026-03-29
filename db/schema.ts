@@ -36,7 +36,7 @@ export interface LapTable {
 
 export interface LeaguesMetadataTable {
   league: string
-  updated_at: string
+  updatedAt: Date
 }
 
 export interface OverallLeagueTable {
@@ -59,28 +59,28 @@ export interface TournamentTable {
   id: number
   title: string
   description: string
-  owner_id: number | null
+  ownerId: number | null
   zooks: unknown // jsonb
 }
 
 export interface UsersTable {
   id: Generated<number>
   username: string | null
-  discord_id: string
-  discord_username: string
-  sign_up_at: string
-  last_login_at: string
-  is_admin: boolean
+  discordId: string
+  discordUsername: string
+  signUpAt: Date
+  lastLoginAt: Date
+  isAdmin: boolean
 }
 
 export interface UsersTestTable {
   id: Generated<number>
   username: string | null
-  discord_id: string
-  discord_username: string
-  sign_up_at: string
-  last_login_at: string
-  is_admin: boolean
+  discordId: string
+  discordUsername: string
+  signUpAt: string
+  lastLoginAt: string
+  isAdmin: boolean
 }
 
 export interface ZookTable {
@@ -99,14 +99,17 @@ export interface ZookTable {
 }
 
 // Kysely DatabaseSchema mapping table names to table types
-export interface DatabaseSchema {
+export interface TrialTables {
   block_push: BlockPushTable
   high_jump: HighJumpTable
   hurdles: HurdlesTable
   lap: LapTable
-  leagues_metadata: LeaguesMetadataTable
-  overall_league: OverallLeagueTable
   sprint: SprintTable
+  overall_league: OverallLeagueTable
+}
+
+export interface DatabaseSchema extends TrialTables {
+  leagues_metadata: LeaguesMetadataTable
   tournament: TournamentTable
   users: UsersTable
   users_test: UsersTestTable
