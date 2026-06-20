@@ -21,6 +21,7 @@ export async function cleanupTestDatabase(): Promise<void> {
     "zook",
     "users",
     "leagues_metadata",
+    "auto_trial_results",
   ]
 
   await Promise.all(tables.map(

@@ -84,6 +84,7 @@ async function validateMigration() {
       "V7__Add_tournament_table.ts",
       "V8__Add_is_admin_column.ts",
       "V9__Add_views_and_download_columns.ts",
+      "1781970964__Add_AutoTrialResults_table.ts",
     ],
     "users table should exist after migration",
   )

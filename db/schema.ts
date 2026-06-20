@@ -114,4 +114,14 @@ export interface DatabaseSchema extends TrialTables {
   users: UsersTable
   users_test: UsersTestTable
   zook: ZookTable
+  auto_trial_results: AutoTrialResults
+}
+
+export interface AutoTrialResults {
+  zookId: number
+  sprint: number
+  blockPush: number
+  hurdles: number
+  highJump: number
+  lap: number
 }

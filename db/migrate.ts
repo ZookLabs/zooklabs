@@ -36,7 +36,7 @@ class DenoFileMigrationProvider extends FileMigrationProvider {
 
   override async getMigrations(): Promise<Record<string, Migration>> {
     const migrations: Record<string, Migration> = {}
-    const files = await Deno.readDir(this.folder)
+    const files = Deno.readDir(this.folder);
 
     for await (const file of files) {
       migrations[file.name] = await import(

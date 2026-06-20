@@ -1,6 +1,7 @@
 import db from "../../../db/db.ts"
 import usersRepo from "../../../repositories/usersRepo.ts"
 import { UserEntity, ZookEntity } from "../../../types.ts"
+import {AutoTrialResults} from "../../../db/schema.ts";
 
 export async function getAccountById(id: number) {
   return await db
@@ -37,4 +38,10 @@ export async function insertTestZook(testZook: ZookEntity) {
     })
     .returning("id")
     .executeTakeFirstOrThrow()
+}
+
+export async function insertAutoTrialResults(results: AutoTrialResults) {
+    return await db.insertInto("auto_trial_results")
+        .values(results)
+        .execute();
 }
