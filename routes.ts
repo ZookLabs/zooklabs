@@ -15,6 +15,8 @@ import { downloadZook } from "./controllers/downloadZook.ts"
 import { updateLeagues } from "./services/leagueService.ts"
 import { getAuthUser } from "./controllers/helpers.ts"
 import adminDecodeZook from "./controllers/adminDecodeZook.ts"
+import getAutoTrialResults from "./controllers/getAutoTrialResults.ts";
+import addAutoTrialResults from "./controllers/addAutoTrialResults.ts";
 const router = new Router()
 
 const text_encoder = new TextEncoder()
@@ -100,6 +102,18 @@ router.redirect("/", new URL("https://zooklabs.com"))
     "/api/admin/zook/decode",
     jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
     adminDecodeZook,
+  ).get(
+      "/api/autotrials/:zookid",
+    jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
+    async (context) => {
+        await getAutoTrialResults(context.params.zookid, context)
+    },
+  ).post(
+      "/api/autotrials/:zookid",
+    jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
+    async (context) => {
+        await addAutoTrialResults(context.params.zookid, context)
+    },
   )
 
 router
