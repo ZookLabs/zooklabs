@@ -15,6 +15,7 @@ import { downloadZook } from "./controllers/downloadZook.ts"
 import { updateLeagues } from "./services/leagueService.ts"
 import { getAuthUser } from "./controllers/helpers.ts"
 import adminDecodeZook from "./controllers/adminDecodeZook.ts"
+import adminEnvConfig from "./controllers/adminEnvConfig.ts"
 import getAutoTrialResults from "./controllers/getAutoTrialResults.ts";
 import addAutoTrialResults from "./controllers/addAutoTrialResults.ts";
 const router = new Router()
@@ -102,6 +103,10 @@ router.redirect("/", new URL("https://zooklabs.com"))
     "/api/admin/zook/decode",
     jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
     adminDecodeZook,
+  ).get(
+    "/api/admin/config",
+    jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
+    adminEnvConfig,
   ).get(
       "/api/autotrials/:zookid",
     jwtMiddleware<RouterMiddleware<string>>(jwtMiddlewareOptions),
