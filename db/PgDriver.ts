@@ -22,10 +22,10 @@ export class PostgresDriver implements Driver {
     this.db_client_options = client_options
   }
 
-  init(): Promise<void> {
+  async init(): Promise<void> {
     this.#client = new Client(this.db_client_options)
+    await this.#client.connect()
     this.#connection = new PgConnection(this.#client)
-    return Promise.resolve()
   }
 
   async acquireConnection(): Promise<DatabaseConnection> {

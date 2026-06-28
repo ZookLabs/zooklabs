@@ -1,10 +1,16 @@
 {
+  "workspace": ["./packages/shared"],
+  "exclude": ["apps/web"],
   "tasks": {
     "deploy": "deployctl deploy --project=zooklabs --prod",
     "deploy-test": "deployctl deploy --project=zooklabs",
     "test:db": "deno run --env=.env.development --allow-all tests/integration/db/migrations_test.ts",
     "check-all": "deno fmt && deno lint && deno check **/*.ts",
-    "dev": "deno run --env=.env.development --allow-env --allow-read --allow-net --unstable-cron --watch main.ts",
+    "dev": "deno run --env-file=.env.development --env-file=.env.local --allow-env --allow-read --allow-write --allow-net --unstable-cron --watch main.ts",
+    "dev:db": "deno run -A scripts/dev-db.ts",
+    "dev:api": "deno run -A scripts/dev-api.ts",
+    "dev:web": "deno run -A scripts/dev-web.ts",
+    "dev:all": "deno run -A scripts/dev.ts",
     "migrate": "deno run --allow-env --allow-read --allow-net db/migrate.ts --up-full",
     "dev:local": "sh -c 'docker-compose up -d --wait && deno task migrate && deno task dev'",
     "dev:stop": "docker-compose down",
@@ -14,7 +20,7 @@
   },
   "deploy": {
     "project": "82b0b482-0d0f-4007-9d63-49e2864526ae",
-    "exclude": ["**/node_modules"],
+    "exclude": ["**/node_modules", "apps/web", "scripts"],
     "include": [],
     "entrypoint": "main.ts"
   },

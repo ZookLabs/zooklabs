@@ -12,6 +12,7 @@ import { stringToLocalDate } from "../util/dateParser.ts"
 import { getAuthUser } from "./helpers.ts"
 import { persistZook } from "../services/zookService.ts"
 import { getPersistence } from "../persistence/persistence.ts"
+import { updateLeagues } from "../services/leagueService.ts"
 
 // Convert RGB hex string (e.g., "RRGGBBRRGGBB...") to Uint8ClampedArray with alpha added
 function hexRgbToRgbaArray(hex: string): Uint8ClampedArray {
@@ -282,6 +283,12 @@ export default async (context: Context) => {
       pngBytes,
       discordWebhook,
     )
+
+    if (Deno.env.get("RECALCULATE_LEAGUES_ON_UPLOAD") !== "false") {
+      updateLeagues().catch((err) =>
+        console.error("[uploadZook] league recalc failed:", err)
+      )
+    }
 
     context.response.body = {
       id: zookId,

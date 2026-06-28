@@ -1,0 +1,5 @@
+{
+  "name": "@zooklabs/shared",
+  "version": "0.0.0",
+  "exports": "./types.ts"
+}

@@ -44,8 +44,8 @@ async function updateLeagueOrderQuery(
     .set((eb) => ({
       position: eb.ref("t.pos"),
     }))
-    .whereRef("zookid", "=", "t.zookid")
-    .where("disqualified", "=", false)
+    .whereRef(`${trial}.zookid`, "=", "t.zookid")
+    .where(`${trial}.disqualified`, "=", false)
     .execute()
 
   // const tableName = this.getTableName(trial.value);
@@ -86,14 +86,13 @@ async function setLeagueUpdatedAtQuery(
 }
 
 class LeaguesRepo {
-  async getLeader(trial: keyof TrialTables): Promise<number> {
+  async getLeader(trial: keyof TrialTables): Promise<number | null> {
     const result = await db
       .selectFrom(trial)
       .select("zookid")
       .where("position", "=", 1)
       .executeTakeFirst()
-    if (!result) throw new Error(`No leader found for trial ${trial}`)
-    return result.zookid
+    return result?.zookid ?? null
   }
 
   async listLeague(trial: keyof TrialTables): Promise<LeagueTrial[]> {
@@ -127,22 +126,18 @@ class LeaguesRepo {
     trial: keyof TrialTables,
     database: Kysely<DatabaseSchema>,
   ): Promise<void> {
-    await Promise.all([
-      updateLeagueOrderQuery(trial, database),
-      await updateDisqualifiedQuery(trial, database),
-    ])
+    await updateLeagueOrderQuery(trial, database)
+    await updateDisqualifiedQuery(trial, database)
     await setLeagueUpdatedAtQuery(trial, database)
   }
 
   async updateDefaultLeagues(): Promise<void> {
     await db.transaction().execute(async (trx) => {
-      await Promise.all([
-        this.updateLeague("sprint", trx),
-        this.updateLeague("block_push", trx),
-        this.updateLeague("hurdles", trx),
-        this.updateLeague("high_jump", trx),
-        this.updateLeague("lap", trx),
-      ])
+      await this.updateLeague("sprint", trx)
+      await this.updateLeague("block_push", trx)
+      await this.updateLeague("hurdles", trx)
+      await this.updateLeague("high_jump", trx)
+      await this.updateLeague("lap", trx)
     })
   }
 
@@ -152,7 +147,7 @@ class LeaguesRepo {
       .select((eb) => eb.fn.count<number>("zookid").as("count"))
       .where("disqualified", "=", false)
       .executeTakeFirst()
-    return result?.count ? result.count : 0
+    return result?.count ? Number(result.count) : 0
   }
 
   async getLeagueCounts(): Promise<LeagueCounts> {
@@ -195,20 +190,20 @@ class LeaguesRepo {
       r: {
         id: number
         name: string
-        sprint_position: number
-        block_push_position: number
-        hurdles_position: number
-        high_jump_position: number
-        lap_position: number
+        sprintPosition: number
+        blockPushPosition: number
+        hurdlesPosition: number
+        highJumpPosition: number
+        lapPosition: number
       },
     ) => ({
       id: r.id,
       name: r.name,
-      sprintPosition: r.sprint_position,
-      blockPushPosition: r.block_push_position,
-      hurdlesPosition: r.hurdles_position,
-      highJumpPosition: r.high_jump_position,
-      lapPosition: r.lap_position,
+      sprintPosition: r.sprintPosition,
+      blockPushPosition: r.blockPushPosition,
+      hurdlesPosition: r.hurdlesPosition,
+      highJumpPosition: r.highJumpPosition,
+      lapPosition: r.lapPosition,
     }))
   }
 

@@ -23,8 +23,11 @@ export const getLeague = async (trial: keyof TrialTables): Promise<League> => {
 }
 
 export const updateLeagues = async (): Promise<void> => {
+  console.log("[leagues] recalculating individual leagues…")
   await leaguesRepo.updateDefaultLeagues()
+  console.log("[leagues] individual leagues done, recalculating overall…")
   await updateOverallLeague()
+  console.log("[leagues] all done")
 }
 
 interface UnrankedTrial {
@@ -60,6 +63,8 @@ const getOverallScores = (container: LeagueRanksContainer): LeagueTrial[] => {
 
 export const updateOverallLeague = async (): Promise<void> => {
   const container = await leaguesRepo.getRanks()
+  console.log(`[leagues] overall: ${container.leagueRanks.length} qualifying zooks, counts:`, container.leagueCounts)
   const results = getOverallScores(container)
+  console.log(`[leagues] overall: writing ${results.length} entries`)
   await leaguesRepo.updateOverallLeagueData(results)
 }

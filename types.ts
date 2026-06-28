@@ -1,3 +1,9 @@
+// Backend-only types live here.
+// Shared API DTOs (the wire contract with the web client) come from @zooklabs/shared.
+import type { ZookTrial } from "@zooklabs/shared"
+
+export * from "@zooklabs/shared"
+
 export interface ZookContainer {
   zook: ZookEntity
   sprint?: ZookTrial
@@ -5,11 +11,6 @@ export interface ZookContainer {
   hurdles?: ZookTrial
   highJump?: ZookTrial
   lap?: ZookTrial
-}
-
-export interface ZookIdentifier {
-  id: number
-  name: string
 }
 
 export interface ZookEntity {
@@ -25,16 +26,6 @@ export interface ZookEntity {
   owner?: number
   downloads: number
   views: number
-}
-
-export interface UserIdentifier {
-  username: string // Letter Or Digit, Min size 3, Max size 20
-}
-
-export interface ZookTrial {
-  score: number
-  position: number
-  disqualified: boolean
 }
 
 export interface TrialEntity {
@@ -59,84 +50,6 @@ export const createTrialEntity = (
   position,
   disqualified,
 })
-
-export interface ZookAchievement {
-  sprint?: ZookTrial
-  blockPush?: ZookTrial
-  hurdles?: ZookTrial
-  highJump?: ZookTrial
-  lap?: ZookTrial
-  overall?: ZookTrial
-}
-
-export interface ZookAbout {
-  owner?: UserIdentifier
-  dateCreated: string
-  dateUploaded: string
-  downloads: number
-  views: number
-}
-
-export interface ZookPhysical {
-  height: number
-  length: number
-  width: number
-  weight: number
-  components: number
-}
-
-export interface Zook {
-  identifier: ZookIdentifier
-  about: ZookAbout
-  physical: ZookPhysical
-  achievement: ZookAchievement
-}
-
-export const trial = [
-  "sprint",
-  "block_push",
-  "hurdles",
-  "high_jump",
-  "lap",
-  "overall_league",
-]
-export type Trial = typeof trial[number]
-
-export interface Leagues {
-  sprint: number
-  block_push: number
-  hurdles: number
-  high_jump: number
-  lap: number
-  overall_league: number
-}
-
-export interface LeagueTrial {
-  zookId: number
-  name: string
-  score: number
-  position: number
-}
-
-export interface League {
-  updatedAt: Date | string
-  entries: LeagueTrial[]
-}
-
-export interface UserIdentifier {
-  username: string // LetterOrDigit, 3 to 20 characters
-}
-
-export interface UserAbout {
-  signUpAt: string
-  lastLoginAt: string
-}
-
-export interface User {
-  identifier: UserIdentifier
-  about: UserAbout
-  zooks: ZookIdentifier[]
-}
 
 export interface UserEntity {
   id: number
