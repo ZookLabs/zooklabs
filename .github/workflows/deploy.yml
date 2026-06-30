@@ -36,3 +36,33 @@ jobs:
         env:
           DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
         run: deno task deploy
+
+  deploy-web:
+    name: Deploy Web App to Netlify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: apps/web/yarn.lock
+
+      - name: Install dependencies
+        working-directory: apps/web
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        working-directory: apps/web
+        run: yarn build
+
+      - name: Deploy to Netlify
+        working-directory: apps/web
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: npx netlify-cli deploy --dir=build --prod
