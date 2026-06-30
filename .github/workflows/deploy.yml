@@ -17,7 +17,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.7.0
 
       - name: Run database migrations
         working-directory: apps/api
@@ -42,9 +42,11 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.0
+          deno-version: v2.7.0
 
       - name: Deploy
+        timeout-minutes: 5
+        continue-on-error: true
         env:
           DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
         run: deno deploy --prod --no-wait
