@@ -1,5 +1,6 @@
 /.idea
 *.iml
 node_modules
-.env.local
-/.persistence
+/apps/api/.env.local
+/apps/api/.persistence
+/.vite

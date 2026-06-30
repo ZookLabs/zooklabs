@@ -21,6 +21,7 @@ const devEnv = {
 console.log("[dev-api] applying migrations…")
 const migrate = await new Deno.Command("deno", {
   args: ["task", "migrate"],
+  cwd: "apps/api",
   env: devEnv,
   stdout: "inherit",
   stderr: "inherit",
@@ -33,6 +34,7 @@ if (!migrate.success) {
 console.log("[dev-api] starting API on http://localhost:8080 …\n")
 const api = new Deno.Command("deno", {
   args: ["task", "dev"],
+  cwd: "apps/api",
   stdout: "inherit",
   stderr: "inherit",
 }).spawn()

@@ -1,9 +1,0 @@
-{
-  "version": "2.1.9",
-  "results": [
-    [
-      ":tests/integration/repositories/integration.test.ts",
-      { "duration": 0, "failed": true }
-    ]
-  ]
-}

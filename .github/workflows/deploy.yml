@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  deploy:
-    name: Migrate and Deploy
+  migrate:
+    name: Run Database Migrations
     runs-on: ubuntu-latest
 
     steps:
@@ -15,14 +15,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
           deno-version: v2.5.3
 
-      - name: Install deployctl
-        run: deno install -gArf jsr:@deno/deployctl
-
       - name: Run database migrations
+        working-directory: apps/api
         env:
           PGDATABASE: ${{ secrets.PGDATABASE }}
           PGHOST: ${{ secrets.PGHOST }}
@@ -31,11 +29,6 @@ jobs:
           PGPORT: ${{ secrets.PGPORT }}
           PGCA: ${{ secrets.PGCA }}
         run: deno task migrate
-
-      - name: Deploy to Deno Deploy
-        env:
-          DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
-        run: deno task deploy
 
   deploy-web:
     name: Deploy Web App to Netlify

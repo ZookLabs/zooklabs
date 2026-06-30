@@ -75,6 +75,7 @@ await startDevDb()
 console.log("[dev] applying migrations…")
 const migrate = new Deno.Command("deno", {
   args: ["task", "migrate"],
+  cwd: "apps/api",
   env: { PGHOST: "127.0.0.1" },
   stdout: "inherit",
   stderr: "inherit",
@@ -85,7 +86,7 @@ if (!(await migrate.status).success) {
 }
 
 // 3) API — reads .env.development (port 8080, CORS http://localhost:3000, PGHOST 127.0.0.1).
-spawn("api", "deno", ["task", "dev"])
+spawn("api", "deno", ["task", "dev"], { cwd: "apps/api" })
 
 // 4) Web — CRA dev server on :3000. Install deps on first run.
 const hasNodeModules = await Deno.stat("apps/web/node_modules")
