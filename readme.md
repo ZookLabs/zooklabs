@@ -6,9 +6,9 @@ Monorepo for [zooklabs.com](https://zooklabs.com) — an unofficial BAMZOOKi hos
 
 ```
 .
-├─ main.ts, routes.ts, controllers/, services/, db/ …  # Deno + Oak API (root for now → apps/api later)
 ├─ apps/
-│  └─ web/            # Web front end (currently CRA/React; migrating to Nuxt)
+│  ├─ api/            # Deno + Oak API → Deno Deploy
+│  └─ web/            # React (CRA) web front end → Cloudflare/Netlify
 ├─ packages/
 │  └─ shared/         # @zooklabs/shared — API DTOs shared by the API and the web
 └─ scripts/           # local dev tooling (in-memory DB + orchestrator)
@@ -44,15 +44,28 @@ The first run installs the web app's dependencies (one-off). Press **Ctrl-C** to
 - [Node](https://nodejs.org) 20+ with Yarn 4 (ships via `corepack`) — for the web app only
 
 ### Tasks
+
+Root (`deno.json`):
+
 | Task | What it does |
 | --- | --- |
 | `deno task dev:api`  | In-memory DB + migrations + API, clean logs — **terminal 1** |
 | `deno task dev:web`  | Web UI dev server — **terminal 2** |
 | `deno task dev:all`  | All of the above in one terminal (prefixed logs) |
 | `deno task dev:db`   | Just the in-memory PGlite database (on `:5432`) |
-| `deno task dev`      | Just the API (expects a database on `:5432`) |
-| `deno task migrate`  | Apply database migrations |
-| `deno task dev:local`| Run the API against a **Docker** Postgres instead of in-memory |
+
+API (`apps/api/deno.json`):
+
+| Task | What it does |
+| --- | --- |
+| `deno task dev`       | Just the API (expects a database on `:5432`) |
+| `deno task migrate`   | Apply database migrations |
+| `deno task dev:local` | Run the API against a **Docker** Postgres instead of in-memory |
+| `deno task dev:stop`  | Stop the Docker Postgres container |
+| `deno task check-all` | Format, lint, and type-check all `.ts` files |
+| `deno task test:unit` | Run unit tests |
+| `deno task test:integration` | Run integration tests |
+| `deno task test:all`  | Run all tests |
 
 ### Why in-memory (and how)
 The API talks to Postgres over the wire. `scripts/dev-db.ts` runs **PGlite** (embedded

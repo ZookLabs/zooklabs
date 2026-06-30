@@ -10,7 +10,7 @@
   },
   "deploy": {
     "org": "zooklabs",
-    "app": "zooklabs-deno"
+    "app": "zooklabs" 
   }
 }
 
