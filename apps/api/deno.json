@@ -32,7 +32,7 @@
   },
   "deploy": {
     "runtime": {"mode": "dynamic", "entrypoint": "main.ts"},
-    "predeploy": "migrate",
+    "predeploy": "deno run migrate",
     "exclude": ["**/node_modules"],
     "include": []
   }
