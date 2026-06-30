@@ -59,5 +59,5 @@ const updateLeaguesCron = Deno.cron(
 
 await Promise.all([
   server,
-  updateLeaguesCron,
+  updateLeaguesCron.catch(err => console.error("[cron] registration failed:", err)),
 ])
