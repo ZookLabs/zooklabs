@@ -6,7 +6,8 @@
     "dev:db": "deno run -A scripts/dev-db.ts",
     "dev:api": "deno run -A scripts/dev-api.ts",
     "dev:web": "deno run -A scripts/dev-web.ts",
-    "dev:all": "deno run -A scripts/dev.ts"
+    "dev:all": "deno run -A scripts/dev.ts",
+    "migrate": "deno run --allow-env --allow-read --allow-net /apps/api/db/migrate.ts --up-full"
   },
   "deploy": {
     "org": "zooklabs",
