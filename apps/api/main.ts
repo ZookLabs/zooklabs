@@ -41,7 +41,7 @@ console.log("[startup] config:")
 // console.log(`  PGPASSWORD     = ${Deno.env.get("PGPASSWORD") ? "***set***" : "(unset → Nosey)"}`)
 // console.log(`  PGCA           = ${Deno.env.get("PGCA") ?? "(unset → no TLS)"}`)
 // console.log(`  USE_LOCAL_PERSISTENCE = ${Deno.env.get("USE_LOCAL_PERSISTENCE") ?? "(unset)"}`)
-// console.log(`  RECALCULATE_LEAGUES_ON_UPLOAD = ${Deno.env.get("RECALCULATE_LEAGUES_ON_UPLOAD") ?? "(unset → enabled)"}`)
+console.log(`  RECALCULATE_LEAGUES_ON_UPLOAD = ${Deno.env.get("RECALCULATE_LEAGUES_ON_UPLOAD") ?? "(unset → enabled)"}`)
 console.log(`Listening on port:${port}...`)
 
 Deno.serve(
