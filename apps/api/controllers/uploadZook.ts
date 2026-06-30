@@ -1,7 +1,7 @@
 import { Blowfish } from "blowfish"
 import { Ecb } from "block-modes"
 import { decodeHex } from "@std/encoding/hex"
-import { BodyFormData, Context, FormDataBody, Status } from "oak"
+import { Context, Status } from "oak"
 import { parse, xml_document } from "xml"
 
 import { gunzip } from "compress"
@@ -98,38 +98,29 @@ export const getZookFromRequest = async (context: Context) => {
     return undefined
   }
 
-  const bodyform: BodyFormData = await context.request.body({
-    type: "form-data",
-  })
-  const formDataBody: FormDataBody = await bodyform.value.read({
-    maxFileSize: onehundredKb,
-    maxSize: onehundredKb,
-    bufferSize: onehundredKb,
-  })
+  const formData = await context.request.body.formData()
+  const maybeZookFile = formData.get(zook)
 
-  const maybeZookFile = formDataBody.files?.find((file) => file.name === zook)
-  if (!maybeZookFile) {
+  if (!maybeZookFile || !(maybeZookFile instanceof File)) {
     context.response.status = Status.BadRequest
     context.response.body = "No zook form field"
     return
   }
 
-  if (!maybeZookFile.originalName.endsWith(zookExt)) {
+  if (!maybeZookFile.name.endsWith(zookExt)) {
     context.response.status = Status.BadRequest
     context.response.body = `Not a .zook file`
     return
   }
 
-  if (!maybeZookFile.content) {
+  const content = new Uint8Array(await maybeZookFile.arrayBuffer())
+  if (content.length === 0) {
     context.response.status = Status.BadRequest
     context.response.body = "No content in zook file"
     return
   }
 
-  const zookBytesCleaned: Uint8Array = trimTrailingNewlines(
-    maybeZookFile.content,
-  )
-  return zookBytesCleaned
+  return trimTrailingNewlines(content)
 }
 
 export const decodeZook = (

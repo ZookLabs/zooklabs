@@ -2,7 +2,6 @@
 // Added Deno args
 
 import {
-  FileMigrationProvider,
   Migration,
   MigrationResult,
   Migrator,
@@ -11,39 +10,12 @@ import db from "./db.ts"
 
 const log = (msg: string) => console.log("[Migrations]", msg)
 
-class DenoFileMigrationProvider extends FileMigrationProvider {
-  folder: string
-
-  constructor() {
-    super({
-      fs: {
-        readdir(path) {
-          return Promise.resolve(
-            [...Deno.readDirSync(path)].map((file) => file.name),
-          )
-        },
-      },
-      path: {
-        join(...path) {
-          return path.join("/")
-        },
-      },
-      migrationFolder: "./db/migrations",
-    })
-
-    this.folder = "./db/migrations"
-  }
-
-  override async getMigrations(): Promise<Record<string, Migration>> {
+class DenoFileMigrationProvider {
+  async getMigrations(): Promise<Record<string, Migration>> {
     const migrations: Record<string, Migration> = {}
-    const files = Deno.readDir(this.folder);
-
-    for await (const file of files) {
-      migrations[file.name] = await import(
-        ["./migrations", file.name].join("/")
-      )
+    for await (const file of Deno.readDir("./db/migrations")) {
+      migrations[file.name] = await import(`./migrations/${file.name}`)
     }
-
     return migrations
   }
 }

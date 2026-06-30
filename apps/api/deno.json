@@ -25,7 +25,7 @@
     "compress": "https://deno.land/x/compress@v0.5.6/mod.ts",
     "djwt": "https://deno.land/x/djwt@v3.0.2/mod.ts",
     "cors": "https://deno.land/x/cors@v1.2.2/mod.ts",
-    "kysely": "npm:kysely@^0.29.2",
+    "kysely": "npm:kysely@^0.28.7",
     "pg": "npm:pg@^8.22.0",
     "oak": "https://deno.land/x/oak@v13.2.5/mod.ts",
     "postgres": "https://deno.land/x/postgres@v0.19.3/mod.ts",

@@ -10,7 +10,7 @@ export default async (context: Context) => {
     return
   }
 
-  const body = await context.request.body().value
+  const body = await context.request.body.json()
 
   const username = body["username"]
   if (username === undefined) {

@@ -23,13 +23,7 @@ export default async (urlId: string, context: Context) => {
     }
 
     try {
-        const body = context.request.body()
-        if (body.type !== "json") {
-            context.response.status = Status.BadRequest
-            return
-        }
-
-        const results = await body.value
+        const results = await context.request.body.json()
         
         // Basic validation of the payload
         const { sprint, blockPush, hurdles, highJump, lap } = results
