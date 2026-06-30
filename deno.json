@@ -7,5 +7,10 @@
     "dev:api": "deno run -A scripts/dev-api.ts",
     "dev:web": "deno run -A scripts/dev-web.ts",
     "dev:all": "deno run -A scripts/dev.ts"
+  },
+  "deploy": {
+    "org": "zooklabs",
+    "app": "zooklabs-deno"
   }
 }
+
