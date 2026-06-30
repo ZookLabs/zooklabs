@@ -3,7 +3,6 @@ import { oakCors } from "cors"
 import router from "./routes.ts"
 import _404 from "./controllers/404.ts"
 import errorHandler from "./controllers/errorHandler.ts"
-import { updateLeagues } from "./services/leagueService.ts"
 
 const app = new Application()
 
@@ -45,16 +44,10 @@ console.log("[startup] config:")
 // console.log(`  RECALCULATE_LEAGUES_ON_UPLOAD = ${Deno.env.get("RECALCULATE_LEAGUES_ON_UPLOAD") ?? "(unset → enabled)"}`)
 console.log(`Listening on port:${port}...`)
 
-const server = app.listen({ port })
-
-try {
-  Deno.cron("Update Leagues Cron", "0 * * * *", async () => {
-    console.log("Updating leagues...")
-    await updateLeagues()
-    console.log("Leagues updated.")
-  })
-} catch (err) {
-  console.error("[cron] registration failed (crons may be disabled):", err)
-}
-
-await server
+Deno.serve(
+  { port },
+  async (request, info) => {
+    const res = await app.handle(request, info.remoteAddr)
+    return res ?? Response.error()
+  },
+)
