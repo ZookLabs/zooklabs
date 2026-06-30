@@ -33,7 +33,7 @@ jobs:
   deploy-api:
     name: Deploy API to Deno Deploy
     runs-on: ubuntu-latest
-    needs: migrate
+    # needs: migrate
 
     steps:
       - name: Checkout code
