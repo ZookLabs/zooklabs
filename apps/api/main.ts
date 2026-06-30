@@ -47,17 +47,14 @@ console.log(`Listening on port:${port}...`)
 
 const server = app.listen({ port })
 
-const updateLeaguesCron = Deno.cron(
-  "Update Leagues Cron",
-  "0 * * * *",
-  async () => {
+try {
+  Deno.cron("Update Leagues Cron", "0 * * * *", async () => {
     console.log("Updating leagues...")
     await updateLeagues()
     console.log("Leagues updated.")
-  },
-)
+  })
+} catch (err) {
+  console.error("[cron] registration failed (crons may be disabled):", err)
+}
 
-await Promise.all([
-  server,
-  updateLeaguesCron.catch(err => console.error("[cron] registration failed:", err)),
-])
+await server
