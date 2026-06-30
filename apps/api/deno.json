@@ -32,7 +32,7 @@
   },
   "deploy": {
     "runtime": {"mode": "dynamic", "entrypoint": "main.ts"},
-    "predeploy": "deno task migrate",
+    "predeploy": "cd ./apps/api && deno task migrate",
     "exclude": ["**/node_modules"],
     "include": []
   }
