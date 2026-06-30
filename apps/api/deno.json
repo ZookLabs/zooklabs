@@ -21,7 +21,6 @@
   "imports": {
     "@std/assert": "jsr:@std/assert@^1.0.18",
     "@std/expect": "jsr:@std/expect@^1.0.17",
-    "@std/fmt/colors": "jsr:@std/fmt@^1.0.0/colors",
     "canvas": "https://deno.land/x/canvas@v1.4.2/mod.ts",
     "compress": "https://deno.land/x/compress@v0.5.6/mod.ts",
     "djwt": "https://deno.land/x/djwt@v3.0.2/mod.ts",
@@ -29,7 +28,7 @@
     "kysely": "npm:kysely@^0.29.2",
     "pg": "npm:pg@^8.22.0",
     "oak": "https://deno.land/x/oak@v13.2.5/mod.ts",
-    "postgres": "https://deno.land/x/postgres@v0.19.5/mod.ts",
+    "postgres": "https://deno.land/x/postgres@v0.19.3/mod.ts",
     "oak-middleware-jwt": "https://deno.land/x/oak_middleware_jwt@2.2.2/mod.ts",
     "blowfish": "https://deno.land/x/crypto@v0.11.0/blowfish.ts",
     "block-modes": "https://deno.land/x/crypto@v0.11.0/block-modes.ts",
