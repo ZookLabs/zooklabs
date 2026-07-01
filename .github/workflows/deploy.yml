@@ -62,7 +62,6 @@ jobs:
         run: |
           cp apps/visualiser/dist/index.html apps/web/build/visualiser.html
           rsync -a --exclude='index.html' apps/visualiser/dist/ apps/web/build/
-          ls apps/web/build/
 
       - name: Deploy to Netlify
         working-directory: apps/web
