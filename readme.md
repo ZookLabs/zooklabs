@@ -8,15 +8,17 @@ Monorepo for [zooklabs.com](https://zooklabs.com) — an unofficial BAMZOOKi hos
 .
 ├─ apps/
 │  ├─ api/            # Deno + Oak API → Deno Deploy
-│  └─ web/            # React (CRA) web front end → Cloudflare/Netlify
+│  ├─ web/            # React (CRA) web front end → Netlify
+│  └─ visualiser/     # Three.js 3D genome viewer → bundled into web at /visualiser.html
 ├─ packages/
 │  └─ shared/         # @zooklabs/shared — API DTOs shared by the API and the web
 └─ scripts/           # local dev tooling (in-memory DB + orchestrator)
 ```
 
-The API and the web app deploy **independently** (API → Deno Deploy, web → Cloudflare/
-Netlify). The monorepo unifies the source and shares the API types via
-`@zooklabs/shared`; it does not couple their deployments.
+The API and the web app deploy **independently** (API → Deno Deploy, web → Netlify).
+The visualiser is built separately and its output is copied into the web build before
+deployment, making it available at `/visualiser.html`. The monorepo unifies the source
+and shares the API types via `@zooklabs/shared`; it does not couple their deployments.
 
 ## Local development
 
@@ -53,6 +55,13 @@ Root (`deno.json`):
 | `deno task dev:web`  | Web UI dev server — **terminal 2** |
 | `deno task dev:all`  | All of the above in one terminal (prefixed logs) |
 | `deno task dev:db`   | Just the in-memory PGlite database (on `:5432`) |
+
+The visualiser runs independently with Yarn:
+
+```bash
+cd apps/visualiser
+yarn dev     # → http://localhost:5173
+```
 
 API (`apps/api/deno.json`):
 

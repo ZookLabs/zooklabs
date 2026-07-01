@@ -1,47 +1,38 @@
 # Zook Visualiser
 
-## Project Overview
-Zook Visualiser is a 3D genome viewer built using Three.js and Vite. This application allows users to visualize genomic data in an interactive 3D environment.
+A 3D genome viewer built with Three.js and Vite. Loads BAMZOOKi genome XML files and renders the creature body in an interactive 3D scene.
 
-## Project Structure
-```
-zook-visualiser
-├── public
-│   └── index.html        # Main HTML structure of the application
-├── src
-│   └── main.js          # Main JavaScript application file
-├── package.json          # npm configuration file
-├── vite.config.js       # Vite configuration file
-└── README.md             # Project documentation
+## Setup
+
+```bash
+yarn install
+yarn dev     # → http://localhost:5173
+yarn build   # output to dist/
 ```
 
-## Setup Instructions
+## Controls
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd zook-visualiser
-   ```
+| Input | Action |
+| --- | --- |
+| Right-click + drag | Rotate |
+| Middle scroll | Zoom |
+| Left-click mesh | Select part |
+| `W` | Toggle wireframe |
+| `K` | Toggle IK1 visualisation |
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+Selecting a part opens a slider panel to inspect and adjust its shape and rotation parameters.
 
-3. **Run the development server**
-   ```bash
-   npm run dev
-   ```
+## Structure
 
-4. **Open your browser**
-   Navigate to `http://localhost:3000` to view the application.
-
-## Usage
-- Use the mouse to interact with the 3D scene.
-- Explore the genomic data visualized in the canvas.
-
-## Contributing
-Feel free to submit issues or pull requests for improvements and bug fixes. 
-
-## License
-This project is licensed under the MIT License.
+```
+apps/visualiser/
+├── public/
+│   └── assets/          # BMP textures + sample XML files
+├── src/
+│   ├── main.ts          # Scene setup, controls, interaction
+│   ├── blobGeometry.ts  # Parametric blob mesh generation
+│   ├── boundingBox.ts   # World-space bounding box helpers
+│   └── floorGrid.ts     # Checkerboard floor tile geometry
+├── vite.config.ts
+└── tsconfig.json
+```
