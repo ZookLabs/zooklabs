@@ -4,3 +4,5 @@ node_modules
 /apps/api/.env.local
 /apps/api/.persistence
 /.vite
+.yarn
+dist

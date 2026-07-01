@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      Vite injects its HMR and module‐loading scripts automatically when you run `vite` or `vite build`.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Genome 3D Viewer (Vite + TS)</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      #canvas-container {
+        width: 100vw;
+        height: 100vh;
+      }
+      #error-message {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: red;
+        font-family: sans-serif;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 8px;
+        border-radius: 4px;
+        display: none;
+      }
+      #transform-controls {
+        display: none;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #222;
+        color: #fff;
+        padding: 16px;
+        border-radius: 8px;
+        z-index: 1000;
+        font-family: sans-serif;
+        min-width: 220px;
+      }
+      #transform-controls div {
+        margin-bottom: 8px;
+      }
+      #transform-controls label {
+        margin-right: 8px;
+      }
+      #transform-controls input {
+        width: 120px;
+      }
+      #file-selector {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        font-family: sans-serif;
+        font-size: 14px;
+      }
+      #file-selector label {
+        color: #fff;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        margin-right: 6px;
+      }
+      #file-selector select {
+        background: #222;
+        color: #fff;
+        border: 1px solid #555;
+        border-radius: 4px;
+        padding: 4px 8px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="canvas-container"></div>
+    <div id="error-message"></div>
+
+    <div id="file-selector">
+      <label for="xml-file-select">File:</label>
+      <select id="xml-file-select">
+        <option value="/evo-sample.xml" selected>evo-sample</option>
+        <option value="/mbf-sample.xml">mbf-sample</option>
+        <option value="/oem-sample.xml">oem-sample</option>
+        <option value="/sb-sample.xml">sb-sample</option>
+        <option value="/test-angles-1.xml">test-angles-1</option>
+        <option value="/test-angles-2.xml">test-angles-2</option>
+        <option value="/test-angles-3.xml">test-angles-3</option>
+        <option value="/test-angles-4.xml">test-angles-4</option>
+        <option value="/test-colours.xml">test-colours</option>
+        <option value="/test-shapes.xml">test-shapes</option>
+        <option value="/trt-sample.xml">trt-sample</option>
+      </select>
+    </div>
+
+    <div id="transform-controls">
+      <div style="font-weight:bold; margin-bottom:8px;">Rotation Controls</div>
+      
+
+      
+      <div>
+        <label for="scalex-slider">Width - scalex:</label>
+        <input
+          type="range"
+          id="scalex-slider"
+          min="0.4"
+          max="12"
+          value="0"
+          step="0.01"
+        />
+        <span id="scalex-value">0</span>
+      </div>
+
+      <div>
+        <label for="scaley-slider">Height - scaley:</label>
+        <input
+          type="range"
+          id="scaley-slider"
+          min="0.4"
+          max="12"
+          value="0"
+          step="0.01"
+        />
+        <span id="scaley-value">0</span>
+      </div>
+
+      <div>
+        <label for="scalez-slider">Length - scalez:</label>
+        <input
+          type="range"
+          id="scalez-slider"
+          min="0.4"
+          max="12"
+          value="0"
+          step="0.01"
+        />
+        <span id="scalez-value">0</span>
+      </div>
+
+      <div>
+        <label for="bias-slider">Pointiness - bias:</label>
+        <input
+          type="range"
+          id="bias-slider"
+          min="0"
+          max="1"
+          value="0.5"
+          step="0.01"
+        />
+        <span id="bias-value">0</span>
+      </div>
+
+      <div>
+        <label for="flatness-slider">Flatten End - flatness:</label>
+        <input
+          type="range"
+          id="flatness-slider"
+          min="0"
+          max="1"
+          value="0"
+          step="0.01"
+        />
+        <span id="flatness-value">0</span>
+      </div>
+
+      <div>
+        <label for="asymmetry-slider">Flatten Side - asymmetry:</label>
+        <input
+          type="range"
+          id="asymmetry-slider"
+          min="0"
+          max="1"
+          value="0"
+          step="0.01"
+        />
+        <span id="asymmetry-value">0</span>
+      </div>
+
+      <div>
+        <label for="cubosity-slider">Squareness - Cubosity:</label>
+        <input
+          type="range"
+          id="cubosity-slider"
+          min="0"
+          max="1"
+          value="0"
+          step="0.01"
+        />
+        <span id="cubosity-value">0</span>
+      </div>
+
+
+      <div>
+        <label for="theta-slider">Up / Down - Theta:</label>
+        <input
+          type="range"
+          id="theta-slider"
+          min="-90"
+          max="90"
+          value="0"
+          step="0.01"
+        />
+        <span id="theta-value">0</span>
+      </div>
+      <div>
+        <label for="phi-slider">Left / Right - Phi:</label>
+        <input
+          type="range"
+          id="phi-slider"
+          min="-180"
+          max="180"
+          value="0"
+          step="0.01"
+        />
+        <span id="phi-value">0</span>
+      </div>  
+      <div>
+        <label for="roll-slider">Twist - Roll:</label>
+        <input
+          type="range"
+          id="roll-slider"
+          min="-180"
+          max="180"
+          value="0"
+          step="0.01"
+        />
+        <span id="roll-value">0</span>
+      </div>
+      <div>
+        <label for="pitch-slider">Up / Down - Pitch:</label>
+        <input
+          type="range"
+          id="pitch-slider"
+          min="-180"
+          max="180"
+          value="0"
+          step="0.01"
+        />
+        <span id="pitch-value">0</span>
+      </div>
+      <div>
+        <label for="yaw-slider">Left / Right - Yaw:</label>
+        <input
+          type="range"
+          id="yaw-slider"
+          min="-180"
+          max="180"
+          value="0"
+          step="0.01"
+        />
+        <span id="yaw-value">0</span>
+      </div>
+      
+      <button id="recalc" type="button">Recalc</button>
+
+    </div>
+
+    <!-- Vite will transform this into a module import of /src/main.ts -->
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

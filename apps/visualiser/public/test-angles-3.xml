@@ -1,0 +1,592 @@
+	<genome >
+		<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" damping = "0" flatness = "0" leg_phase = "0" max_spine_angle = "45" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "1" moveable = "false" muscle_damping = "10000" muscle_stiffness = "10000" name = "Head" partId = "1" phi = "0" pitch = "0" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1866" texture = "arrow.bmp" theta = "0" turn_sharpness = "0.25" turn_smoothness = "0.5" yaw = "0" zook_speed = "0.5" >
+			<attribute_groups >
+				<attribute_group name = "Shape" >
+				</attribute_group> 
+				<attribute_group name = "Master IK Control" >
+				</attribute_group> 
+				<attribute_group name = "Colour" >
+				</attribute_group> 
+			</attribute_groups> 
+			<modifications >
+				<modifier owner_uid = "0D800700" username = "Anonymous::ZookOwner" zookname = "TestZook" >
+					<CREATIVE_MOD >
+					</CREATIVE_MOD> 
+					<PHYSICAL_MOD >
+					</PHYSICAL_MOD> 
+				</modifier> 
+			</modifications> 
+			<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "2" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "2" phi = "0.001" pitch = "0" posx = "2.979455894092098e-005" posy = "1.707106828689575" posz = "1.707106709480286" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1867" texture = "arrow.bmp" theta = "-45" yaw = "0" >
+				<cardanconnector >
+				</cardanconnector> 
+				<attribute_groups >
+					<attribute_group name = "Shape" >
+					</attribute_group> 
+					<attribute_group name = "Position" >
+					</attribute_group> 
+					<attribute_group name = "Joint" >
+					</attribute_group> 
+					<attribute_group name = "Colour" >
+					</attribute_group> 
+					<attribute_group name = "IK Control" >
+					</attribute_group> 
+				</attribute_groups> 
+				<modifications >
+					<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+						<CREATIVE_MOD >
+						</CREATIVE_MOD> 
+						<PHYSICAL_MOD >
+						</PHYSICAL_MOD> 
+						<COSMETIC_MOD >
+						</COSMETIC_MOD> 
+					</modifier> 
+				</modifications> 
+				<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "3" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "3" phi = "0.001" pitch = "0" posx = "2.979464261443354e-005" posy = "1.707108974456787" posz = "1.707108616828919" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1868" texture = "arrow.bmp" theta = "-45" yaw = "0" >
+					<cardanconnector >
+					</cardanconnector> 
+					<attribute_groups >
+						<attribute_group name = "Shape" >
+						</attribute_group> 
+						<attribute_group name = "Position" >
+						</attribute_group> 
+						<attribute_group name = "Joint" >
+						</attribute_group> 
+						<attribute_group name = "Colour" >
+						</attribute_group> 
+						<attribute_group name = "IK Control" >
+						</attribute_group> 
+					</attribute_groups> 
+					<modifications >
+						<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+							<CREATIVE_MOD >
+							</CREATIVE_MOD> 
+							<PHYSICAL_MOD >
+							</PHYSICAL_MOD> 
+							<COSMETIC_MOD >
+							</COSMETIC_MOD> 
+						</modifier> 
+					</modifications> 
+					<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "4" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "4" phi = "0.001" pitch = "0" posx = "2.979458804475144e-005" posy = "1.707105278968811" posz = "1.707106709480286" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1869" texture = "arrow.bmp" theta = "-45" yaw = "0" >
+						<cardanconnector >
+						</cardanconnector> 
+						<attribute_groups >
+							<attribute_group name = "Shape" >
+							</attribute_group> 
+							<attribute_group name = "Position" >
+							</attribute_group> 
+							<attribute_group name = "Joint" >
+							</attribute_group> 
+							<attribute_group name = "Colour" >
+							</attribute_group> 
+							<attribute_group name = "IK Control" >
+							</attribute_group> 
+						</attribute_groups> 
+						<modifications >
+							<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+								<CREATIVE_MOD >
+								</CREATIVE_MOD> 
+								<PHYSICAL_MOD >
+								</PHYSICAL_MOD> 
+								<COSMETIC_MOD >
+								</COSMETIC_MOD> 
+							</modifier> 
+						</modifications> 
+						<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "5" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "5" phi = "0.001" pitch = "0" posx = "2.979467535624281e-005" posy = "1.707108736038208" posz = "1.707107663154602" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1870" texture = "arrow.bmp" theta = "-45" yaw = "0" >
+							<cardanconnector >
+							</cardanconnector> 
+							<attribute_groups >
+								<attribute_group name = "Shape" >
+								</attribute_group> 
+								<attribute_group name = "Position" >
+								</attribute_group> 
+								<attribute_group name = "Joint" >
+								</attribute_group> 
+								<attribute_group name = "Colour" >
+								</attribute_group> 
+								<attribute_group name = "IK Control" >
+								</attribute_group> 
+							</attribute_groups> 
+							<modifications >
+								<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+									<CREATIVE_MOD >
+									</CREATIVE_MOD> 
+									<PHYSICAL_MOD >
+									</PHYSICAL_MOD> 
+									<COSMETIC_MOD >
+									</COSMETIC_MOD> 
+								</modifier> 
+							</modifications> 
+							<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "6" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "6" phi = "0.001" pitch = "0" posx = "2.979458804475144e-005" posy = "1.707104921340942" posz = "1.707107186317444" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1871" texture = "arrow.bmp" theta = "-45" yaw = "0" >
+								<cardanconnector >
+								</cardanconnector> 
+								<attribute_groups >
+									<attribute_group name = "Shape" >
+									</attribute_group> 
+									<attribute_group name = "Position" >
+									</attribute_group> 
+									<attribute_group name = "Joint" >
+									</attribute_group> 
+									<attribute_group name = "Colour" >
+									</attribute_group> 
+									<attribute_group name = "IK Control" >
+									</attribute_group> 
+								</attribute_groups> 
+								<modifications >
+									<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+										<CREATIVE_MOD >
+										</CREATIVE_MOD> 
+										<PHYSICAL_MOD >
+										</PHYSICAL_MOD> 
+										<COSMETIC_MOD >
+										</COSMETIC_MOD> 
+									</modifier> 
+								</modifications> 
+								<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "7" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "7" phi = "0.001" pitch = "0" posx = "2.979502460220829e-005" posy = "1.707107782363892" posz = "1.707107663154602" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1872" texture = "arrow.bmp" theta = "-45" yaw = "0" >
+									<cardanconnector >
+									</cardanconnector> 
+									<attribute_groups >
+										<attribute_group name = "Shape" >
+										</attribute_group> 
+										<attribute_group name = "Position" >
+										</attribute_group> 
+										<attribute_group name = "Joint" >
+										</attribute_group> 
+										<attribute_group name = "Colour" >
+										</attribute_group> 
+										<attribute_group name = "IK Control" >
+										</attribute_group> 
+									</attribute_groups> 
+									<modifications >
+										<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+											<CREATIVE_MOD >
+											</CREATIVE_MOD> 
+											<PHYSICAL_MOD >
+											</PHYSICAL_MOD> 
+											<COSMETIC_MOD >
+											</COSMETIC_MOD> 
+										</modifier> 
+									</modifications> 
+									<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "8" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "8" phi = "0.001" pitch = "0" posx = "2.979464625241235e-005" posy = "1.707103252410889" posz = "1.707107186317444" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1873" texture = "arrow.bmp" theta = "-45" yaw = "0" >
+										<cardanconnector >
+										</cardanconnector> 
+										<attribute_groups >
+											<attribute_group name = "Shape" >
+											</attribute_group> 
+											<attribute_group name = "Position" >
+											</attribute_group> 
+											<attribute_group name = "Joint" >
+											</attribute_group> 
+											<attribute_group name = "Colour" >
+											</attribute_group> 
+											<attribute_group name = "IK Control" >
+											</attribute_group> 
+										</attribute_groups> 
+										<modifications >
+											<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+												<CREATIVE_MOD >
+												</CREATIVE_MOD> 
+												<PHYSICAL_MOD >
+												</PHYSICAL_MOD> 
+												<COSMETIC_MOD >
+												</COSMETIC_MOD> 
+											</modifier> 
+										</modifications> 
+									</bodysolid> 
+								</bodysolid> 
+							</bodysolid> 
+						</bodysolid> 
+					</bodysolid> 
+				</bodysolid> 
+			</bodysolid> 
+			<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "9" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "9" phi = "45" pitch = "0" posx = "1.707106828689575" posy = "0" posz = "1.707106709480286" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1874" texture = "chequer.bmp" theta = "0" yaw = "0" >
+				<cardanconnector >
+				</cardanconnector> 
+				<attribute_groups >
+					<attribute_group name = "Shape" >
+					</attribute_group> 
+					<attribute_group name = "Position" >
+					</attribute_group> 
+					<attribute_group name = "Joint" >
+					</attribute_group> 
+					<attribute_group name = "Colour" >
+					</attribute_group> 
+					<attribute_group name = "IK Control" >
+					</attribute_group> 
+				</attribute_groups> 
+				<modifications >
+					<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+						<CREATIVE_MOD >
+						</CREATIVE_MOD> 
+						<PHYSICAL_MOD >
+						</PHYSICAL_MOD> 
+						<COSMETIC_MOD >
+						</COSMETIC_MOD> 
+					</modifier> 
+				</modifications> 
+				<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "10" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "10" phi = "45" pitch = "0" posx = "1.707108616828919" posy = "0" posz = "1.70710813999176" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1875" texture = "chequer.bmp" theta = "0" yaw = "0" >
+					<cardanconnector >
+					</cardanconnector> 
+					<attribute_groups >
+						<attribute_group name = "Shape" >
+						</attribute_group> 
+						<attribute_group name = "Position" >
+						</attribute_group> 
+						<attribute_group name = "Joint" >
+						</attribute_group> 
+						<attribute_group name = "Colour" >
+						</attribute_group> 
+						<attribute_group name = "IK Control" >
+						</attribute_group> 
+					</attribute_groups> 
+					<modifications >
+						<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+							<CREATIVE_MOD >
+							</CREATIVE_MOD> 
+							<PHYSICAL_MOD >
+							</PHYSICAL_MOD> 
+							<COSMETIC_MOD >
+							</COSMETIC_MOD> 
+						</modifier> 
+					</modifications> 
+					<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "11" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "11" phi = "45" pitch = "0" posx = "1.707105278968811" posy = "0" posz = "1.707107186317444" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1876" texture = "chequer.bmp" theta = "0" yaw = "0" >
+						<cardanconnector >
+						</cardanconnector> 
+						<attribute_groups >
+							<attribute_group name = "Shape" >
+							</attribute_group> 
+							<attribute_group name = "Position" >
+							</attribute_group> 
+							<attribute_group name = "Joint" >
+							</attribute_group> 
+							<attribute_group name = "Colour" >
+							</attribute_group> 
+							<attribute_group name = "IK Control" >
+							</attribute_group> 
+						</attribute_groups> 
+						<modifications >
+							<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+								<CREATIVE_MOD >
+								</CREATIVE_MOD> 
+								<PHYSICAL_MOD >
+								</PHYSICAL_MOD> 
+								<COSMETIC_MOD >
+								</COSMETIC_MOD> 
+							</modifier> 
+						</modifications> 
+						<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "12" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "12" phi = "45" pitch = "0" posx = "1.707108497619629" posy = "0" posz = "1.707108616828919" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1877" texture = "chequer.bmp" theta = "0" yaw = "0" >
+							<cardanconnector >
+							</cardanconnector> 
+							<attribute_groups >
+								<attribute_group name = "Shape" >
+								</attribute_group> 
+								<attribute_group name = "Position" >
+								</attribute_group> 
+								<attribute_group name = "Joint" >
+								</attribute_group> 
+								<attribute_group name = "Colour" >
+								</attribute_group> 
+								<attribute_group name = "IK Control" >
+								</attribute_group> 
+							</attribute_groups> 
+							<modifications >
+								<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+									<CREATIVE_MOD >
+									</CREATIVE_MOD> 
+									<PHYSICAL_MOD >
+									</PHYSICAL_MOD> 
+									<COSMETIC_MOD >
+									</COSMETIC_MOD> 
+								</modifier> 
+							</modifications> 
+							<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "13" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "13" phi = "45" pitch = "0" posx = "1.707104921340942" posy = "0" posz = "1.707106947898865" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1878" texture = "chequer.bmp" theta = "0" yaw = "0" >
+								<cardanconnector >
+								</cardanconnector> 
+								<attribute_groups >
+									<attribute_group name = "Shape" >
+									</attribute_group> 
+									<attribute_group name = "Position" >
+									</attribute_group> 
+									<attribute_group name = "Joint" >
+									</attribute_group> 
+									<attribute_group name = "Colour" >
+									</attribute_group> 
+									<attribute_group name = "IK Control" >
+									</attribute_group> 
+								</attribute_groups> 
+								<modifications >
+									<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+										<CREATIVE_MOD >
+										</CREATIVE_MOD> 
+										<PHYSICAL_MOD >
+										</PHYSICAL_MOD> 
+										<COSMETIC_MOD >
+										</COSMETIC_MOD> 
+									</modifier> 
+								</modifications> 
+								<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "14" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "14" phi = "45" pitch = "0" posx = "1.707108736038208" posy = "0" posz = "1.707108020782471" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1879" texture = "chequer.bmp" theta = "0" yaw = "0" >
+									<cardanconnector >
+									</cardanconnector> 
+									<attribute_groups >
+										<attribute_group name = "Shape" >
+										</attribute_group> 
+										<attribute_group name = "Position" >
+										</attribute_group> 
+										<attribute_group name = "Joint" >
+										</attribute_group> 
+										<attribute_group name = "Colour" >
+										</attribute_group> 
+										<attribute_group name = "IK Control" >
+										</attribute_group> 
+									</attribute_groups> 
+									<modifications >
+										<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+											<CREATIVE_MOD >
+											</CREATIVE_MOD> 
+											<PHYSICAL_MOD >
+											</PHYSICAL_MOD> 
+											<COSMETIC_MOD >
+											</COSMETIC_MOD> 
+										</modifier> 
+									</modifications> 
+									<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "15" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "15" phi = "45" pitch = "0" posx = "1.707103252410889" posy = "0" posz = "1.707107424736023" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1880" texture = "chequer.bmp" theta = "0" yaw = "0" >
+										<cardanconnector >
+										</cardanconnector> 
+										<attribute_groups >
+											<attribute_group name = "Shape" >
+											</attribute_group> 
+											<attribute_group name = "Position" >
+											</attribute_group> 
+											<attribute_group name = "Joint" >
+											</attribute_group> 
+											<attribute_group name = "Colour" >
+											</attribute_group> 
+											<attribute_group name = "IK Control" >
+											</attribute_group> 
+										</attribute_groups> 
+										<modifications >
+											<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+												<CREATIVE_MOD >
+												</CREATIVE_MOD> 
+												<PHYSICAL_MOD >
+												</PHYSICAL_MOD> 
+												<COSMETIC_MOD >
+												</COSMETIC_MOD> 
+											</modifier> 
+										</modifications> 
+									</bodysolid> 
+								</bodysolid> 
+							</bodysolid> 
+						</bodysolid> 
+					</bodysolid> 
+				</bodysolid> 
+			</bodysolid> 
+			<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "16" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "16" phi = "-90" pitch = "0" posx = "-2" posy = "0" posz = "-3.258402898609347e-007" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1881" texture = "diffract.bmp" theta = "0" yaw = "0" >
+				<cardanconnector >
+				</cardanconnector> 
+				<attribute_groups >
+					<attribute_group name = "Shape" >
+					</attribute_group> 
+					<attribute_group name = "Position" >
+					</attribute_group> 
+					<attribute_group name = "Joint" >
+					</attribute_group> 
+					<attribute_group name = "Colour" >
+					</attribute_group> 
+					<attribute_group name = "IK Control" >
+					</attribute_group> 
+				</attribute_groups> 
+				<modifications >
+					<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+						<CREATIVE_MOD >
+						</CREATIVE_MOD> 
+						<PHYSICAL_MOD >
+						</PHYSICAL_MOD> 
+						<COSMETIC_MOD >
+						</COSMETIC_MOD> 
+					</modifier> 
+				</modifications> 
+				<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "18" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "18" phi = "0.001" pitch = "0" posx = "0.7071366310119629" posy = "0" posz = "1.707109689712524" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1883" texture = "diffract.bmp" theta = "0" yaw = "45" >
+					<cardanconnector >
+					</cardanconnector> 
+					<attribute_groups >
+						<attribute_group name = "Shape" >
+						</attribute_group> 
+						<attribute_group name = "Position" >
+						</attribute_group> 
+						<attribute_group name = "Joint" >
+						</attribute_group> 
+						<attribute_group name = "Colour" >
+						</attribute_group> 
+						<attribute_group name = "IK Control" >
+						</attribute_group> 
+					</attribute_groups> 
+					<modifications >
+						<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+							<CREATIVE_MOD >
+							</CREATIVE_MOD> 
+							<PHYSICAL_MOD >
+							</PHYSICAL_MOD> 
+							<COSMETIC_MOD >
+							</COSMETIC_MOD> 
+						</modifier> 
+					</modifications> 
+					<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "19" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "19" phi = "0.001" pitch = "0" posx = "0.7071372866630554" posy = "0" posz = "1.707105875015259" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1884" texture = "diffract.bmp" theta = "0" yaw = "45" >
+						<cardanconnector >
+						</cardanconnector> 
+						<attribute_groups >
+							<attribute_group name = "Shape" >
+							</attribute_group> 
+							<attribute_group name = "Position" >
+							</attribute_group> 
+							<attribute_group name = "Joint" >
+							</attribute_group> 
+							<attribute_group name = "Colour" >
+							</attribute_group> 
+							<attribute_group name = "IK Control" >
+							</attribute_group> 
+						</attribute_groups> 
+						<modifications >
+							<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+								<CREATIVE_MOD >
+								</CREATIVE_MOD> 
+								<PHYSICAL_MOD >
+								</PHYSICAL_MOD> 
+								<COSMETIC_MOD >
+								</COSMETIC_MOD> 
+							</modifier> 
+						</modifications> 
+						<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "22" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "22" phi = "0.001" pitch = "0" posx = "0.7071368098258972" posy = "0" posz = "1.707109689712524" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1887" texture = "diffract.bmp" theta = "0" yaw = "45" >
+							<cardanconnector >
+							</cardanconnector> 
+							<attribute_groups >
+								<attribute_group name = "Shape" >
+								</attribute_group> 
+								<attribute_group name = "Position" >
+								</attribute_group> 
+								<attribute_group name = "Joint" >
+								</attribute_group> 
+								<attribute_group name = "Colour" >
+								</attribute_group> 
+								<attribute_group name = "IK Control" >
+								</attribute_group> 
+							</attribute_groups> 
+							<modifications >
+								<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+									<CREATIVE_MOD >
+									</CREATIVE_MOD> 
+									<PHYSICAL_MOD >
+									</PHYSICAL_MOD> 
+									<COSMETIC_MOD >
+									</COSMETIC_MOD> 
+								</modifier> 
+							</modifications> 
+							<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "23" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "23" phi = "0.001" pitch = "0" posx = "0.707136332988739" posy = "0" posz = "1.707088470458984" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1888" texture = "diffract.bmp" theta = "0" yaw = "45" >
+								<cardanconnector >
+								</cardanconnector> 
+								<attribute_groups >
+									<attribute_group name = "Shape" >
+									</attribute_group> 
+									<attribute_group name = "Position" >
+									</attribute_group> 
+									<attribute_group name = "Joint" >
+									</attribute_group> 
+									<attribute_group name = "Colour" >
+									</attribute_group> 
+									<attribute_group name = "IK Control" >
+									</attribute_group> 
+								</attribute_groups> 
+								<modifications >
+									<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+										<CREATIVE_MOD >
+										</CREATIVE_MOD> 
+										<PHYSICAL_MOD >
+										</PHYSICAL_MOD> 
+										<COSMETIC_MOD >
+										</COSMETIC_MOD> 
+									</modifier> 
+								</modifications> 
+								<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "24" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "24" phi = "0.001" pitch = "0" posx = "0.7071368098258972" posy = "0" posz = "1.707109689712524" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1889" texture = "diffract.bmp" theta = "0" yaw = "45" >
+									<cardanconnector >
+									</cardanconnector> 
+									<attribute_groups >
+										<attribute_group name = "Shape" >
+										</attribute_group> 
+										<attribute_group name = "Position" >
+										</attribute_group> 
+										<attribute_group name = "Joint" >
+										</attribute_group> 
+										<attribute_group name = "Colour" >
+										</attribute_group> 
+										<attribute_group name = "IK Control" >
+										</attribute_group> 
+									</attribute_groups> 
+									<modifications >
+										<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+											<CREATIVE_MOD >
+											</CREATIVE_MOD> 
+											<PHYSICAL_MOD >
+											</PHYSICAL_MOD> 
+											<COSMETIC_MOD >
+											</COSMETIC_MOD> 
+										</modifier> 
+									</modifications> 
+									<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "25" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "25" phi = "0.001" pitch = "0" posx = "0.7071239352226257" posy = "0" posz = "1.707103490829468" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1890" texture = "diffract.bmp" theta = "0" yaw = "45" >
+										<cardanconnector >
+										</cardanconnector> 
+										<attribute_groups >
+											<attribute_group name = "Shape" >
+											</attribute_group> 
+											<attribute_group name = "Position" >
+											</attribute_group> 
+											<attribute_group name = "Joint" >
+											</attribute_group> 
+											<attribute_group name = "Colour" >
+											</attribute_group> 
+											<attribute_group name = "IK Control" >
+											</attribute_group> 
+										</attribute_groups> 
+										<modifications >
+											<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+												<CREATIVE_MOD >
+												</CREATIVE_MOD> 
+												<PHYSICAL_MOD >
+												</PHYSICAL_MOD> 
+												<COSMETIC_MOD >
+												</COSMETIC_MOD> 
+											</modifier> 
+										</modifications> 
+									</bodysolid> 
+								</bodysolid> 
+							</bodysolid> 
+						</bodysolid> 
+					</bodysolid> 
+				</bodysolid> 
+			</bodysolid> 
+			<bodysolid asymmetry = "0" bias = "0.5" brightness = "1" colour = "0" colour_blue = "1" colour_green = "1" colour_red = "1" cubosity = "1" flatness = "0" leg_phase = "0" max_spine_angle = "30" mesh = "Blob" min_spine_target_angle = "180" mirror_group = "27" muscle_damping = "5000" muscle_stiffness = "5000" name = "" partId = "27" phi = "0.001" pitch = "45" posx = "-2.728484105318785e-012" posy = "-0.9999999403953552" posz = "-1.490116119384766e-007" powered = "true" roll = "0" scalex = "2" scaley = "2" scalez = "2" segment = "1892" texture = "snakescales2.bmp" theta = "45" yaw = "0" >
+				<cardanconnector >
+				</cardanconnector> 
+				<attribute_groups >
+					<attribute_group name = "Shape" >
+					</attribute_group> 
+					<attribute_group name = "Position" >
+					</attribute_group> 
+					<attribute_group name = "Joint" >
+					</attribute_group> 
+					<attribute_group name = "Colour" >
+					</attribute_group> 
+					<attribute_group name = "IK Control" >
+					</attribute_group> 
+				</attribute_groups> 
+				<modifications >
+					<modifier owner_uid = "9F8ED996" username = "Anonymous::ZookOwner" zookname = "12" >
+						<CREATIVE_MOD >
+						</CREATIVE_MOD> 
+						<PHYSICAL_MOD >
+						</PHYSICAL_MOD> 
+						<COSMETIC_MOD >
+						</COSMETIC_MOD> 
+					</modifier> 
+				</modifications> 
+			</bodysolid> 
+		</bodysolid> 
+	</genome> 

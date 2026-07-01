@@ -42,13 +42,26 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Install dependencies
+      - name: Install web dependencies
         working-directory: apps/web
         run: yarn install --frozen-lockfile
 
-      - name: Build
+      - name: Install visualiser dependencies
+        working-directory: apps/visualiser
+        run: yarn install --frozen-lockfile
+
+      - name: Build web
         working-directory: apps/web
         run: yarn build
+
+      - name: Build visualiser
+        working-directory: apps/visualiser
+        run: yarn build
+
+      - name: Copy visualiser into web build
+        run: |
+          cp apps/visualiser/dist/index.html apps/web/build/visualiser.html
+          rsync -a --exclude='index.html' apps/visualiser/dist/ apps/web/build/
 
       - name: Deploy to Netlify
         working-directory: apps/web

@@ -1,0 +1,32 @@
+{
+  "name": "zook-visualiser",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A 3D viewer for genomic data using three.js and Vite.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "lint": "eslint 'src/**/*.ts'"
+  },
+  "dependencies": {
+    "decimal.js": "^10.5.0",
+    "stats.js": "^0.17.0",
+    "three": "^0.177.0"
+  },
+  "devDependencies": {
+    "@types/stats.js": "^0",
+    "@types/three": "^0.177.0",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "eslint": "^9.30.1",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-checker": "^0.9.3",
+    "vite-plugin-eslint": "^1.8.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "yarn@4.1.1+sha512.ec40d0639bb307441b945d9467139cbb88d14394baac760b52eca038b330d16542d66fef61574271534ace5a200518dabf3b53a85f1f9e4bfa37141b538a9590"
+}
