@@ -19,7 +19,7 @@
     "cors": "https://deno.land/x/cors@v1.2.2/mod.ts",
     "kysely": "npm:kysely@^0.28.7",
     "pg": "npm:pg@^8.22.0",
-    "oak": "https://deno.land/x/oak@v13.2.5/mod.ts",
+    "oak": "https://deno.land/x/oak@v17.2.0/mod.ts",
     "postgres": "https://deno.land/x/postgres@v0.19.3/mod.ts",
     "oak-middleware-jwt": "https://deno.land/x/oak_middleware_jwt@2.2.2/mod.ts",
     "blowfish": "https://deno.land/x/crypto@v0.11.0/blowfish.ts",
