@@ -51,24 +51,41 @@ async function hexToPng(hex: string, width: number, height: number) {
   return buffer
 }
 
-const keyStringHex = Deno.env.get("ZOOK_CORE_KEY")
-if (!keyStringHex) {
-  throw new Error("ZOOK_CORE_KEY environment variable is not set")
+// These are resolved lazily so a missing/rotated env var fails the specific
+// request (and is reported by the error handler) instead of crashing the whole
+// API during module evaluation.
+let _blowfish: Ecb | undefined
+function getBlowfish(): Ecb {
+  if (!_blowfish) {
+    const keyStringHex = Deno.env.get("ZOOK_CORE_KEY")
+    if (!keyStringHex) {
+      throw new Error("ZOOK_CORE_KEY environment variable is not set")
+    }
+    const key = decodeHex(keyStringHex.replaceAll(" ", ""))
+    _blowfish = new Ecb(Blowfish, key)
+  }
+  return _blowfish
 }
-const key = decodeHex(keyStringHex.replaceAll(" ", ""))
-const blowfish = new Ecb(Blowfish, key)
 
-const headerStringHex = Deno.env.get("ZOOK_CORE_HEADER")
-if (!headerStringHex) {
-  throw new Error("ZOOK_CORE_HEADER environment variable is not set")
+let _header: Uint8Array | undefined
+function getHeader(): Uint8Array {
+  if (!_header) {
+    const headerStringHex = Deno.env.get("ZOOK_CORE_HEADER")
+    if (!headerStringHex) {
+      throw new Error("ZOOK_CORE_HEADER environment variable is not set")
+    }
+    _header = decodeHex(headerStringHex.replaceAll(" ", ""))
+  }
+  return _header
 }
-const header = decodeHex(headerStringHex.replaceAll(" ", ""))
 
-const maybeDiscordWebhook = Deno.env.get("DISCORD_WEBHOOK")
-if (!maybeDiscordWebhook) {
-  throw new Error("DISCORD_WEBHOOK environment variable is not set")
+function getDiscordWebhook(): string {
+  const maybeDiscordWebhook = Deno.env.get("DISCORD_WEBHOOK")
+  if (!maybeDiscordWebhook) {
+    throw new Error("DISCORD_WEBHOOK environment variable is not set")
+  }
+  return maybeDiscordWebhook
 }
-const discordWebhook = maybeDiscordWebhook
 
 const zook = "zook"
 const zookExt = `.${zook}`
@@ -127,6 +144,7 @@ export const decodeZook = (
   context: Context,
   zookBytesCleaned: Uint8Array,
 ): string | undefined => {
+  const header = getHeader()
   if (
     !zookBytesCleaned
       .slice(0, header.length)
@@ -141,7 +159,7 @@ export const decodeZook = (
   const zookBytesDroppedHeader = zookBytesCleaned.slice(header.length)
 
   // Decrypt using Blowfish
-  const zookBytesDecrypted = blowfish.decrypt(zookBytesDroppedHeader)
+  const zookBytesDecrypted = getBlowfish().decrypt(zookBytesDroppedHeader)
 
   // Unzip
   const zookBytesDecompressed = gunzip(zookBytesDecrypted)
@@ -272,7 +290,7 @@ export default async (context: Context) => {
       authUser,
       zookId,
       pngBytes,
-      discordWebhook,
+      getDiscordWebhook(),
     )
 
     if (Deno.env.get("RECALCULATE_LEAGUES_ON_UPLOAD") !== "false") {

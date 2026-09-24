@@ -3,6 +3,7 @@ import { oakCors } from "cors"
 import router from "./routes.ts"
 import _404 from "./controllers/404.ts"
 import errorHandler from "./controllers/errorHandler.ts"
+import { logStartupDiagnostics, requestLogger } from "./logging.ts"
 
 const app = new Application()
 
@@ -10,6 +11,9 @@ const app = new Application()
 // Defaults to production so deployed behaviour is unchanged when unset.
 const corsOrigin = Deno.env.get("CORS_ORIGIN") ?? "https://zooklabs.com"
 
+// Request tracing is the outermost middleware so it always logs the final
+// status/duration; the error handler sits just inside it and reports failures.
+app.use(requestLogger)
 app.use(errorHandler)
 app.use(oakCors({ origin: corsOrigin, credentials: true }))
 
@@ -31,23 +35,25 @@ app.use(_404)
 
 const port = parseInt(Deno.env.get("APP_PORT") || "8000")
 
-console.log("[startup] config:")
-// console.log(`  APP_PORT       = ${Deno.env.get("APP_PORT") ?? "(unset → 8000)"}`)
-// console.log(`  CORS_ORIGIN    = ${corsOrigin}`)
-// console.log(`  PGHOST         = ${Deno.env.get("PGHOST") ?? "(unset → localhost)"}`)
-// console.log(`  PGPORT         = ${Deno.env.get("PGPORT") ?? "(unset → 5432)"}`)
-// console.log(`  PGUSER         = ${Deno.env.get("PGUSER") ?? "(unset → Bernard)"}`)
-// console.log(`  PGDATABASE     = ${Deno.env.get("PGDATABASE") ?? "(unset → zooklabs)"}`)
-// console.log(`  PGPASSWORD     = ${Deno.env.get("PGPASSWORD") ? "***set***" : "(unset → Nosey)"}`)
-// console.log(`  PGCA           = ${Deno.env.get("PGCA") ?? "(unset → no TLS)"}`)
-// console.log(`  USE_LOCAL_PERSISTENCE = ${Deno.env.get("USE_LOCAL_PERSISTENCE") ?? "(unset)"}`)
-console.log(`  RECALCULATE_LEAGUES_ON_UPLOAD = ${Deno.env.get("RECALCULATE_LEAGUES_ON_UPLOAD") ?? "(unset → enabled)"}`)
+logStartupDiagnostics()
 console.log(`Listening on port:${port}...`)
 
 Deno.serve(
   { port },
-  async (request, info) => {
-    const res = await app.handle(request, info.remoteAddr)
-    return res ?? Response.error()
+  async (request) => {
+    try {
+      const res = await app.handle(request)
+      return res ?? Response.error()
+    } catch (err) {
+      // app.handle() can throw before the error handler runs (e.g. when the
+      // request/connection info is malformed). Log it so it is not silent.
+      console.error("[fatal] request handling failed:")
+      if (err instanceof Error && err.stack) {
+        console.error(err.stack)
+      } else {
+        console.error(err)
+      }
+      return new Response("Internal Server Error", { status: 500 })
+    }
   },
 )
