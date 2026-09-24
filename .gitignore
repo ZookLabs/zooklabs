@@ -6,3 +6,4 @@ node_modules
 /.vite
 .yarn
 dist
+/graphify-out
