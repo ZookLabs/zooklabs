@@ -7,7 +7,7 @@ class AutoTrialsRepo {
     async getAutoTrialResults(zookId: number): Promise<AutoTrialResults | undefined> {
         return await db.selectFrom("auto_trial_results")
             .selectAll()
-            .where("zookId", "=", zookId)
+            .where("zookid", "=", zookId)
             .executeTakeFirst();
     }
 
@@ -15,7 +15,7 @@ class AutoTrialsRepo {
         await db.insertInto("auto_trial_results")
             .values(results)
             .onConflict((oc) => oc
-                .column("zookId")
+                .column("zookid")
                 .doUpdateSet({
                     sprint: results.sprint,
                     blockPush: results.blockPush,
