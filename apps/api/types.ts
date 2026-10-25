@@ -60,6 +60,16 @@ export interface UserEntity {
   lastLoginAt: Date
 }
 
+// The table's key column is `zookid`; this is the shape used everywhere else.
+export interface AutoTrialResultsEntity {
+  zookId: number
+  sprint: number
+  blockPush: number
+  hurdles: number
+  highJump: number
+  lap: number
+}
+
 export interface AuthUser {
   id: number
   username?: string

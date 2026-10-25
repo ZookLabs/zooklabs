@@ -118,7 +118,7 @@ export interface DatabaseSchema extends TrialTables {
 }
 
 export interface AutoTrialResults {
-  zookId: number
+  zookid: number
   sprint: number
   blockPush: number
   hurdles: number
